@@ -353,7 +353,12 @@ func (db *BlockDB) writeOne() (written bool) {
 
 	rec.datfileidx = db.maxdatfileidx
 	rec.fpos = uint64(db.maxdatfilepos)
-	fl[0] |= BLOCK_COMPRSD | BLOCK_SNAPPED // gzip compression is deprecated
+	if rec.compressed {
+		fl[0] |= BLOCK_COMPRSD
+	}
+	if rec.snappied {
+		fl[0] |= BLOCK_SNAPPED
+	}
 	if rec.trusted {
 		fl[0] |= BLOCK_TRUSTED
 	}
