@@ -175,8 +175,7 @@ func print_record(sl []byte) {
 		" - ", binary.LittleEndian.Uint32(sl[48:52]), "bytes @",
 		binary.LittleEndian.Uint64(sl[40:48]), "in", dat_fname(dat_idx))
 	fmt.Print("     Flags: ", fmt.Sprintf("0x%02x", sl[0]), "   ")
-	var flags_desc = []string{"TRUST", "INVAL", "COMPR", "SNAPY", "LNGTH", "INDEX"}
-	for i, s := range flags_desc {
+	for i, s := range []string{"TRUST", "INVAL", "COMPR", "SNAPY", "LNGTH", "INDEX"} {
 		if (sl[0] & (1 << i)) != 0 {
 			fmt.Print("  ", s)
 		}
