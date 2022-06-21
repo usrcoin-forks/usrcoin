@@ -98,6 +98,7 @@ var (
 			DataFilesKeep        uint32 // 0 for all
 			OldDataBackup        bool   // move old dat files to "oldat/" folder (instead of removing them)
 			PurgeUnspendableUTXO bool
+			CompressBlockDB      bool
 		}
 		AllBalances struct {
 			MinValue  uint64 // Do not keep balance records for values lower than this
@@ -172,6 +173,7 @@ func InitConfig() {
 	CFG.Memory.MaxCachedBlks = 200
 	CFG.Memory.CacheOnDisk = true
 	CFG.Memory.MaxDataFileMB = 1000 // max 1GB per single data file
+	CFG.Memory.CompressBlockDB = true
 
 	CFG.Stat.HashrateHrs = 12
 	CFG.Stat.MiningHrs = 24
