@@ -314,7 +314,8 @@ Disabling this will make your node to require more RAM, but may be necessary for
     <td> true</td>
     <td class="cfg_info"> Compress blocks before saving them to disk.<br>
     It uses a fast <b>snappy</b> compression, saving about 20% of space used by blocks database.<br>
-    Turning it off may slightly improve performance, especialy during initial chain sync.
+    In theory turning it off could improve performance of initial chain sync,
+    but this has not been observed in real life.
     </td>
 </tr>
 <tr class="odd">
@@ -405,7 +406,16 @@ New block arriving within this period will abort and restart the saving process.
 Note that setting this value too low may make your system sluggish while the database is being written.
 At the other hand, setting it too high may make the saving process unable to complete for long periods of time.</td>
 </tr>
-
+<tr class="even">
+<td class="cfg_name"> UTXOSave.CompressRecords</td>
+<td class="cfg_type"> bool</td>
+<td> false</td>
+<td class="cfg_info"> Compress UTXO records when creating a new UTXO.db file.<br>
+Note that this option is only looked at when a new UTXO.db file is created, which is
+either when you start your node for the first time or when you force UTXO rebuild with <b>-r</b> switch.<br>
+To change compression of an existing UTXO.db file, use the tools <code>utxo_compress</code> or <code>utxo_decompress</code>.</td>
+</tr>
+    
 
 </tbody>
 </table>

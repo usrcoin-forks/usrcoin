@@ -118,8 +118,9 @@ var (
 			PingPeriodSec   uint // zero to not ping
 		}
 		UTXOSave struct {
-			SecondsToTake uint   // zero for as fast as possible, 600 for do it in 10 minutes
-			BlocksToHold  uint32 // zero for immediatelly, one for every other block...
+			SecondsToTake   uint   // zero for as fast as possible, 600 for do it in 10 minutes
+			BlocksToHold    uint32 // zero for immediatelly, one for every other block...
+			CompressRecords bool
 		}
 	}
 

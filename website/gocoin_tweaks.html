@@ -1,4 +1,4 @@
-<html>
+<html>                                                           
 <head>
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
@@ -8,47 +8,31 @@ On this page you can find ways to improve performance and lower resource consump
 of a running <b>client</b>.<br>
 <br>
 
-<h2>Disable counters</h2>
-Edit the <a href="gocoin_manual_config.html">config file</a> and set the value of <code>Stats.NoCounters</code> to <b>true</b>.<br>
-This will turn off node's internal statistics which should improve performance.<br>
-<br>
-
 <h2>Turn off caching on disk</h2>
 Edit the <a href="gocoin_manual_config.html">config file</a> and set the value of <code>Memory.CacheOnDisk</code> to <b>false</b>.<br>
 This will prevent the node from caching blocks on disk, 
 which will improve initial chain sync performance, but will require more RAM to do so.<br>
 <br>
 
-<h2>Disable wallet functionality</h2>
-
-You can disable node's wallet functionality, to save system memory used by a running client
-and improve block processing times.<br>
-In order to do so, use TextUI command <code>wallet off</code> or click the disable wallet button on the bottom of the <b>Wallet</b> page in the WebUI.<br>
-<br>
-If you don't want the wallet functionality to automatically enable after the node is started,
-set the value of <code>AllBalances.AutoLoad</code> to <code>false</code> in the
-<a href="gocoin_manual_config.html">config file</a>.<br>
-<br>
-<i>Note: You can manually enable wallet functionality at any time while the node is running,
-either from WebUI or by executing TextUI command <code>wallet on</code></i><br>
-<br>
 <a name="libsecp256k1"></a>
 <h2>External secp256k1 speedups</h2>
 
 It is possible to use <a target="_blank" href="https://github.com/bitcoin/bitcoin/tree/master/src/secp256k1">libsecp256k1</a>
 (maintained by <a target="_blank" href="https://github.com/bitcoin/bitcoin/">Bitcoin Core</a> project)
-that is written in C and assembler.<br>
+that is written in C and assembler and generally performs better than the native Go implementation.<br>
 <br>
 
-<i><b>Note:</b>
-Thanks to the recent improvements, an external library does not always perform better than the Gocoin's native one.<br>
-To check if it does, use test programs from <code>gocoin/lib/others/cgo/ec_bench/</code> - for instance: <code>go run gonative.go</code> vs <code>go run sipasec.go</code></i><br>
+<i>Note:
+To compare performance of native implementation against external library,
+use test programs from <code>gocoin/lib/others/cgo/ec_bench/</code>
+(e.g. <code>go run gonative.go</code> vs <code>go run sipasec.go</code>)</i><br>
 <br>
 
 To make Gocoin client to use the external library, copy either the file
 <code>sipadll.go</code> (Windows only) or <code>sipasec.go</code> (any OS),
 from <code>gocoin/client/speedups/</code> to its parent folder (<code>gocoin/client/</code>).
 Then rebuild and restart the client.<br>
+<br>
 <i>Note: You can have either <code>sipadll.go</code> or <code>sipasec.go</code> in your
 <code>gocoin/client/</code> folder, but never both of them as the client will not build then.</i><br>
 <br>
@@ -95,12 +79,44 @@ To build <b>secp256k1.dll</b> youself, look into
 </table>
 <br>
 
-<h2>Disable compression in BlockDB</h2>
-Edit the <a href="gocoin_manual_config.html">config file</a> and set the value of <code>Memory.CompressBlockDB</code> to <b>false</b>.<br>
-This will prevent the node from compressing blocks' data before writting them to disk.<br>
-It may improve initial chain sync performance at a cost of using more disk space.<br>
+<h2>Garbage Collector and UTXO heap</h2>
+If you have RAM to spare, try switching UTXO records to Go's heap manager 
+and increasing Garbage Collector's threshold.<br>
+This will increase memory usage, but should improve block processing performance
+(including initial chain sync).<br>
 <br>
-<i>Note: Depending on your system, there may not be any performance gain.</i><br>
+Edit the <a href="gocoin_manual_config.html">config file</a> to set
+<code>Memory.UseGoHeap</code> to <b>true</b> and
+<code>Memory.GCPercTrshold</code> to <b>100</b> or more (higher value for more effect).<br>
+Having 32 GB of RAM, try setting <code>GCPercTrshold</code> to <b>100</b>.
+Having 64 GB, you can set it as high as <b>300</b>.<br>
+<br>
+For less effect, you may try only increasing <code>GCPercTrshold</code>,
+leaving <code>UseGoHeap</code> set to <b>false</b>.
+In such case you can set the values of <code>GCPercTrshold</code> even higher.<br>
+
+<br>
+<i>Note: The node needs to be restarted to apply a new value of <code>Memory.UseGoHeap</code></i><br>
+<br>
+<i>Note: If you set the value of <b>GCPercTrshold</b> too high,
+the node will consume all the memory and then crash or become very sluggish.</i><br>
+<br>
+
+<h2>Disable wallet functionality</h2>
+
+You can disable node's wallet functionality, to save system memory used by a running client
+and improve block processing times.<br>
+In order to do so, use TextUI command <code>wallet off</code> or click the disable wallet button on the bottom of the <b>Wallet</b> page in the WebUI.<br>
+<br>
+If you don't want the wallet functionality to automatically enable after the node is started,
+set the value of <code>AllBalances.AutoLoad</code> to <code>false</code> in the
+<a href="gocoin_manual_config.html">config file</a>.<br>
+<br>
+<i>Note: You can manually enable wallet functionality at any time while the node is running,
+either from WebUI or by executing TextUI command <code>wallet on</code></i><br>
+<br>
+<i>Note: This will not have any effect for initial chain sync,
+as the wallet functionality only gets enabled after the sync.</i><br>
 <br>
 
 <h2>Compress UTXO records</h2>
@@ -109,25 +125,28 @@ To save some system memory as well as a disk space, although at the cost of a pe
 In order to do this, execute the tool <code>utxo_compress</code>.<br>
 The tool needs to be executed from inside the data folder - where the <code>UTXO.db</code> file is.<br>
 The node must not be running while executing the tool.<br>
-<br>
 You can reverse the operation of compressing the database, be running <code>utxo_decompress</code>.<br>
 <br>
+<i>Note: Information on whether UTXO records are compressed is stored
+inside <b>UTXO.db</b> file.<br>
+If you want to decide how a new UTXO file shall be created,
+see the <a href="gocoin_manual_config.html">config file</a> value
+<code>UTXOSave.CompressRecords</code>.</i><br>
+<br>
 
-<h2>Garbage Collector and UTXO heap</h2>
-If you have RAM to spare, try switching UTXO records to Go's heap manager 
-and increasing Garbage Collector's treshold.<br>
-This will increase memory usage, but should improve block processing performance
-(e.g. during initial chain sync).<br>
+<h2>Disable compression in BlockDB</h2>
+Edit the <a href="gocoin_manual_config.html">config file</a> and set the value of <code>Memory.CompressBlockDB</code> to <b>false</b>.<br>
+This will prevent the node from compressing blocks' data before writing them to disk.<br>
+It may improve initial chain sync performance at a cost of using more disk space.<br>
 <br>
-Edit the <a href="gocoin_manual_config.html">config file</a> to set
-<code>Memory.UseGoHeap</code> to <b>true</b> and
-<code>Memory.GCPercTrshold</code> to <b>100</b> or more (higher value for more effect).<br>
-Having 32GB of RAM, try setting <code>GCPercTrshold</code> to <b>100</b>.
-Having 64 GB, you can set it as high as <b>300</b>.<br>
+<i>Note: Depending on your system, there may not be any performance gain.</i><br>
 <br>
-You may also try only increasing <code>GCPercTrshold</code>, leaving <code>UseGoHeap</code> set to <b>false</b>.
-In such case you can set the values of <code>GCPercTrshold</code> even higher.<br>
+
+<h2>Disable counters</h2>
+Edit the <a href="gocoin_manual_config.html">config file</a> and set the value of <code>Stats.NoCounters</code> to <b>true</b>.<br>
+This will turn off node's internal statistics which may slightly improve performance and memory usage.<br>
 <br>
-<i>Note: The node needs to be restarted to apply a new value of <code>Memory.UseGoHeap</code></i>
+<i>Note: The difference may not be noticable.</i><br>
+<br>
 </body>
 </html>

@@ -71,7 +71,7 @@ func host_init() {
 		UTXOVolatileMode: common.FLAG.VolatileUTXO,
 		UndoBlocks:       common.FLAG.UndoBlocks,
 		BlockMinedCB:     blockMined, BlockUndoneCB: blockUndone,
-		DoNotRescan: true}
+		DoNotRescan: true, CompressUTXO: common.CFG.UTXOSave.CompressRecords}
 
 	if ext.UndoBlocks > 0 {
 		ext.BlockUndoneCB = nil // Do not call the callback if undoing blocks as it will panic
