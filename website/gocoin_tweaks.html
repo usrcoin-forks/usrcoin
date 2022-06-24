@@ -9,9 +9,11 @@ of a running <b>client</b>.<br>
 <br>
 
 <h2>Turn off caching on disk</h2>
+Only advised if you have more than 16GB or RAM.<br>
+<br>
 Edit the <a href="gocoin_manual_config.html">config file</a> and set the value of <code>Memory.CacheOnDisk</code> to <b>false</b>.<br>
-This will prevent the node from caching blocks on disk, 
-which will improve initial chain sync performance, but will require more RAM to do so.<br>
+This will make the node to cache incomming blocks in memory, not on disk.<br>
+It will improve initial chain sync performance, but will need more RAM to do so.<br>
 <br>
 
 <a name="libsecp256k1"></a>
@@ -80,6 +82,8 @@ To build <b>secp256k1.dll</b> youself, look into
 <br>
 
 <h2>Garbage Collector and UTXO heap</h2>
+Only advised if you have more than 16 GB or RAM.<br>
+<br>
 If you have RAM to spare, try switching UTXO records to Go's heap manager 
 and increasing Garbage Collector's threshold.<br>
 This will increase memory usage, but should improve block processing performance
@@ -88,15 +92,16 @@ This will increase memory usage, but should improve block processing performance
 Edit the <a href="gocoin_manual_config.html">config file</a> to set
 <code>Memory.UseGoHeap</code> to <b>true</b> and
 <code>Memory.GCPercTrshold</code> to <b>100</b> or more (higher value for more effect).<br>
-Having 32 GB of RAM, try setting <code>GCPercTrshold</code> to <b>100</b>.
+Having 32 GB of RAM, try setting <code>GCPercTrshold</code> to <b>100</b>.<br>
 Having 64 GB, you can set it as high as <b>300</b>.<br>
 <br>
 For less effect, you may try only increasing <code>GCPercTrshold</code>,
-leaving <code>UseGoHeap</code> set to <b>false</b>.
+leaving <code>UseGoHeap</code> set to <b>false</b>.<br>
 In such case you can set the values of <code>GCPercTrshold</code> even higher.<br>
 
 <br>
-<i>Note: The node needs to be restarted to apply a new value of <code>Memory.UseGoHeap</code></i><br>
+<i>Note: The node needs to be restarted to apply a new value of <b>UseGoHeap</b>,
+but <b>GCPercTrshold</b> can be changed on the go.</i><br>
 <br>
 <i>Note: If you set the value of <b>GCPercTrshold</b> too high,
 the node will consume all the memory and then crash or become very sluggish.</i><br>
@@ -116,11 +121,13 @@ set the value of <code>AllBalances.AutoLoad</code> to <code>false</code> in the
 either from WebUI or by executing TextUI command <code>wallet on</code></i><br>
 <br>
 <i>Note: This will not have any effect for initial chain sync,
-as the wallet functionality only gets enabled after the sync.</i><br>
+as the wallet functionality only gets enabled after the sync completes.</i><br>
 <br>
 
 <h2>Compress UTXO records</h2>
-To save some system memory as well as a disk space, although at the cost of a performance, you can compress UTXO database.<br>
+To save some system memory as well as a disk space,
+at the cost of performance, you can compress UTXO records.<br>
+They are compressed on disk, but also when kept in a running node's memory.<br>
 <br>
 In order to do this, execute the tool <code>utxo_compress</code>.<br>
 The tool needs to be executed from inside the data folder - where the <code>UTXO.db</code> file is.<br>
@@ -129,24 +136,24 @@ You can reverse the operation of compressing the database, be running <code>utxo
 <br>
 <i>Note: Information on whether UTXO records are compressed is stored
 inside <b>UTXO.db</b> file.<br>
-If you want to decide how a new UTXO file shall be created,
+If you want to decide how new UTXO.db shall be created (with records compressed or not),
 see the <a href="gocoin_manual_config.html">config file</a> value
 <code>UTXOSave.CompressRecords</code>.</i><br>
 <br>
 
-<h2>Disable compression in BlockDB</h2>
+<!-- <h2>Disable compression in BlockDB</h2>
 Edit the <a href="gocoin_manual_config.html">config file</a> and set the value of <code>Memory.CompressBlockDB</code> to <b>false</b>.<br>
 This will prevent the node from compressing blocks' data before writing them to disk.<br>
 It may improve initial chain sync performance at a cost of using more disk space.<br>
 <br>
 <i>Note: Depending on your system, there may not be any performance gain.</i><br>
 <br>
-
+ -->
 <h2>Disable counters</h2>
 Edit the <a href="gocoin_manual_config.html">config file</a> and set the value of <code>Stats.NoCounters</code> to <b>true</b>.<br>
 This will turn off node's internal statistics which may slightly improve performance and memory usage.<br>
 <br>
-<i>Note: The difference may not be noticable.</i><br>
+<i>Note: The difference will likely be noticable, but you will use some realtime statistics.</i><br>
 <br>
 </body>
 </html>

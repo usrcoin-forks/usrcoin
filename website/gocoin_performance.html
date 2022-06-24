@@ -31,13 +31,14 @@ Time needed to re-build UTXO database from blocks stored on the disk: <b>1.2 hou
 
 <h4>Tweaked config:</h4>
 <img src="d3_turbo.png" width="50%"><br>
+Time needed to re-build UTXO database from blocks stored on the disk: <b>55 minutes</b>
 Changed config values:<br>
 <ul>
- <li><code>Net.ListenTCP: false</code> <i>(disallow incomming connections as they are often bad actors)</i><br>
+ <li><code>Net.ListenTCP: false</code> <i>(disallow incomming connections as they are often bad actors - just to be safe)</i><br>
  <li><code>Memory.GCPercTrshold: 300</code> <i>(to use up to 64GB of RAM)</i><br>
  <li><code>Memory.UseGoHeap: true</code> <i>(works together with the above setting)</i><br>
  <li><code>Memory.CacheOnDisk: false</code> <i>(further increases RAM usage, but makes the biggest difference)</i><br>
- <li><code>Stat.NoCounters: true</code> <i>(makes a tiny difference)</i><br>
+ <li><code>Stat.NoCounters: true</code> <i>(does not seem to make any difference)</i><br>
  <li>IP addresses of nodes to connect were manually preselected and provided through the <b>friends.txt</b> file</li>
 </ul>
 
@@ -61,11 +62,11 @@ Time needed to re-build UTXO database from blocks stored on the disk: <b>1.3 hou
 <i>(up to block #700000)</i><br>
 Changed config values:<br>
 <ul>
- <li><code>Net.ListenTCP: false</code> <i>(disallow incomming connections as they are often bad actors)</i><br>
- <li><code>Memory.GCPercTrshold: 100</code> <i>(to use up to 32GB of RAM)</i><br>
- <li><code>Memory.UseGoHeap: true</code> <i>(works together with the above setting)</i><br>
- <li><code>Memory.CacheOnDisk: false</code> <i>(further increases RAM usage, but makes the biggest difference)</i><br>
- <li><code>Stat.NoCounters: true</code> <i>(makes a tiny difference)</i><br>
+<li><code>Net.ListenTCP: false</code> <i>(disallow incomming connections as they are often bad actors - just to be safe)</i><br>
+<li><code>Memory.GCPercTrshold: 100</code> <i>(to use up to 32GB of RAM)</i><br>
+<li><code>Memory.UseGoHeap: true</code> <i>(works together with the above setting)</i><br>
+<li><code>Memory.CacheOnDisk: false</code> <i>(further increases RAM usage, but makes the biggest difference)</i><br>
+<li><code>Stat.NoCounters: true</code> <i>(does not seem to make any difference)</i><br>
 </ul>
 
 <h2>Gocoin 1.10.0</b>, built with Go 1.17.3</h2>
