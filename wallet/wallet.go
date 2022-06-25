@@ -107,6 +107,7 @@ func make_wallet() {
 	var hd_label_prefix string
 	var hd_hardend bool
 	var currhdsub uint // default 0
+	var aes_key []byte
 
 	load_others()
 	defer func() {
@@ -177,6 +178,10 @@ func make_wallet() {
 	}
 
 	if usescrypt != 0 {
+		if bip39wrds == -1 {
+			println("ERROR: Cannot use scrypt function in BIP39 mnemonic mode")
+			cleanExit(1)
+		}
 		fmt.Print("Running scrypt function with complexity ", 1<<usescrypt, " ... ")
 		sta := time.Now()
 		dk, er := scrypt.Key(pass, []byte("Gocoin scrypt password salt"), 1<<usescrypt, 8, 1, 32)
@@ -189,10 +194,16 @@ func make_wallet() {
 		pass = dk
 		fmt.Println("took", tim.String())
 	}
+	if *encrypt != "" || *decrypt != "" {
+		aes_key = make([]byte, 32)
+	}
 	if waltype == 3 {
 		seed_key = make([]byte, 32)
 		btc.ShaHash(pass, seed_key)
 		sys.ClearBuffer(pass)
+		if aes_key != nil {
+			btc.ShaHash(seed_key, aes_key)
+		}
 	} else /*if waltype==4*/ {
 		if bip39wrds != 0 {
 			var er error
@@ -244,6 +255,9 @@ func make_wallet() {
 			hdwal = btc.MasterKey(pass, testnet)
 			sys.ClearBuffer(pass)
 		}
+		if aes_key != nil {
+			btc.ShaHash(hdwal.Key, aes_key)
+		}
 		hdwal.Prefix = hdwal_private_prefix()
 		if *dumpxprv {
 			fmt.Println("Root:", hdwal.String())
@@ -267,6 +281,16 @@ func make_wallet() {
 			}
 			hd_wallet_xtra = append(hd_wallet_xtra, "Leaf: "+hdwal.Pub().String())
 		}
+	}
+
+	if *encrypt != "" {
+		fmt.Println("Encryped file saved as", encrypt_file(*encrypt, aes_key))
+		cleanExit(0)
+	}
+
+	if *decrypt != "" {
+		fmt.Println("Decryped file saved as", decrypt_file(*decrypt, aes_key))
+		cleanExit(0)
 	}
 
 	if *verbose {
