@@ -100,6 +100,10 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 			println("Initial parsing finished in", time.Since(newbl.TmStart).String())
 			common.Last.ParseTill = nil
 		}
+		if common.Last.ParseTill == nil && !common.BlockChainSynchronized &&
+			((common.Last.Block.Height%50e3) == 0 || common.Last.Block.Height == network.LastCommitedHeader.Height) {
+			println("Sync to", common.Last.Block.Height, "took", time.Since(common.StartTime).String())
+		}
 		common.Last.Mutex.Unlock()
 	} else {
 		//fmt.Println("Warning: AcceptBlock failed. If the block was valid, you may need to rebuild the unspent DB (-r)")
