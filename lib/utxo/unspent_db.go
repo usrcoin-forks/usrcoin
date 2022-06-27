@@ -623,8 +623,8 @@ func (db *UnspentDB) map_update_routine(idx int) {
 
 func (db *UnspentDB) create_routine_if_needed(idx int) {
 	if !db.routine_started[idx] {
-		db.routine_chan_add[idx] = make(chan one_add_request, 16)
-		db.routine_chan_del[idx] = make(chan one_del_request, 16)
+		db.routine_chan_add[idx] = make(chan one_add_request, 256)
+		db.routine_chan_del[idx] = make(chan one_del_request, 256)
 		db.routine_started[idx] = true
 		go db.map_update_routine(idx)
 	}
