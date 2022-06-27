@@ -3,6 +3,7 @@
 * Tools: utxo_compress and utxo_decompress have been fixed
 * Wallet: "bip39" switch can now have value of "-1", in which case the seed password will be treated as mnemonic
 * Wallet: New commands "-encrypt" and "-decrypt", for encrypting and decrypting files with wallet's seed (password)
+* Client: Maximum number of go-routines limited during certain operations
 
 1.10.1 - 2022-06-15
 * btc.VerifyKeyPair() alos does Schnorr sign/verify on the given key pair

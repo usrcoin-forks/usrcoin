@@ -49,6 +49,16 @@ type BlockChanges struct {
 	UndoData        map[[32]byte]*UtxoRec
 }
 
+type one_add_request struct {
+	ind UtxoKeyType
+	rec *UtxoRec
+}
+
+type one_del_request struct {
+	k [32]byte
+	v []bool
+}
+
 type UnspentDB struct {
 	HashMap  [256](map[UtxoKeyType][]byte)
 	MapMutex [256]sync.RWMutex // used to access HashMap
@@ -73,6 +83,11 @@ type UnspentDB struct {
 	CB                  CallbackFunctions
 
 	undo_dir_created bool
+
+	routine_started  [256]bool
+	routine_chan_add [256]chan one_add_request
+	routine_chan_del [256]chan one_del_request
+	map_op_done      sync.WaitGroup
 }
 
 type NewUnspentOpts struct {
@@ -95,6 +110,10 @@ func NewUnspentDb(opts *NewUnspentOpts) (db *UnspentDB) {
 	db.CB = opts.CB
 	db.abortwritingnow = make(chan bool, 1)
 	db.hurryup = make(chan bool, 1)
+
+	for i := range db.routine_started {
+		db.create_routine_if_needed(i)
+	}
 
 	os.Remove(db.dir_undo + "tmp") // Remove unfinished undo file
 	if files, er := filepath.Glob(db.dir_utxo + "*.db.tmp"); er == nil {
@@ -521,6 +540,7 @@ func (db *UnspentDB) Close() {
 	}
 	db.writingDone.Wait()
 	db.lastFileClosed.Wait()
+	db.close_all_routines()
 }
 
 // UnspentGet gets the given unspent output.
@@ -580,9 +600,49 @@ func (db *UnspentDB) del(hash []byte, outs []bool) {
 	Memory_Free(v)
 }
 
+func (db *UnspentDB) map_update_routine(idx int) {
+	for {
+		select {
+		case add := <-db.routine_chan_add[idx]:
+			if add.rec == nil {
+				db.map_op_done.Done()
+				return
+			}
+			v := Serialize(add.rec, false, nil)
+			db.MapMutex[idx].Lock()
+			db.HashMap[idx][add.ind] = v
+			db.MapMutex[idx].Unlock()
+			db.map_op_done.Done()
+
+		case del := <-db.routine_chan_del[idx]:
+			db.del(del.k[:], del.v)
+			db.map_op_done.Done()
+		}
+	}
+}
+
+func (db *UnspentDB) create_routine_if_needed(idx int) {
+	if !db.routine_started[idx] {
+		db.routine_chan_add[idx] = make(chan one_add_request, 16)
+		db.routine_chan_del[idx] = make(chan one_del_request, 16)
+		db.routine_started[idx] = true
+		go db.map_update_routine(idx)
+	}
+}
+
+func (db *UnspentDB) close_all_routines() {
+	for idx, started := range db.routine_started {
+		if started {
+			db.map_op_done.Add(1)
+			db.routine_chan_add[idx] <- one_add_request{rec: nil}
+		}
+	}
+	db.map_op_done.Add(1)
+}
+
 func (db *UnspentDB) commit(changes *BlockChanges) {
-	var wg sync.WaitGroup
 	// Now aplly the unspent changes
+
 	for _, rec := range changes.AddList {
 		var ind UtxoKeyType
 		copy(ind[:], rec.TxID[:])
@@ -604,24 +664,15 @@ func (db *UnspentDB) commit(changes *BlockChanges) {
 			add_this_tx = true
 		}
 		if add_this_tx {
-			wg.Add(1)
-			go func(ind UtxoKeyType, rec *UtxoRec) {
-				v := Serialize(rec, false, nil)
-				db.MapMutex[ind[0]].Lock()
-				db.HashMap[ind[0]][ind] = v
-				db.MapMutex[ind[0]].Unlock()
-				wg.Done()
-			}(ind, rec)
+			db.map_op_done.Add(1)
+			db.routine_chan_add[ind[0]] <- one_add_request{ind: ind, rec: rec}
 		}
 	}
 	for k, v := range changes.DeledTxs {
-		wg.Add(1)
-		go func(k [32]byte, v []bool) {
-			db.del(k[:], v)
-			wg.Done()
-		}(k, v)
+		db.map_op_done.Add(1)
+		db.routine_chan_del[k[0]] <- one_del_request{k: k, v: v}
 	}
-	wg.Wait()
+	db.map_op_done.Wait()
 }
 
 func (db *UnspentDB) AbortWriting() {

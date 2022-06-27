@@ -7,6 +7,7 @@ import (
 	"sync/atomic"
 
 	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/piotrnar/gocoin/lib/others/sys"
 	"github.com/piotrnar/gocoin/lib/script"
 	"github.com/piotrnar/gocoin/lib/utxo"
 )
@@ -230,12 +231,14 @@ func (ch *Chain) commitTxs(bl *btc.Block, changes *utxo.BlockChanges) (sigopscos
 			// second, verify the scrips:
 			if !tx_trusted { // run VerifyTxScript() in a parallel task
 				for j := 0; j < len(bl.Txs[i].TxIn); j++ {
+					sys.GetTicket()
 					wg.Add(1)
 					go func(i int, tx *btc.Tx) {
 						if !script.VerifyTxScript(tx.Spent_outputs[i].Pk_script, &script.SigChecker{Amount: tx.Spent_outputs[i].Value, Idx: i, Tx: tx}, bl.VerifyFlags) {
 							atomic.AddUint32(&ver_err_cnt, 1)
 						}
 						wg.Done()
+						sys.FreeTicket()
 					}(j, bl.Txs[i])
 				}
 			}
@@ -326,10 +329,14 @@ func CheckTransactions(txs []*btc.Tx, height, btime uint32) (res error) {
 	res_chan := make(chan error, 1)
 
 	for i := 0; len(res_chan) == 0 && i < len(txs); i++ {
+		sys.GetTicket()
 		wg.Add(1)
 
 		go func(tx *btc.Tx) {
-			defer wg.Done() // call wg.Done() before returning from this goroutine
+			defer func() {
+				wg.Done() // call wg.Done() before returning from this goroutine
+				sys.FreeTicket()
+			}()
 
 			if len(res_chan) > 0 {
 				return // abort checking if a parallel error has already been reported

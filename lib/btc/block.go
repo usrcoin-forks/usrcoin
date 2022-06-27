@@ -134,6 +134,7 @@ func (bl *Block) BuildTxList() (e error) {
 		}
 		bl.BlockWeight += uint(3*bl.Txs[i].NoWitSize + bl.Txs[i].Size)
 		bl.NoWitnessSize += len(data2hash)
+		sys.GetTicket()
 		wg.Add(1)
 		go func(tx *Tx, b, w []byte) {
 			tx.Hash.Calc(b) // Calculate tx hash in a background
@@ -141,6 +142,7 @@ func (bl *Block) BuildTxList() (e error) {
 				tx.wTxID.Calc(w)
 			}
 			wg.Done()
+			sys.FreeTicket()
 		}(bl.Txs[i], data2hash, witness2hash)
 		offs += n
 	}
