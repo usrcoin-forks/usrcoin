@@ -603,8 +603,13 @@ func (db *UnspentDB) del(hash []byte, outs []bool) {
 func (db *UnspentDB) map_update_routine(idx int) {
 	for {
 		select {
+		case del := <-db.routine_chan_del[idx]:
+			db.del(del.k[:], del.v)
+			db.map_op_done.Done()
+
 		case add := <-db.routine_chan_add[idx]:
 			if add.rec == nil {
+				db.routine_started[idx] = false
 				db.map_op_done.Done()
 				return
 			}
@@ -613,18 +618,14 @@ func (db *UnspentDB) map_update_routine(idx int) {
 			db.HashMap[idx][add.ind] = v
 			db.MapMutex[idx].Unlock()
 			db.map_op_done.Done()
-
-		case del := <-db.routine_chan_del[idx]:
-			db.del(del.k[:], del.v)
-			db.map_op_done.Done()
 		}
 	}
 }
 
 func (db *UnspentDB) create_routine_if_needed(idx int) {
 	if !db.routine_started[idx] {
-		db.routine_chan_add[idx] = make(chan one_add_request, 256)
-		db.routine_chan_del[idx] = make(chan one_del_request, 256)
+		db.routine_chan_add[idx] = make(chan one_add_request, 64)
+		db.routine_chan_del[idx] = make(chan one_del_request, 128)
 		db.routine_started[idx] = true
 		go db.map_update_routine(idx)
 	}
@@ -637,7 +638,7 @@ func (db *UnspentDB) close_all_routines() {
 			db.routine_chan_add[idx] <- one_add_request{rec: nil}
 		}
 	}
-	db.map_op_done.Add(1)
+	db.map_op_done.Wait()
 }
 
 func (db *UnspentDB) commit(changes *BlockChanges) {
@@ -665,12 +666,28 @@ func (db *UnspentDB) commit(changes *BlockChanges) {
 		}
 		if add_this_tx {
 			db.map_op_done.Add(1)
-			db.routine_chan_add[ind[0]] <- one_add_request{ind: ind, rec: rec}
+		again1:
+			select {
+			case db.routine_chan_add[ind[0]] <- one_add_request{ind: ind, rec: rec}:
+
+			default:
+				println("utxo: add channel overflow", ind[0])
+				time.Sleep(1e5)
+				goto again1
+			}
 		}
 	}
 	for k, v := range changes.DeledTxs {
 		db.map_op_done.Add(1)
-		db.routine_chan_del[k[0]] <- one_del_request{k: k, v: v}
+	again2:
+		select {
+		case db.routine_chan_del[k[0]] <- one_del_request{k: k, v: v}:
+
+		default:
+			println("utxo: del channel overflow", k[0])
+			time.Sleep(1e5)
+			goto again2
+		}
 	}
 	db.map_op_done.Wait()
 }
