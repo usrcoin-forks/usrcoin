@@ -84,7 +84,6 @@ type UnspentDB struct {
 
 	undo_dir_created bool
 
-	routine_started  [256]bool
 	routine_chan_add [256]chan one_add_request
 	routine_chan_del [256]chan one_del_request
 	map_op_done      sync.WaitGroup
@@ -111,8 +110,10 @@ func NewUnspentDb(opts *NewUnspentOpts) (db *UnspentDB) {
 	db.abortwritingnow = make(chan bool, 1)
 	db.hurryup = make(chan bool, 1)
 
-	for i := range db.routine_started {
-		db.create_routine_if_needed(i)
+	for idx := range db.routine_chan_add {
+		db.routine_chan_add[idx] = make(chan one_add_request, 64)
+		db.routine_chan_del[idx] = make(chan one_del_request, 256)
+		go db.map_update_routine(idx)
 	}
 
 	os.Remove(db.dir_undo + "tmp") // Remove unfinished undo file
@@ -538,9 +539,13 @@ func (db *UnspentDB) Close() {
 		db.HurryUp()
 		db.Save()
 	}
+	for _, ch := range db.routine_chan_add {
+		db.map_op_done.Add(1)
+		ch <- one_add_request{rec: nil}
+	}
+	db.map_op_done.Wait()
 	db.writingDone.Wait()
 	db.lastFileClosed.Wait()
-	db.close_all_routines()
 }
 
 // UnspentGet gets the given unspent output.
@@ -609,7 +614,6 @@ func (db *UnspentDB) map_update_routine(idx int) {
 
 		case add := <-db.routine_chan_add[idx]:
 			if add.rec == nil {
-				db.routine_started[idx] = false
 				db.map_op_done.Done()
 				return
 			}
@@ -620,25 +624,6 @@ func (db *UnspentDB) map_update_routine(idx int) {
 			db.map_op_done.Done()
 		}
 	}
-}
-
-func (db *UnspentDB) create_routine_if_needed(idx int) {
-	if !db.routine_started[idx] {
-		db.routine_chan_add[idx] = make(chan one_add_request, 64)
-		db.routine_chan_del[idx] = make(chan one_del_request, 256)
-		db.routine_started[idx] = true
-		go db.map_update_routine(idx)
-	}
-}
-
-func (db *UnspentDB) close_all_routines() {
-	for idx, started := range db.routine_started {
-		if started {
-			db.map_op_done.Add(1)
-			db.routine_chan_add[idx] <- one_add_request{rec: nil}
-		}
-	}
-	db.map_op_done.Wait()
 }
 
 func (db *UnspentDB) commit(changes *BlockChanges) {
