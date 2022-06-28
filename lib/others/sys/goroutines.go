@@ -8,22 +8,19 @@ import (
 type empty struct{}
 
 var (
-	MAX_GOROUTINES = runtime.NumCPU()
+	MAX_GOROUTINES = 4 * runtime.NumCPU()
 	tickets        chan empty
 )
 
 func init() {
-	fmt.Println("Maximum number of hard working go-routines:", MAX_GOROUTINES)
+	fmt.Println("MAX_GOROUTINES:", MAX_GOROUTINES)
 	tickets = make(chan empty, MAX_GOROUTINES)
-	for i := 0; i < cap(tickets); i++ {
-		tickets <- empty{}
-	}
 }
 
 func GetTicket() {
-	<-tickets
+	tickets <- empty{}
 }
 
 func FreeTicket() {
-	tickets <- empty{}
+	<-tickets
 }
