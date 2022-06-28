@@ -625,7 +625,7 @@ func (db *UnspentDB) map_update_routine(idx int) {
 func (db *UnspentDB) create_routine_if_needed(idx int) {
 	if !db.routine_started[idx] {
 		db.routine_chan_add[idx] = make(chan one_add_request, 64)
-		db.routine_chan_del[idx] = make(chan one_del_request, 128)
+		db.routine_chan_del[idx] = make(chan one_del_request, 256)
 		db.routine_started[idx] = true
 		go db.map_update_routine(idx)
 	}
@@ -672,7 +672,7 @@ func (db *UnspentDB) commit(changes *BlockChanges) {
 
 			default:
 				println("utxo: add channel overflow", ind[0])
-				time.Sleep(1e5)
+				time.Sleep(1e6)
 				goto again1
 			}
 		}
@@ -685,7 +685,7 @@ func (db *UnspentDB) commit(changes *BlockChanges) {
 
 		default:
 			println("utxo: del channel overflow", k[0])
-			time.Sleep(1e5)
+			time.Sleep(1e6)
 			goto again2
 		}
 	}
