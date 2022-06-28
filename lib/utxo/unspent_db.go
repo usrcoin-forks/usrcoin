@@ -50,13 +50,13 @@ type BlockChanges struct {
 }
 
 type one_add_request struct {
-	ind UtxoKeyType
 	rec *UtxoRec
+	ind UtxoKeyType
 }
 
 type one_del_request struct {
-	k [32]byte
 	v []bool
+	k [32]byte
 }
 
 type UnspentDB struct {
@@ -111,7 +111,7 @@ func NewUnspentDb(opts *NewUnspentOpts) (db *UnspentDB) {
 	db.hurryup = make(chan bool, 1)
 
 	for idx := range db.routine_chan_add {
-		db.routine_chan_add[idx] = make(chan one_add_request, 64)
+		db.routine_chan_add[idx] = make(chan one_add_request, 128)
 		db.routine_chan_del[idx] = make(chan one_del_request, 256)
 		go db.map_update_routine(idx)
 	}
@@ -651,7 +651,8 @@ func (db *UnspentDB) commit(changes *BlockChanges) {
 		}
 		if add_this_tx {
 			db.map_op_done.Add(1)
-		again1:
+			db.routine_chan_add[ind[0]] <- one_add_request{ind: ind, rec: rec}
+		/*again1:
 			select {
 			case db.routine_chan_add[ind[0]] <- one_add_request{ind: ind, rec: rec}:
 
@@ -660,11 +661,12 @@ func (db *UnspentDB) commit(changes *BlockChanges) {
 				time.Sleep(1e6)
 				goto again1
 			}
-		}
+		}*/
 	}
 	for k, v := range changes.DeledTxs {
 		db.map_op_done.Add(1)
-	again2:
+		db.routine_chan_del[k[0]] <- one_del_request{k: k, v: v}
+	/*again2:
 		select {
 		case db.routine_chan_del[k[0]] <- one_del_request{k: k, v: v}:
 
@@ -672,7 +674,7 @@ func (db *UnspentDB) commit(changes *BlockChanges) {
 			println("utxo: del channel overflow", k[0])
 			time.Sleep(1e6)
 			goto again2
-		}
+		}*/
 	}
 	db.map_op_done.Wait()
 }
