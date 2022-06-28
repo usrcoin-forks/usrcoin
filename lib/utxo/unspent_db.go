@@ -111,8 +111,8 @@ func NewUnspentDb(opts *NewUnspentOpts) (db *UnspentDB) {
 	db.hurryup = make(chan bool, 1)
 
 	for idx := range db.routine_chan_add {
-		db.routine_chan_add[idx] = make(chan one_add_request, 128)
-		db.routine_chan_del[idx] = make(chan one_del_request, 256)
+		db.routine_chan_add[idx] = make(chan one_add_request, 16)
+		db.routine_chan_del[idx] = make(chan one_del_request, 16)
 		go db.map_update_routine(idx)
 	}
 
@@ -651,30 +651,32 @@ func (db *UnspentDB) commit(changes *BlockChanges) {
 		}
 		if add_this_tx {
 			db.map_op_done.Add(1)
-			db.routine_chan_add[ind[0]] <- one_add_request{ind: ind, rec: rec}
-			/*again1:
+			//db.routine_chan_add[ind[0]] <- one_add_request{ind: ind, rec: rec}
+			ch := db.routine_chan_add[ind[0]]
+			r := &one_add_request{ind: ind, rec: rec}
 			select {
-			case db.routine_chan_add[ind[0]] <- one_add_request{ind: ind, rec: rec}:
+			case ch <- *r:
 
 			default:
-				println("utxo: add channel overflow", ind[0])
-				time.Sleep(1e6)
-				goto again1
-			}*/
+				go func(ch chan one_add_request, r *one_add_request) {
+					ch <- *r
+				}(ch, r)
+			}
 		}
 	}
 	for k, v := range changes.DeledTxs {
 		db.map_op_done.Add(1)
-		db.routine_chan_del[k[0]] <- one_del_request{k: k, v: v}
-		/*again2:
+		//db.routine_chan_del[k[0]] <- one_del_request{k: k, v: v}
+		ch := db.routine_chan_del[k[0]]
+		r := &one_del_request{k: k, v: v}
 		select {
-		case db.routine_chan_del[k[0]] <- one_del_request{k: k, v: v}:
+		case ch <- *r:
 
 		default:
-			println("utxo: del channel overflow", k[0])
-			time.Sleep(1e6)
-			goto again2
-		}*/
+			go func(ch chan one_del_request, r *one_del_request) {
+				ch <- *r
+			}(ch, r)
+		}
 	}
 	db.map_op_done.Wait()
 }
