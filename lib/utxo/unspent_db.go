@@ -652,7 +652,7 @@ func (db *UnspentDB) commit(changes *BlockChanges) {
 		if add_this_tx {
 			db.map_op_done.Add(1)
 			db.routine_chan_add[ind[0]] <- one_add_request{ind: ind, rec: rec}
-		/*again1:
+			/*again1:
 			select {
 			case db.routine_chan_add[ind[0]] <- one_add_request{ind: ind, rec: rec}:
 
@@ -660,13 +660,13 @@ func (db *UnspentDB) commit(changes *BlockChanges) {
 				println("utxo: add channel overflow", ind[0])
 				time.Sleep(1e6)
 				goto again1
-			}
-		}*/
+			}*/
+		}
 	}
 	for k, v := range changes.DeledTxs {
 		db.map_op_done.Add(1)
 		db.routine_chan_del[k[0]] <- one_del_request{k: k, v: v}
-	/*again2:
+		/*again2:
 		select {
 		case db.routine_chan_del[k[0]] <- one_del_request{k: k, v: v}:
 
