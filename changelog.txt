@@ -4,7 +4,6 @@
 * Wallet: "bip39" switch can now have value of "-1", in which case the seed password will be treated as mnemonic
 * Wallet: New commands "-encrypt" and "-decrypt", for encrypting and decrypting files with wallet's seed (password)
 * Client: Upgraded "lib/others/memory" to the latest from "gitlab.com/cznic/memory"
-* Client: UTXO updating uses 256 go routines - one for each map
 * Client: fixed a bug that causing a chain sync to abort with series of "bad-txnmrklroot" errors
 
 1.10.1 - 2022-06-15                                                   
