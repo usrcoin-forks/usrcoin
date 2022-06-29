@@ -184,7 +184,8 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 
 	er := common.BlockChain.PostCheckBlock(b2g.Block)
 	if er != nil {
-		println("Corrupt block", hash.String(), b2g.BlockTreeNode.Height, "received from", conn.PeerAddr.Ip(), er.Error())
+		println("Corrupt block", hash.String(), b2g.BlockTreeNode.Height)
+		println(" ... received from", conn.PeerAddr.Ip(), er.Error())
 		//ioutil.WriteFile(hash.String()+"-"+conn.PeerAddr.Ip()+".bin", b, 0700)
 		conn.DoS("BadBlock")
 
@@ -192,14 +193,14 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 		// ... decreasing of b2g.InProgress will also be done then.
 
 		if b2g.Block.MerkleRootMatch() {
-			println("It was a wrongly mined one - give it up")
+			println(" <- It was a wrongly mined one - give it up")
 			DelB2G(idx) //remove it from BlocksToGet
 			if b2g.BlockTreeNode == LastCommitedHeader {
 				LastCommitedHeader = LastCommitedHeader.Parent
 			}
 			common.BlockChain.DeleteBranch(b2g.BlockTreeNode, delB2G_callback)
 		} else {
-			println("Merkle Root not matching - discard the data:", len(b2g.Block.Txs), b2g.Block.TxCount,
+			println(" <- Merkle Root not matching - discard the data:", len(b2g.Block.Txs), b2g.Block.TxCount,
 				b2g.Block.TxOffset, b2g.Block.NoWitnessSize, b2g.Block.BlockWeight, b2g.TotalInputs)
 			// We just recived a corrupt copy from the peer. We will ask another peer for it.
 			// But discard the data we extracted from this one, so it won't confuse us later.
