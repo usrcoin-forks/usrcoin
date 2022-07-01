@@ -47,7 +47,7 @@ var (
 
 	AverageBlockSize sys.SyncInt
 	avg_bsize_chan   chan uint
-	avg_bsize_prev   uint32 = 0xffffffff
+	avg_bsize_prev   uint32
 	avg_bsize_sum    uint
 
 	allBalMinVal uint64
@@ -217,7 +217,7 @@ func HashrateToString(hr float64) string {
 func RecalcAverageBlockSize() {
 	var le uint
 	n := BlockChain.LastBlock()
-	if n.Height == avg_bsize_prev+1 {
+	if avg_bsize_prev == 0 || n.Height == avg_bsize_prev+1 {
 		if len(avg_bsize_chan) == cap(avg_bsize_chan) {
 			le = <-avg_bsize_chan
 			avg_bsize_sum -= le
