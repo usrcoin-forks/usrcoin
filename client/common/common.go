@@ -217,6 +217,7 @@ func HashrateToString(hr float64) string {
 func RecalcAverageBlockSize() {
 	var le uint
 	n := BlockChain.LastBlock()
+	new_height := n.Height
 	if avg_bsize_prev != 0 && n.Height == avg_bsize_prev+1 {
 		if len(avg_bsize_chan) == cap(avg_bsize_chan) {
 			le = <-avg_bsize_chan
@@ -227,7 +228,7 @@ func RecalcAverageBlockSize() {
 		avg_bsize_sum += le
 		avg_bsize_chan <- le
 	} else {
-		println("Recalc avg_bsize @", n.Height)
+		println("Recalc avg_bsize @", new_height)
 		avg_bsize_chan = make(chan uint, 2016)
 		avg_bsize_sum = 0
 		avg_bsize_prev = n.Height
@@ -242,7 +243,7 @@ func RecalcAverageBlockSize() {
 		}
 	}
 	AverageBlockSize.Store(int(avg_bsize_sum) / len(avg_bsize_chan))
-	avg_bsize_prev = n.Height
+	avg_bsize_prev = new_height
 }
 
 func GetRawTx(BlockHeight uint32, txid *btc.Uint256) (data []byte, er error) {
