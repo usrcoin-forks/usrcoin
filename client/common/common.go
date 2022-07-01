@@ -230,7 +230,7 @@ func RecalcAverageBlockSize() {
 		avg_bsize_chan <- le
 		new_avg_size = int(avg_bsize_sum) / len(avg_bsize_chan)
 	} else {
-		println("Recalc avg_bsize @", new_height)
+		//println("Recalc avg_bsize @", new_height)
 		avg_bsize_chan = make(chan uint, 2016)
 		avg_bsize_sum = 0
 		for maxcnt := cap(avg_bsize_chan); maxcnt > 0 && n != nil; maxcnt-- {
