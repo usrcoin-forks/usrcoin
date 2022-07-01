@@ -47,7 +47,7 @@ var (
 
 	AverageBlockSize sys.SyncInt
 	avg_bsize_chan   chan uint
-	avg_bsize_prev   uint32 = 0xffffffff
+	avg_bsize_next   uint32
 	avg_bsize_sum    uint
 
 	allBalMinVal uint64
@@ -219,7 +219,7 @@ func RecalcAverageBlockSize() {
 	var new_avg_size int
 	n := BlockChain.LastBlock()
 	new_height := n.Height
-	if avg_bsize_prev != 0xffffffff && n.Height == avg_bsize_prev+1 {
+	if avg_bsize_next != 0 && n.Height == avg_bsize_next {
 		if len(avg_bsize_chan) == cap(avg_bsize_chan) {
 			le = <-avg_bsize_chan
 			avg_bsize_sum -= le
@@ -233,7 +233,6 @@ func RecalcAverageBlockSize() {
 		println("Recalc avg_bsize @", new_height)
 		avg_bsize_chan = make(chan uint, 2016)
 		avg_bsize_sum = 0
-		avg_bsize_prev = n.Height
 		for maxcnt := cap(avg_bsize_chan); maxcnt > 0 && n != nil; maxcnt-- {
 			le = uint(n.BlockSize)
 			avg_bsize_chan <- le
@@ -247,7 +246,7 @@ func RecalcAverageBlockSize() {
 		}
 	}
 	AverageBlockSize.Store(new_avg_size)
-	avg_bsize_prev = new_height
+	avg_bsize_next = new_height + 1
 }
 
 func GetRawTx(BlockHeight uint32, txid *btc.Uint256) (data []byte, er error) {
