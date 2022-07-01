@@ -216,6 +216,7 @@ func HashrateToString(hr float64) string {
 // Only call from blockchain thread.
 func RecalcAverageBlockSize() {
 	var le uint
+	var new_avg_size int
 	n := BlockChain.LastBlock()
 	new_height := n.Height
 	if avg_bsize_prev != 0 && n.Height == avg_bsize_prev+1 {
@@ -227,6 +228,7 @@ func RecalcAverageBlockSize() {
 		le = uint(n.BlockSize)
 		avg_bsize_sum += le
 		avg_bsize_chan <- le
+		new_avg_size = int(avg_bsize_sum) / len(avg_bsize_chan)
 	} else {
 		println("Recalc avg_bsize @", new_height)
 		avg_bsize_chan = make(chan uint, 2016)
@@ -239,15 +241,12 @@ func RecalcAverageBlockSize() {
 			n = n.Parent
 		}
 		if avg_bsize_sum == 0 || len(avg_bsize_chan) == 0 {
-			AverageBlockSize.Store(204)
+			new_avg_size = 204
+		} else {
+			new_avg_size = int(avg_bsize_sum) / len(avg_bsize_chan)
 		}
 	}
-	new_size := int(avg_bsize_sum) / len(avg_bsize_chan)
-	if new_size == 0 {
-		println("pipa at", new_height, len(avg_bsize_chan))
-		new_size = 10e3
-	}
-	AverageBlockSize.Store(new_size)
+	AverageBlockSize.Store(new_avg_size)
 	avg_bsize_prev = new_height
 }
 
