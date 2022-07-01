@@ -352,12 +352,14 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	// We can issue getdata for this peer
 	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
 
-	common.Last.Mutex.Lock()
-	max_height := common.Last.Block.Height + uint32(MAX_BLOCKS_FORWARD_SIZ/avg_block_size)
-	if max_height > common.Last.Block.Height+MAX_BLOCKS_FORWARD_CNT {
-		max_height = common.Last.Block.Height + MAX_BLOCKS_FORWARD_CNT
+	max_forward := uint32(MAX_BLOCKS_FORWARD_SIZ / avg_block_size)
+	if max_forward > MAX_BLOCKS_FORWARD_CNT {
+		max_forward = MAX_BLOCKS_FORWARD_CNT
 	}
+	common.Last.Mutex.Lock()
+	max_height := common.Last.Block.Height + max_forward
 	common.Last.Mutex.Unlock()
+
 	if max_height > c.Node.Height {
 		max_height = c.Node.Height
 	}
@@ -375,12 +377,18 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			}
 		}
 	}
+	max_forward = max_height - common.Last.Block.Height
 
 	invs := new(bytes.Buffer)
 	var cnt_in_progress uint
 
 	for {
 		var lowest_found *OneBlockToGet
+
+		delta := max_forward / (1 + common.CFG.Net.MaxBlockAtOnce - uint32(cnt_in_progress))
+		common.Last.Mutex.Lock()
+		max_height = common.Last.Block.Height + delta
+		common.Last.Mutex.Unlock()
 
 		// Get block to fetch:
 
