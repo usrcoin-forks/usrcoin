@@ -242,7 +242,12 @@ func RecalcAverageBlockSize() {
 			AverageBlockSize.Store(204)
 		}
 	}
-	AverageBlockSize.Store(int(avg_bsize_sum) / len(avg_bsize_chan))
+	new_size := int(avg_bsize_sum) / len(avg_bsize_chan)
+	if new_size == 0 {
+		println("pipa at", new_height, len(avg_bsize_chan))
+		new_size = 10e3
+	}
+	AverageBlockSize.Store(new_size)
 	avg_bsize_prev = new_height
 }
 
