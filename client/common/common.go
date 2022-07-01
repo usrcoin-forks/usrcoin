@@ -238,7 +238,7 @@ func RecalcAverageBlockSize() {
 			avg_bsize_sum += le
 			n = n.Parent
 		}
-		if len(avg_bsize_chan) == 0 {
+		if avg_bsize_sum == 0 || len(avg_bsize_chan) == 0 {
 			AverageBlockSize.Store(204)
 		}
 	}
