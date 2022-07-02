@@ -371,11 +371,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	if max_height > c.Node.Height {
 		max_height = c.Node.Height
 	}
-	MutexRcv.Lock()
 	if max_height > LastCommitedHeader.Height {
 		max_height = LastCommitedHeader.Height
 	}
-	MutexRcv.Unlock()
 
 	if max_height <= last_block_height {
 		c.cntLockInc("FetchNoMoreBlocks")
