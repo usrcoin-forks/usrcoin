@@ -321,6 +321,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	if c.X.BlocksExpired > 0 { // Do not fetch blocks from nodes that had not given us some in the past
 		c.Mutex.Unlock()
 		c.cntLockInc("FetchHasBlocksExpired")
+		c.nextGetData = time.Now().Add(time.Hour)
 		return
 	}
 	cbip := len(c.GetBlockInProgress)
@@ -448,5 +449,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	c.SendRawMsg("getdata", pl)
 	yes = true
 
+	// try to add more blocks after a second...
+	c.nextGetData = time.Now().Add(1 * time.Second)
 	return
 }
