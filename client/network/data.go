@@ -356,23 +356,39 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	// We can issue getdata for this peer
 	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
 
-	common.Last.Mutex.Lock()
-	max_height := common.Last.Block.Height + uint32(MAX_BLOCKS_FORWARD_SIZ/avg_block_size)
-	if max_height > common.Last.Block.Height+MAX_BLOCKS_FORWARD_CNT {
-		max_height = common.Last.Block.Height + MAX_BLOCKS_FORWARD_CNT
+	max_size_to_go := MAX_BLOCKS_FORWARD_SIZ - common.CachedBlocksSize.Get()
+	if max_size_to_go <= 0 {
+		c.cntLockInc("FetchCacheIsFull")
+		// wake up in a few seconds, maybe some blocks will complete by then
+		c.nextGetData = time.Now().Add(3 * time.Second) // wait for some blocks to complete
+		return
 	}
-	common.Last.Mutex.Unlock()
+	last_block_height := common.Last.BlockHeight()
+	max_height := last_block_height + uint32(max_size_to_go/avg_block_size)
+	if max_height > last_block_height+MAX_BLOCKS_FORWARD_CNT {
+		max_height = last_block_height + MAX_BLOCKS_FORWARD_CNT
+	}
 	if max_height > c.Node.Height {
 		max_height = c.Node.Height
 	}
+	MutexRcv.Lock()
 	if max_height > LastCommitedHeader.Height {
 		max_height = LastCommitedHeader.Height
+	}
+	MutexRcv.Unlock()
+
+	if max_height <= last_block_height {
+		c.cntLockInc("FetchNoMoreBlocks")
+		println("FetchNoMoreBlocks")
+		// wake up in a few seconds, maybe some blocks will complete by then
+		c.nextGetData = time.Now().Add(5 * time.Second) // wait for some blocks to complete
+		return
 	}
 
 	if common.BlockChain.Consensus.Enforce_SEGWIT != 0 && (c.Node.Services&btc.SERVICE_SEGWIT) == 0 { // no segwit node
 		if max_height >= common.BlockChain.Consensus.Enforce_SEGWIT-1 {
 			max_height = common.BlockChain.Consensus.Enforce_SEGWIT - 1
-			if max_height <= common.Last.BlockHeight() {
+			if max_height <= last_block_height {
 				c.cntLockInc("FetchNoWitness")
 				c.nextGetData = time.Now().Add(3600 * time.Second) // never do getdata
 				return
@@ -382,6 +398,8 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	invs := new(bytes.Buffer)
 	var cnt_in_progress uint
+
+	max_blocks_forward := max_height - last_block_height
 
 	for {
 		var lowest_found *OneBlockToGet
@@ -409,6 +427,8 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 				common.CountSafe("FetchLoopComplete")
 				break
 			}
+			max_blocks_forward >>= 1
+			max_height = last_block_height + max_blocks_forward
 			continue
 		}
 
