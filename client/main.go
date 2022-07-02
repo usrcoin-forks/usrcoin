@@ -223,6 +223,9 @@ func HandleNetBlock(newbl *network.BlockRcvd) {
 		// it's not linking - keep it for later
 		network.CachedBlocks = append(network.CachedBlocks, newbl)
 		common.CachedBlocksSize.Store(common.CachedBlocksSize.Get() + newbl.Size)
+		if common.CachedBlocksSize.Get() > common.MaxCachedBlocksSize.Get() {
+			common.MaxCachedBlocksSize.Store(common.CachedBlocksSize.Get())
+		}
 		network.CachedBlocksLen.Store(len(network.CachedBlocks))
 		common.CountSafe("BlockPostone")
 		return

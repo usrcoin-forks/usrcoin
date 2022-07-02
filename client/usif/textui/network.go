@@ -247,18 +247,22 @@ func sync_stats(par string) {
 				break
 			}
 		}
-		fmt.Printf("#%d  Cach:%d/%d  MB:%d/%d %d  Avg:%dKB  DO:%d  CX:%d  SX:%d  ERR:%d  Wst:%d/%dMB/%.1f%%  InPr:%d : %d + %d ~ %d\n",
+		fmt.Printf("@ #%d  Blocks:%d/%d,   MBs:%d/%d (max %d) (%d free)   AvgBlock:%dKB   Errors:%d\n",
 			lb, ready_cached_cnt, len(network.CachedBlocks),
 			cached_ready_bytes>>20, common.CachedBlocksSize.Get()>>20,
+			common.MaxCachedBlocksSize.Get()>>20,
 			(network.MAX_BLOCKS_FORWARD_SIZ-common.CachedBlocksSize.Get())>>20,
 			common.AverageBlockSize.Get()>>10,
+			common.BlocksUnderflowCount.Get())
+		fmt.Printf("  Full:%d,  MAxCnt:%d,  MaxSize:%d,   Wasted:%d = %dMB (%.1f%%)\n",
 			common.CounterGet("FetchLoopComplete"),
 			common.CounterGet("FetchPeerCntMax"),
 			common.CounterGet("FetchPeerSizMax"),
-			common.BlocksUnderflowCount.Get(), common.CounterGet("BlockSameRcvd"),
+			common.CounterGet("BlockSameRcvd"),
 			common.BlocksBandwidthWasted.Get()>>20,
-			100*float64(common.BlocksBandwidthWasted.Get())/float64(common.ProcessedBlockSize.Get()),
-			bip_cnt, ip_min, ip_max-ip_min, network.MaxHeight.Get())
+			100*float64(common.BlocksBandwidthWasted.Get())/float64(common.ProcessedBlockSize.Get()))
+		fmt.Printf("  Blocks In Progress: %d, starting from %d, up to %d (%d),  with limit %d\n",
+			bip_cnt, ip_min, ip_max, ip_max-ip_min, network.MaxHeight.Get())
 	} else {
 		println("#", lb, "- no cached blocks!")
 	}
