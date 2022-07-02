@@ -202,11 +202,6 @@ func net_friends(par string) {
 }
 
 func sync_stats(par string) {
-	if par == "reset" {
-		common.BlocksUnderflowCount.Store(0)
-		println("BlocksUnderflowCount set to 0")
-		return
-	}
 	m := make(map[uint32]*network.BlockRcvd)
 	common.Last.Mutex.Lock()
 	lb := common.Last.Block.Height
@@ -267,6 +262,10 @@ func sync_stats(par string) {
 	} else {
 		println("#", lb, "- no cached blocks!")
 	}
+	if par == "r" {
+		common.BlocksUnderflowCount.Store(0)
+		println("Error counter set to 0")
+	}
 }
 
 func init() {
@@ -275,5 +274,5 @@ func init() {
 	newUi("conn", false, net_conn, "Connect to the given node (specify IP and optionally a port)")
 	newUi("rd", false, net_rd, "Show recently disconnected incoming connections")
 	newUi("friends", false, net_friends, "Show current friends settings")
-	newUi("ss", true, sync_stats, "Show chain sync statistics.  'ss reset' to reset full couter.")
+	newUi("ss", true, sync_stats, "Show chain sync statistics. Use 'ss r' to reset the error couter.")
 }
