@@ -82,8 +82,9 @@ var (
 
 	NoCounters sys.SyncBool
 
-	CachedBlocksSize sys.SyncInt
-
+	// TODO: mlve these to network module
+	CachedBlocksSize      sys.SyncInt
+	ProcessedBlockSize    sys.SyncInt
 	BlocksUnderflowCount  sys.SyncInt
 	BlocksBandwidthWasted sys.SyncInt
 )
