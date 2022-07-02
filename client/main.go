@@ -140,6 +140,7 @@ func retry_cached_blocks() bool {
 			if newbl.Block == nil {
 				os.Remove(common.TempBlocksDir() + newbl.BlockTreeNode.BlockHash.String())
 			}
+			common.CachedBlocksSize.Store(common.CachedBlocksSize.Get() - network.CachedBlocks[idx].Size)
 			network.CachedBlocks = append(network.CachedBlocks[:idx], network.CachedBlocks[idx+1:]...)
 			network.CachedBlocksLen.Store(len(network.CachedBlocks))
 			return len(network.CachedBlocks) > 0
@@ -172,6 +173,7 @@ func retry_cached_blocks() bool {
 				return false
 			}
 			// remove it from cache
+			common.CachedBlocksSize.Store(common.CachedBlocksSize.Get() - network.CachedBlocks[idx].Size)
 			network.CachedBlocks = append(network.CachedBlocks[:idx], network.CachedBlocks[idx+1:]...)
 			network.CachedBlocksLen.Store(len(network.CachedBlocks))
 			return len(network.CachedBlocks) > 0
@@ -219,6 +221,7 @@ func HandleNetBlock(newbl *network.BlockRcvd) {
 	if !common.BlockChain.HasAllParents(newbl.BlockTreeNode) {
 		// it's not linking - keep it for later
 		network.CachedBlocks = append(network.CachedBlocks, newbl)
+		common.CachedBlocksSize.Store(common.CachedBlocksSize.Get() + newbl.Size)
 		network.CachedBlocksLen.Store(len(network.CachedBlocks))
 		common.CountSafe("BlockPostone")
 		return
@@ -247,6 +250,9 @@ func HandleNetBlock(newbl *network.BlockRcvd) {
 		newbl.Conn.Misbehave("LocalAcceptBl1", 250)
 	}
 	retryCachedBlocks = retry_cached_blocks()
+	if !retryCachedBlocks && len(network.NetBlocks) == 0 {
+		common.BlocksUnderflowCount.Add(1)
+	}
 }
 
 func HandleRpcBlock(msg *rpcapi.BlockSubmited) {
@@ -507,6 +513,9 @@ func main() {
 			common.CountSafe("MainThreadLoops")
 			for retryCachedBlocks {
 				retryCachedBlocks = retry_cached_blocks()
+				if !retryCachedBlocks && len(network.NetBlocks) == 0 {
+					common.BlocksUnderflowCount.Add(1)
+				}
 				// We have done one per loop - now do something else if pending...
 				if len(network.NetBlocks) > 0 || len(usif.UiChannel) > 0 {
 					break
