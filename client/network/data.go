@@ -8,6 +8,7 @@ import (
 
 	"github.com/piotrnar/gocoin/client/common"
 	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/piotrnar/gocoin/lib/others/sys"
 )
 
 func (c *OneConnection) ProcessGetData(pl []byte) {
@@ -304,6 +305,8 @@ func getBlockToFetch(max_height uint32, cnt_in_progress, avg_block_size uint) (l
 	return
 }
 
+var MaxHeight sys.SyncInt
+
 func (c *OneConnection) GetBlockData() (yes bool) {
 	//MAX_GETDATA_FORWARD
 	// Need to send getdata...?
@@ -398,6 +401,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	var cnt_in_progress uint
 
 	max_blocks_forward := max_height - last_block_height
+	MaxHeight.Store(int(max_height))
 
 	for {
 		var lowest_found *OneBlockToGet

@@ -252,7 +252,7 @@ func sync_stats(par string) {
 				break
 			}
 		}
-		fmt.Printf("#%d  Cach:%d/%d  MB:%d/%d %d  Avg:%dKB  X:%d/%d/%d  ERR:%d  Waste:%d/%dMB/%.1f%%  InPr:%d:%d+%d]\n",
+		fmt.Printf("#%d  Cach:%d/%d  MB:%d/%d %d  Avg:%dKB  DO:%d  CX:%d  SX:%d  ERR:%d  Wst:%d/%dMB/%.1f%%  InPr:%d : %d + %d ~ %d\n",
 			lb, ready_cached_cnt, len(network.CachedBlocks),
 			cached_ready_bytes>>20, common.CachedBlocksSize.Get()>>20,
 			(network.MAX_BLOCKS_FORWARD_SIZ-common.CachedBlocksSize.Get())>>20,
@@ -263,7 +263,7 @@ func sync_stats(par string) {
 			common.BlocksUnderflowCount.Get(), common.CounterGet("BlockSameRcvd"),
 			common.BlocksBandwidthWasted.Get()>>20,
 			100*float64(common.BlocksBandwidthWasted.Get())/float64(common.ProcessedBlockSize.Get()),
-			bip_cnt, ip_min, ip_max-ip_min)
+			bip_cnt, ip_min, ip_max-ip_min, network.MaxHeight.Get())
 	} else {
 		println("#", lb, "- no cached blocks!")
 	}
