@@ -201,10 +201,78 @@ func net_friends(par string) {
 	network.FriendsAccess.Unlock()
 }
 
+func sync_stats(par string) {
+	if par == "reset" {
+		common.BlocksUnderflowCount.Store(0)
+		println("BlocksUnderflowCount set to 0")
+		return
+	}
+	m := make(map[uint32]*network.BlockRcvd)
+	common.Last.Mutex.Lock()
+	lb := common.Last.Block.Height
+	common.Last.Mutex.Unlock()
+
+	var bip_cnt, ip_min, ip_max uint32
+	network.MutexRcv.Lock()
+	for _, bip := range network.BlocksToGet {
+		if bip.InProgress > 0 {
+			if ip_min == 0 {
+				ip_min = bip.BlockTreeNode.Height
+				ip_max = ip_min
+			} else if bip.BlockTreeNode.Height < ip_min {
+				ip_min = bip.BlockTreeNode.Height
+			} else if bip.BlockTreeNode.Height > ip_max {
+				ip_max = bip.BlockTreeNode.Height
+			}
+			bip_cnt++
+		}
+	}
+	network.MutexRcv.Unlock()
+	//print(" #", lb, ": ")
+	if len(network.CachedBlocks) != 0 {
+		var lowest_cached_height, highest_cached_height uint32
+		var ready_cached_cnt uint32
+		var cached_ready_bytes int
+		for _, b := range network.CachedBlocks {
+			bh := b.BlockTreeNode.Height
+			m[bh] = b
+			if lowest_cached_height == 0 {
+				lowest_cached_height, highest_cached_height = bh, bh
+			} else if b.BlockTreeNode.Height < lowest_cached_height {
+				lowest_cached_height = bh
+			} else if bh > highest_cached_height {
+				highest_cached_height = bh
+			}
+		}
+		for {
+			if b, ok := m[lb+ready_cached_cnt+1]; ok {
+				ready_cached_cnt++
+				cached_ready_bytes += b.Size
+			} else {
+				break
+			}
+		}
+		fmt.Printf("#%6d  C:[%5d %5d]  S:[%4d %4d %4d]  A:[%4dKB]  X:[%5d,%5d,%5d]  F:[%d]  W:[%d %dMB]  I:[%d:%d-%d]\n",
+			lb, ready_cached_cnt, len(network.CachedBlocks),
+			cached_ready_bytes>>20, common.CachedBlocksSize.Get()>>20,
+			(network.MAX_BLOCKS_FORWARD_SIZ-common.CachedBlocksSize.Get())>>20,
+			common.AverageBlockSize.Get()>>10,
+			common.CounterGet("FetchLoopComplete"),
+			common.CounterGet("FetchPeerCntMax"),
+			common.CounterGet("FetchPeerSizMax"),
+			common.BlocksUnderflowCount.Get(), common.CounterGet("BlockSameRcvd"),
+			common.BlocksBandwidthWasted.Get()>>20,
+			bip_cnt, ip_min, ip_max-ip_min)
+	} else {
+		println("#", lb, "- no cached blocks!")
+	}
+}
+
 func init() {
 	newUi("net n", false, net_stats, "Show network statistics. Specify ID to see its details.")
 	newUi("drop", false, net_drop, "Disconenct from node with a given IP")
 	newUi("conn", false, net_conn, "Connect to the given node (specify IP and optionally a port)")
 	newUi("rd", false, net_rd, "Show recently disconnected incoming connections")
 	newUi("friends", false, net_friends, "Show current friends settings")
+	newUi("ss", true, sync_stats, "Show chain sync statistics.  'ss reset' to reset full couter.")
 }

@@ -28,6 +28,7 @@ type BlockRcvd struct {
 	*chain.BlockTreeNode
 	*OneReceivedBlock
 	*btc.BlockExtraInfo
+	Size int
 }
 
 type TxRcvd struct {

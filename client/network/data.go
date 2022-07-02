@@ -141,6 +141,7 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 	// the blocks seems to be fine
 	if rb, got := ReceivedBlocks[idx]; got {
 		rb.Cnt++
+		common.BlocksBandwidthWasted.Add(len(b) + 24)
 		common.CountSafe("BlockSameRcvd")
 		conn.Mutex.Lock()
 		delete(conn.GetBlockInProgress, idx)
@@ -240,6 +241,7 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 
 	var bei *btc.BlockExtraInfo
 
+	size := len(b2g.Block.Raw)
 	if store_on_disk {
 		if e := ioutil.WriteFile(common.TempBlocksDir()+hash.String(), b2g.Block.Raw, 0600); e == nil {
 			bei = new(btc.BlockExtraInfo)
@@ -250,7 +252,8 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 		}
 	}
 
-	NetBlocks <- &BlockRcvd{Conn: conn, Block: b2g.Block, BlockTreeNode: b2g.BlockTreeNode, OneReceivedBlock: orb, BlockExtraInfo: bei}
+	NetBlocks <- &BlockRcvd{Conn: conn, Block: b2g.Block, BlockTreeNode: b2g.BlockTreeNode,
+		OneReceivedBlock: orb, BlockExtraInfo: bei, Size: size}
 }
 
 // parseLocatorsPayload parses the payload of "getblocks" or "getheaders" messages.
@@ -352,14 +355,12 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	// We can issue getdata for this peer
 	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
 
-	max_forward := uint32(MAX_BLOCKS_FORWARD_SIZ / avg_block_size)
-	if max_forward > MAX_BLOCKS_FORWARD_CNT {
-		max_forward = MAX_BLOCKS_FORWARD_CNT
-	}
 	common.Last.Mutex.Lock()
-	max_height := common.Last.Block.Height + max_forward
+	max_height := common.Last.Block.Height + uint32(MAX_BLOCKS_FORWARD_SIZ/avg_block_size)
+	if max_height > common.Last.Block.Height+MAX_BLOCKS_FORWARD_CNT {
+		max_height = common.Last.Block.Height + MAX_BLOCKS_FORWARD_CNT
+	}
 	common.Last.Mutex.Unlock()
-
 	if max_height > c.Node.Height {
 		max_height = c.Node.Height
 	}
@@ -377,18 +378,12 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			}
 		}
 	}
-	max_forward = max_height - common.Last.Block.Height
 
 	invs := new(bytes.Buffer)
 	var cnt_in_progress uint
 
 	for {
 		var lowest_found *OneBlockToGet
-
-		delta := max_forward / (1 + common.CFG.Net.MaxBlockAtOnce - uint32(cnt_in_progress))
-		common.Last.Mutex.Lock()
-		max_height = common.Last.Block.Height + delta
-		common.Last.Mutex.Unlock()
 
 		// Get block to fetch:
 
@@ -410,6 +405,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		if lowest_found == nil {
 			cnt_in_progress++
 			if cnt_in_progress >= uint(common.CFG.Net.MaxBlockAtOnce) {
+				common.CountSafe("FetchLoopComplete")
 				break
 			}
 			continue
@@ -427,10 +423,12 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		c.Mutex.Unlock()
 
 		if cbip >= MAX_PEERS_BLOCKS_IN_PROGRESS {
+			common.CountSafe("FetchPeerCntMax")
 			break // no more than 2000 blocks in progress / peer
 		}
 		block_data_in_progress += avg_block_size
 		if block_data_in_progress > MAX_GETDATA_FORWARD {
+			common.CountSafe("FetchPeerSizMax")
 			break
 		}
 	}

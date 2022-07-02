@@ -81,6 +81,11 @@ var (
 	MemMutex sync.Mutex
 
 	NoCounters sys.SyncBool
+
+	CachedBlocksSize sys.SyncInt
+
+	BlocksUnderflowCount  sys.SyncInt
+	BlocksBandwidthWasted sys.SyncInt
 )
 
 type TheLastBlock struct {
@@ -112,6 +117,13 @@ func CountSafeAdd(k string, val uint64) {
 		Counter[k] += val
 		CounterMutex.Unlock()
 	}
+}
+
+func CounterGet(k string) (val uint64) {
+	CounterMutex.Lock()
+	val = Counter[k]
+	CounterMutex.Unlock()
+	return
 }
 
 func Count(k string) {
