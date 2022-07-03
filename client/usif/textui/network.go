@@ -215,7 +215,7 @@ func _fetch_counters_str() (li string) {
 
 	for i := range ck {
 		k := ck[i]
-		v := common.Counter[k]
+		v := common.Counter[par+k]
 		s := fmt.Sprint(k, ": ", v)
 		if li != "" {
 			li += ",   "
