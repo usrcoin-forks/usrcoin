@@ -209,8 +209,7 @@ func (c *OneConnection) Tick(now time.Time) {
 		if !c.X.GetBlocksDataNow && now.After(c.nextGetData) {
 			c.X.GetBlocksDataNow = true
 		}
-		if c.X.GetBlocksDataNow && len(c.GetBlockInProgress) < MAX_PEERS_BLOCKS_IN_PROGRESS/2 &&
-			len(c.GetBlockInProgress)*common.AverageBlockSize.Get() < MAX_GETDATA_FORWARD/2 {
+		if c.X.GetBlocksDataNow {
 			c.X.GetBlocksDataNow = false
 			c.Mutex.Unlock()
 			c.GetBlockData()
@@ -794,20 +793,7 @@ func (c *OneConnection) Run() {
 
 		case "block": //block received
 			netBlockReceived(c, cmd.pl)
-			if common.BlockChainSynchronized.Get() {
-				c.MutexSetBool(&c.X.GetBlocksDataNow, true) // ask for more blocks during next tick
-			} else {
-				c.Mutex.Lock()
-				yes := len(c.GetBlockInProgress) < MAX_PEERS_BLOCKS_IN_PROGRESS/2 &&
-					len(c.GetBlockInProgress)*common.AverageBlockSize.Get() < MAX_GETDATA_FORWARD/2
-				c.Mutex.Unlock()
-				if yes {
-					c.GetBlockData()
-				} else {
-					// try to ask for more blocks after one second
-					c.nextGetData = time.Now().Add(1 * time.Second)
-				}
-			}
+			c.MutexSetBool(&c.X.GetBlocksDataNow, true) // ask for more blocks during next tick
 
 		case "getblocks":
 			c.GetBlocks(cmd.pl)
