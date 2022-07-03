@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/piotrnar/gocoin/client/common"
@@ -201,6 +202,30 @@ func net_friends(par string) {
 	network.FriendsAccess.Unlock()
 }
 
+func _fetch_counters_str() (li string) {
+	par := "Fetch"
+	common.CounterMutex.Lock()
+	ck := make([]string, 0)
+	for k := range common.Counter {
+		if strings.HasPrefix(k, par) {
+			ck = append(ck, k[len(par):])
+		}
+	}
+	sort.Strings(ck)
+
+	for i := range ck {
+		k := ck[i]
+		v := common.Counter[k]
+		s := fmt.Sprint(k, ": ", v)
+		if li != "" {
+			li += ",   "
+		}
+		li += s
+	}
+	common.CounterMutex.Unlock()
+	return
+}
+
 func sync_stats(par string) {
 	m := make(map[uint32]*network.BlockRcvd)
 	common.Last.Mutex.Lock()
@@ -253,8 +278,7 @@ func sync_stats(par string) {
 		(network.MAX_BLOCKS_FORWARD_SIZ-common.CachedBlocksSize.Get())>>20,
 		common.AverageBlockSize.Get()>>10,
 		common.BlocksUnderflowCount.Get())
-	fmt.Print("\t")
-	show_counters("Fetch")
+	fmt.Printf("\t%s\n", _fetch_counters_str())
 	fmt.Printf("\tBlocks In Progress: %d, starting from %d, up to %d (%d), limit %d\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min, network.MaxHeight.Get())
 	fmt.Printf("\tWasted:%d = %dMB (%.1f%%)\n", common.CounterGet("BlockSameRcvd"), common.BlocksBandwidthWasted.Get()>>20,
