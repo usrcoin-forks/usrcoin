@@ -246,15 +246,16 @@ func sync_stats(par string) {
 			break
 		}
 	}
-	fmt.Printf("@ #%d  Blocks:%d/%d,   MBs:%d/%d (max %d) (%d free)   AvgBlock:%dKB   Errors:%d\n",
+	fmt.Printf("#%d  Blocks:%d/%d,   MBs:%d/%d (max %d) (%d free)   AvgBlock:%dKB   Errors:%d\n",
 		lb, ready_cached_cnt, len(network.CachedBlocks),
 		cached_ready_bytes>>20, common.CachedBlocksSize.Get()>>20,
 		common.MaxCachedBlocksSize.Get()>>20,
 		(network.MAX_BLOCKS_FORWARD_SIZ-common.CachedBlocksSize.Get())>>20,
 		common.AverageBlockSize.Get()>>10,
 		common.BlocksUnderflowCount.Get())
+	fmt.Print("\t")
 	show_counters("Fetch")
-	fmt.Printf("  Blocks In Progress: %d, starting from %d, up to %d (%d), limit %d.   Wasted:%d = %dMB (%.1f%%)\n",
+	fmt.Printf("\tBlocks In Progress: %d, starting from %d, up to %d (%d), limit %d.   Wasted:%d = %dMB (%.1f%%)\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min, network.MaxHeight.Get(), common.BlocksBandwidthWasted.Get()>>20,
 		common.CounterGet("BlockSameRcvd"), 100*float64(common.BlocksBandwidthWasted.Get())/float64(common.ProcessedBlockSize.Get()))
 
