@@ -323,7 +323,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	c.Mutex.Lock()
 	if c.X.BlocksExpired > 0 { // Do not fetch blocks from nodes that had not given us some in the past
 		c.Mutex.Unlock()
-		common.CountSafe("FetchHasBlocksExpired")
+		common.CountSafe("FetchHadBlocksExpired")
 		c.nextGetData = time.Now().Add(time.Hour)
 		return
 	}
@@ -331,7 +331,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	c.Mutex.Unlock()
 
 	if cbip >= MAX_PEERS_BLOCKS_IN_PROGRESS {
-		common.CountSafe("FetchMaxCountInProgress")
+		common.CountSafe("FetchHadMaxCount")
 		// wake up in a few seconds, maybe some blocks will complete by then
 		c.nextGetData = time.Now().Add(1 * time.Second)
 		return
@@ -341,7 +341,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	block_data_in_progress := cbip * avg_block_size
 
 	if block_data_in_progress > 0 && (block_data_in_progress+avg_block_size) > MAX_GETDATA_FORWARD {
-		common.CountSafe("FetchMaxBytesInProgress")
+		common.CountSafe("FetchHadMaxSize")
 		// wake up in a few seconds, maybe some blocks will complete by then
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
@@ -361,7 +361,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	max_size_to_go := MAX_BLOCKS_FORWARD_SIZ - common.CachedBlocksSize.Get()
 	if max_size_to_go < avg_block_size {
-		common.CountSafe("FetchCacheFull")
+		common.CountSafe("FetchHadFullCache")
 		c.nextGetData = time.Now().Add(3 * time.Second) // wait for some blocks to complete
 		return
 	}
@@ -374,7 +374,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	if max_height > LastCommitedHeader.Height {
 		max_height = LastCommitedHeader.Height
 		if max_height <= last_block_height {
-			common.CountSafe("FetchAtLastHeader")
+			common.CountSafe("FetchHadLastKnown")
 			c.nextGetData = time.Now().Add(10 * time.Second) // wait for some blocks to complete
 			return
 		}
@@ -383,7 +383,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	if max_height > c.Node.Height {
 		max_height = c.Node.Height
 		if max_height <= last_block_height {
-			common.CountSafe("FetchPeerEmpty")
+			common.CountSafe("FetchHadPeerEmpty")
 			c.nextGetData = time.Now().Add(15 * time.Second) // wait for some blocks to complete
 			return
 		}
@@ -395,6 +395,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			if max_height <= last_block_height {
 				common.CountSafe("FetchNoWitness")
 				c.nextGetData = time.Now().Add(time.Hour) // never do getdata
+				c.Disconnect(true, "NoWitness")
 				return
 			}
 		}
@@ -429,7 +430,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		if lowest_found == nil {
 			cnt_in_progress++
 			if cnt_in_progress >= uint(common.CFG.Net.MaxBlockAtOnce) {
-				common.CountSafe("FetchLoopComplete")
+				common.CountSafe("FetchReachedEnd")
 				break
 			}
 			max_blocks_forward >>= 1
@@ -449,12 +450,12 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		c.Mutex.Unlock()
 
 		if cbip >= MAX_PEERS_BLOCKS_IN_PROGRESS {
-			common.CountSafe("FetchPeerCntMax")
+			common.CountSafe("FetchReachedMaxCnt")
 			break // no more than 2000 blocks in progress / peer
 		}
 		block_data_in_progress += avg_block_size
 		if block_data_in_progress > MAX_GETDATA_FORWARD {
-			common.CountSafe("FetchPeerSizMax")
+			common.CountSafe("FetchReachedMaxSize")
 			break
 		}
 	}
