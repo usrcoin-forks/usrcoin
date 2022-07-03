@@ -72,7 +72,7 @@ var (
 	WalletProgress uint32 // 0 for not / 1000 for max
 	WalletOnIn     uint32
 
-	BlockChainSynchronized bool
+	BlockChainSynchronized sys.SyncBool
 
 	lastTrustedBlock       *btc.Uint256
 	LastTrustedBlockHeight uint32
@@ -82,7 +82,8 @@ var (
 
 	NoCounters sys.SyncBool
 
-	// TODO: mlve these to network module
+	MaxSyncCacheBytes sys.SyncInt
+	// TODO: mlve these to network module````````````````
 	CachedBlocksSize      sys.SyncInt
 	MaxCachedBlocksSize   sys.SyncInt
 	ProcessedBlockSize    sys.SyncInt
@@ -282,7 +283,7 @@ func GetRawTx(BlockHeight uint32, txid *btc.Uint256) (data []byte, er error) {
 
 func WalletPendingTick() (res bool) {
 	mutex_cfg.Lock()
-	if WalletOnIn > 0 && BlockChainSynchronized {
+	if WalletOnIn > 0 && BlockChainSynchronized.Get() {
 		WalletOnIn--
 		res = WalletOnIn == 0
 	}
@@ -326,7 +327,7 @@ func LastTrustedBlockMatch(h *btc.Uint256) (res bool) {
 
 func AcceptTx() (res bool) {
 	mutex_cfg.Lock()
-	res = CFG.TXPool.Enabled && BlockChainSynchronized
+	res = CFG.TXPool.Enabled && BlockChainSynchronized.Get()
 	mutex_cfg.Unlock()
 	return
 }

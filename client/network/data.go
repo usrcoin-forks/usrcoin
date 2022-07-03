@@ -358,7 +358,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	// We can issue getdata for this peer
 	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
 
-	max_size_to_go := int(common.GetUint32(&common.CFG.Memory.MaxSyncCacheMB)) - common.CachedBlocksSize.Get()
+	max_size_to_go := common.MaxSyncCacheBytes.Get() - common.CachedBlocksSize.Get()
 	if max_size_to_go < avg_block_size {
 		common.CountSafe("FetchHadFullCache")
 		c.nextGetData = time.Now().Add(3 * time.Second) // wait for some blocks to complete
@@ -475,7 +475,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	c.SendRawMsg("getdata", pl)
 	yes = true
 
-	// try to add more blocks after a second...
-	c.nextGetData = time.Now().Add(1 * time.Second)
+	// we dont set c.nextGetData here, as it will be done in tick.go after "block" message
 	return
 }

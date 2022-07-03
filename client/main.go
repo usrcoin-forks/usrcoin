@@ -41,7 +41,7 @@ func reset_save_timer() {
 	for len(SaveBlockChain.C) > 0 {
 		<-SaveBlockChain.C
 	}
-	if common.BlockChainSynchronized {
+	if common.BlockChainSynchronized.Get() {
 		SaveBlockChain.Reset(SaveBlockChainAfter)
 	} else {
 		SaveBlockChain.Reset(SaveBlockChainAfterNoSync)
@@ -101,7 +101,7 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 			println("Initial parsing finished in", time.Since(newbl.TmStart).String())
 			common.Last.ParseTill = nil
 		}
-		if common.Last.ParseTill == nil && !common.BlockChainSynchronized &&
+		if common.Last.ParseTill == nil && !common.BlockChainSynchronized.Get() &&
 			((common.Last.Block.Height%50e3) == 0 || common.Last.Block.Height == network.LastCommitedHeader.Height) {
 			println("Sync to", common.Last.Block.Height, "took", time.Since(common.StartTime).String())
 		}
@@ -586,7 +586,7 @@ func main() {
 				}
 				network.NetworkTick()
 
-				if common.BlockChainSynchronized {
+				if common.BlockChainSynchronized.Get() {
 					if common.WalletPendingTick() {
 						wallet.OnOff <- true
 					}
@@ -603,7 +603,7 @@ func main() {
 						startup_ticks--
 						break
 					}
-					common.SetBool(&common.BlockChainSynchronized, true)
+					common.BlockChainSynchronized.Set()
 					reset_save_timer()
 				} else {
 					startup_ticks = 5 // snooze by 5 seconds each time we're in here
@@ -623,7 +623,7 @@ func main() {
 			case on := <-wallet.OnOff:
 				common.Busy()
 				if on {
-					if common.BlockChainSynchronized {
+					if common.BlockChainSynchronized.Get() {
 						usif.FetchingBalances.Set()
 						wallet.LoadBalance()
 						usif.FetchingBalances.Clr()
