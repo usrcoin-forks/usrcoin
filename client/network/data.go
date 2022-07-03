@@ -464,7 +464,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		//println(c.ConnID, "fetch nothing", cbip, block_data_in_progress, max_height-common.Last.BlockHeight(), cnt_in_progress)
 		common.CountSafe("FetchNothing")
 		// wake up in a few seconds, maybe it will be different next time
-		c.nextGetData = time.Now().Add(5 * time.Second)
+		c.nextGetData = time.Now().Add(1 * time.Second)
 		return
 	}
 

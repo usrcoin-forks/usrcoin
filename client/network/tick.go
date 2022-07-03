@@ -209,7 +209,8 @@ func (c *OneConnection) Tick(now time.Time) {
 		if !c.X.GetBlocksDataNow && now.After(c.nextGetData) {
 			c.X.GetBlocksDataNow = true
 		}
-		if c.X.GetBlocksDataNow && len(c.GetBlockInProgress)*common.AverageBlockSize.Get() < MAX_GETDATA_FORWARD/2 {
+		if c.X.GetBlocksDataNow && len(c.GetBlockInProgress) < MAX_PEERS_BLOCKS_IN_PROGRESS/2 &&
+			len(c.GetBlockInProgress)*common.AverageBlockSize.Get() < MAX_GETDATA_FORWARD/2 {
 			c.X.GetBlocksDataNow = false
 			c.Mutex.Unlock()
 			c.GetBlockData()
