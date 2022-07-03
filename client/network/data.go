@@ -347,7 +347,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		return
 	}
 
-	var cnt uint64
 	var block_type uint32
 
 	if (c.Node.Services & btc.SERVICE_SEGWIT) != 0 {
@@ -403,15 +402,17 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	invs := new(bytes.Buffer)
 	var cnt_in_progress uint
+	var invs_cnt int
 
 	max_blocks_forward := max_height - last_block_height
 	MaxHeight.Store(int(max_height))
 
+	max_blocks_at_once := common.GetUint32(&common.CFG.Net.MaxBlockAtOnce)
+
 	for {
 		var lowest_found *OneBlockToGet
 
-		// Get block to fetch:
-
+		// Find block to fetch, with lowest height for the given InProgress==cnt_in_progress
 		for bh := LowestIndexToBlocksToGet; bh <= max_height; bh++ {
 			if idxlst, ok := IndexToBlocksToGet[bh]; ok {
 				for _, idx := range idxlst {
@@ -429,7 +430,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 		if lowest_found == nil {
 			cnt_in_progress++
-			if cnt_in_progress >= uint(common.CFG.Net.MaxBlockAtOnce) {
+			if cnt_in_progress >= uint(max_blocks_at_once) {
 				common.CountSafe("FetchReachedEnd")
 				break
 			}
@@ -441,26 +442,25 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		binary.Write(invs, binary.LittleEndian, block_type)
 		invs.Write(lowest_found.BlockHash.Hash[:])
 		lowest_found.InProgress++
-		cnt++
+		invs_cnt++
 
 		c.Mutex.Lock()
 		c.GetBlockInProgress[lowest_found.BlockHash.BIdx()] =
 			&oneBlockDl{hash: lowest_found.BlockHash, start: time.Now(), SentAtPingCnt: c.X.PingSentCnt}
-		cbip = len(c.GetBlockInProgress)
 		c.Mutex.Unlock()
 
-		if cbip >= MAX_PEERS_BLOCKS_IN_PROGRESS {
+		if cbip+invs_cnt >= MAX_PEERS_BLOCKS_IN_PROGRESS {
 			common.CountSafe("FetchReachedMaxCnt")
 			break // no more than 2000 blocks in progress / peer
 		}
 		block_data_in_progress += avg_block_size
-		if block_data_in_progress > MAX_GETDATA_FORWARD {
+		if block_data_in_progress >= MAX_GETDATA_FORWARD {
 			common.CountSafe("FetchReachedMaxSize")
 			break
 		}
 	}
 
-	if cnt == 0 {
+	if invs_cnt == 0 {
 		//println(c.ConnID, "fetch nothing", cbip, block_data_in_progress, max_height-common.Last.BlockHeight(), cnt_in_progress)
 		common.CountSafe("FetchNothing")
 		// wake up in a few seconds, maybe it will be different next time
@@ -469,7 +469,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	}
 
 	bu := new(bytes.Buffer)
-	btc.WriteVlen(bu, uint64(cnt))
+	btc.WriteVlen(bu, uint64(invs_cnt))
 	pl := append(bu.Bytes(), invs.Bytes()...)
 	//println(c.ConnID, "fetching", cnt, "new blocks ->", cbip)
 	c.SendRawMsg("getdata", pl)
