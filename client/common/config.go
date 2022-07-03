@@ -94,6 +94,7 @@ var (
 			MaxCachedBlks        uint
 			FreeAtStart          bool // Free all possible memory after initial loading of block chain
 			CacheOnDisk          bool
+			MaxSyncCacheMB       uint32 // When syncing chain, prebuffer up to this MB of bocks data
 			MaxDataFileMB        uint   // 0 for unlimited size
 			DataFilesKeep        uint32 // 0 for all
 			OldDataBackup        bool   // move old dat files to "oldat/" folder (instead of removing them)
@@ -172,6 +173,7 @@ func InitConfig() {
 	CFG.Memory.GCPercTrshold = 30 // 30% (To save mem)
 	CFG.Memory.MaxCachedBlks = 200
 	CFG.Memory.CacheOnDisk = true
+	CFG.Memory.MaxSyncCacheMB = 500
 	CFG.Memory.MaxDataFileMB = 1000 // max 1GB per single data file
 	CFG.Memory.CompressBlockDB = true
 

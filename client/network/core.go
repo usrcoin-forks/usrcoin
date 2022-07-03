@@ -39,9 +39,8 @@ const (
 	ExpireCachedAfter = 20 * time.Minute /*If a block stays in the cache for that long, drop it*/
 
 	MAX_PEERS_BLOCKS_IN_PROGRESS = 500
-	MAX_BLOCKS_FORWARD_CNT       = 5000  // Never ask for a block higher than current top + this value
-	MAX_BLOCKS_FORWARD_SIZ       = 500e6 // this  will store about that much blocks data in RAM
-	MAX_GETDATA_FORWARD          = 2e6   // Download up to 2MB forward (or one block)
+	MAX_BLOCKS_FORWARD_CNT       = 5000 // Never ask for a block higher than current top + this value
+	MAX_GETDATA_FORWARD          = 2e6  // Download up to 2MB forward (or one block)
 
 	MAINTANENCE_PERIOD = time.Minute
 
