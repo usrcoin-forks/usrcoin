@@ -281,7 +281,7 @@ func sync_stats(par string) {
 		bip_cnt, ip_min, ip_max, ip_max-ip_min, network.MaxHeight.Get())
 	tot := common.ProcessedBlockSize.Get()
 	if tot > 0 {
-		fmt.Printf("\tWasted %d bocks carying %d/%dMB ==> %.2f%%\n", common.CounterGet("BlockSameRcvd"),
+		fmt.Printf("\tWasted %d blocks carrying %d/%dMB ==> %.2f%%\n", common.CounterGet("BlockSameRcvd"),
 			common.BlocksBandwidthWasted.Get()>>20, tot>>20,
 			100*float64(common.BlocksBandwidthWasted.Get())/float64(tot))
 	}
