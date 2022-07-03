@@ -253,15 +253,10 @@ func sync_stats(par string) {
 		(network.MAX_BLOCKS_FORWARD_SIZ-common.CachedBlocksSize.Get())>>20,
 		common.AverageBlockSize.Get()>>10,
 		common.BlocksUnderflowCount.Get())
-	fmt.Printf("  Full:%d,  MAxCnt:%d,  MaxSize:%d,   Wasted:%d = %dMB (%.1f%%)\n",
-		common.CounterGet("FetchLoopComplete"),
-		common.CounterGet("FetchPeerCntMax"),
-		common.CounterGet("FetchPeerSizMax"),
-		common.CounterGet("BlockSameRcvd"),
-		common.BlocksBandwidthWasted.Get()>>20,
-		100*float64(common.BlocksBandwidthWasted.Get())/float64(common.ProcessedBlockSize.Get()))
-	fmt.Printf("  Blocks In Progress: %d, starting from %d, up to %d (%d),  with limit %d\n",
-		bip_cnt, ip_min, ip_max, ip_max-ip_min, network.MaxHeight.Get())
+	show_counters("Fetch")
+	fmt.Printf("  Blocks In Progress: %d, starting from %d, up to %d (%d), limit %d.   Wasted:%d = %dMB (%.1f%%)\n",
+		bip_cnt, ip_min, ip_max, ip_max-ip_min, network.MaxHeight.Get(), common.BlocksBandwidthWasted.Get()>>20,
+		common.CounterGet("BlockSameRcvd"), 100*float64(common.BlocksBandwidthWasted.Get())/float64(common.ProcessedBlockSize.Get()))
 
 	if par == "r" {
 		common.BlocksUnderflowCount.Store(0)
