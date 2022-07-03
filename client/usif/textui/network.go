@@ -281,9 +281,12 @@ func sync_stats(par string) {
 	fmt.Printf("\t%s\n", _fetch_counters_str())
 	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d), with stop at %d\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min, network.MaxHeight.Get())
-	fmt.Printf("\tWasted %d bocks carying %d/%dMB ==> %.2f%%\n", common.CounterGet("BlockSameRcvd"),
-		common.BlocksBandwidthWasted.Get()>>20, common.ProcessedBlockSize.Get()>>20,
-		100*float64(common.BlocksBandwidthWasted.Get())/float64(common.ProcessedBlockSize.Get()))
+	tot := common.ProcessedBlockSize.Get()
+	if tot > 0 {
+		fmt.Printf("\tWasted %d bocks carying %d/%dMB ==> %.2f%%\n", common.CounterGet("BlockSameRcvd"),
+			common.BlocksBandwidthWasted.Get()>>20, tot>>20,
+			100*float64(common.BlocksBandwidthWasted.Get())/float64(tot))
+	}
 
 	if par == "r" {
 		common.BlocksUnderflowCount.Store(0)
