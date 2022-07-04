@@ -211,11 +211,12 @@ func print_fetch_counters() (li string) {
 			ck = append(ck, k[len(par):])
 		}
 	}
+	common.CounterMutex.Unlock()
 	sort.Strings(ck)
 
 	for i := range ck {
 		k := ck[i]
-		v := common.Counter[par+k]
+		v := common.CounterGet(par + k)
 		s := fmt.Sprint(k, ":", v)
 		if len(li)+len(s) > 80 {
 			fmt.Println("\t", li)
@@ -225,7 +226,9 @@ func print_fetch_counters() (li string) {
 		}
 		li += s
 	}
-	common.CounterMutex.Unlock()
+	if li != "" {
+		fmt.Println("\t", li)
+	}
 	return
 }
 
