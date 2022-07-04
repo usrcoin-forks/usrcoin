@@ -218,7 +218,7 @@ func print_fetch_counters() (li string) {
 		k := ck[i]
 		v := common.CounterGet(par + k)
 		s := fmt.Sprint(k, ":", v)
-		if len(li)+len(s) > 80 {
+		if len(li)+len(s) > 72 {
 			fmt.Println("\t", li)
 			li = ""
 		} else if li != "" {
