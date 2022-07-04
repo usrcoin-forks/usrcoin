@@ -218,7 +218,7 @@ func print_fetch_counters() (li string) {
 		k := ck[i]
 		v := common.CounterGet(par + k)
 		s := fmt.Sprint(k, ":", v)
-		if len(li)+len(s) > 72 {
+		if len(li)+len(s) > 70 {
 			fmt.Println("\t", li)
 			li = ""
 		} else if li != "" {
@@ -282,7 +282,6 @@ func sync_stats(par string) {
 		cached_ready_bytes>>20, network.CachedBlocksSize.Get()>>20, network.MaxCachedBlocksSize.Get()>>20,
 		(common.MaxSyncCacheBytes.Get()-network.CachedBlocksSize.Get())>>20,
 		common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
-	print_fetch_counters()
 	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d), with stop at %d\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min, common.CounterGet("FetchHadFullCache"))
 	tot := network.ProcessedBlockSize.Get()
@@ -291,6 +290,7 @@ func sync_stats(par string) {
 		fmt.Printf("\tWasted %d blocks carrying %d/%dMB ==> %.2f%%\n", common.CounterGet("BlockSameRcvd"),
 			wst>>20, tot>>20, 100*float64(wst)/float64(tot))
 	}
+	print_fetch_counters()
 
 	if par == "r" {
 		common.CountSafeStore("BlocksUnderflowCount", 0)
