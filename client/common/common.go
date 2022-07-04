@@ -19,7 +19,8 @@ import (
 )
 
 const (
-	Version = uint32(70015)
+	Version        = uint32(70015)
+	AVG_BSIZE_SPAN = 2016
 )
 
 var (
@@ -45,10 +46,11 @@ var (
 
 	NetworkClosed sys.SyncBool
 
-	AverageBlockSize sys.SyncInt
-	avg_bsize_chan   chan uint
-	avg_bsize_next   uint32
-	avg_bsize_sum    uint
+	AverageBlockSize  sys.SyncInt
+	avg_bsize_history []uint32
+	avg_bsize_idx     int
+	avg_bsize_next    uint32
+	avg_bsize_sum     uint
 
 	allBalMinVal uint64
 
@@ -237,29 +239,35 @@ func RecalcAverageBlockSize() {
 	n := BlockChain.LastBlock()
 	new_height := n.Height
 	if avg_bsize_next != 0 && n.Height == avg_bsize_next {
-		if len(avg_bsize_chan) == cap(avg_bsize_chan) {
-			le = <-avg_bsize_chan
-			avg_bsize_sum -= le
-		}
-
 		le = uint(n.BlockSize)
+		if len(avg_bsize_history) == AVG_BSIZE_SPAN {
+			if avg_bsize_idx >= AVG_BSIZE_SPAN {
+				avg_bsize_idx = 0
+			}
+			avg_bsize_sum -= uint(avg_bsize_history[avg_bsize_idx])
+			avg_bsize_history[avg_bsize_idx] = uint32(le)
+		} else {
+			avg_bsize_history = append(avg_bsize_history, uint32(le))
+		}
+		avg_bsize_idx++
 		avg_bsize_sum += le
-		avg_bsize_chan <- le
-		new_avg_size = int(avg_bsize_sum) / len(avg_bsize_chan)
+		new_avg_size = int(avg_bsize_sum) / len(avg_bsize_history)
 	} else {
 		println("Recalc avg_bsize @", new_height)
-		avg_bsize_chan = make(chan uint, 2016)
+		avg_bsize_history = make([]uint32, 0, AVG_BSIZE_SPAN)
+		avg_bsize_idx = 0
 		avg_bsize_sum = 0
-		for maxcnt := cap(avg_bsize_chan); maxcnt > 0 && n != nil; maxcnt-- {
+		for maxcnt := AVG_BSIZE_SPAN; maxcnt > 0 && n != nil; maxcnt-- {
 			le = uint(n.BlockSize)
-			avg_bsize_chan <- le
+			avg_bsize_history = append(avg_bsize_history, uint32(le))
+			avg_bsize_idx++
 			avg_bsize_sum += le
 			n = n.Parent
 		}
-		if avg_bsize_sum == 0 || len(avg_bsize_chan) == 0 {
+		if avg_bsize_sum == 0 || avg_bsize_idx == 0 {
 			new_avg_size = 204
 		} else {
-			new_avg_size = int(avg_bsize_sum) / len(avg_bsize_chan)
+			new_avg_size = int(avg_bsize_sum) / avg_bsize_idx
 		}
 	}
 	AverageBlockSize.Store(new_avg_size)
