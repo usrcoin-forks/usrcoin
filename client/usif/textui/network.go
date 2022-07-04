@@ -284,7 +284,7 @@ func sync_stats(par string) {
 		common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
 	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d), with stop at %d\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min, common.CounterGet("FetchHadFullCache"))
-	tot := network.ProcessedBlockSize.Get()
+	tot := common.CounterGet("rbts_block")
 	if tot > 0 {
 		wst := common.CounterGet("BlockBytesWasted")
 		fmt.Printf("\tWasted %d blocks carrying %d/%dMB ==> %.2f%%\n", common.CounterGet("BlockSameRcvd"),

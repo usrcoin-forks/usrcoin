@@ -85,7 +85,6 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 
 		newbl.NonWitnessSize = bl.NoWitnessSize
 
-		network.ProcessedBlockSize.Add(newbl.Size)
 		common.RecalcAverageBlockSize()
 
 		common.Last.Mutex.Lock()

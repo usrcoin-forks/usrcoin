@@ -65,7 +65,6 @@ var (
 
 	CachedBlocksSize    sys.SyncInt
 	MaxCachedBlocksSize sys.SyncInt
-	ProcessedBlockSize  sys.SyncInt
 )
 
 // make sure to call it with MutexRcv locked
