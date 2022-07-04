@@ -85,7 +85,7 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 
 		newbl.NonWitnessSize = bl.NoWitnessSize
 
-		common.ProcessedBlockSize.Add(newbl.Size)
+		network.ProcessedBlockSize.Add(newbl.Size)
 		common.RecalcAverageBlockSize()
 
 		common.Last.Mutex.Lock()
@@ -141,7 +141,7 @@ func retry_cached_blocks() bool {
 			if newbl.Block == nil {
 				os.Remove(common.TempBlocksDir() + newbl.BlockTreeNode.BlockHash.String())
 			}
-			common.CachedBlocksSize.Add(-network.CachedBlocks[idx].Size)
+			network.CachedBlocksSize.Add(-network.CachedBlocks[idx].Size)
 			network.CachedBlocks = append(network.CachedBlocks[:idx], network.CachedBlocks[idx+1:]...)
 			network.CachedBlocksLen.Store(len(network.CachedBlocks))
 			return len(network.CachedBlocks) > 0
@@ -174,7 +174,7 @@ func retry_cached_blocks() bool {
 				return false
 			}
 			// remove it from cache
-			common.CachedBlocksSize.Add(-network.CachedBlocks[idx].Size)
+			network.CachedBlocksSize.Add(-network.CachedBlocks[idx].Size)
 			network.CachedBlocks = append(network.CachedBlocks[:idx], network.CachedBlocks[idx+1:]...)
 			network.CachedBlocksLen.Store(len(network.CachedBlocks))
 			return len(network.CachedBlocks) > 0
@@ -222,9 +222,9 @@ func HandleNetBlock(newbl *network.BlockRcvd) {
 	if !common.BlockChain.HasAllParents(newbl.BlockTreeNode) {
 		// it's not linking - keep it for later
 		network.CachedBlocks = append(network.CachedBlocks, newbl)
-		common.CachedBlocksSize.Add(newbl.Size)
-		if common.CachedBlocksSize.Get() > common.MaxCachedBlocksSize.Get() {
-			common.MaxCachedBlocksSize.Store(common.CachedBlocksSize.Get())
+		network.CachedBlocksSize.Add(newbl.Size)
+		if network.CachedBlocksSize.Get() > network.MaxCachedBlocksSize.Get() {
+			network.MaxCachedBlocksSize.Store(network.CachedBlocksSize.Get())
 		}
 		network.CachedBlocksLen.Store(len(network.CachedBlocks))
 		common.CountSafe("BlockPostone")
@@ -255,7 +255,7 @@ func HandleNetBlock(newbl *network.BlockRcvd) {
 	}
 	retryCachedBlocks = retry_cached_blocks()
 	if !retryCachedBlocks && len(network.NetBlocks) == 0 {
-		common.BlocksUnderflowCount.Add(1)
+		common.CountSafe("BlocksUnderflowCount")
 	}
 }
 
@@ -518,7 +518,7 @@ func main() {
 			for retryCachedBlocks {
 				retryCachedBlocks = retry_cached_blocks()
 				if !retryCachedBlocks && len(network.NetBlocks) == 0 {
-					common.BlocksUnderflowCount.Add(1)
+					common.CountSafe("BlocksUnderflowCount")
 				}
 				// We have done one per loop - now do something else if pending...
 				if len(network.NetBlocks) > 0 || len(usif.UiChannel) > 0 {

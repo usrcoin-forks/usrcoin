@@ -62,6 +62,10 @@ var (
 	DiscardedBlocks map[BIDX]bool = make(map[BIDX]bool)
 
 	HeadersReceived sys.SyncInt
+
+	CachedBlocksSize    sys.SyncInt
+	MaxCachedBlocksSize sys.SyncInt
+	ProcessedBlockSize  sys.SyncInt
 )
 
 // make sure to call it with MutexRcv locked

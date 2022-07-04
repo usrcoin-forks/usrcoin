@@ -8,7 +8,6 @@ import (
 
 	"github.com/piotrnar/gocoin/client/common"
 	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/sys"
 )
 
 func (c *OneConnection) ProcessGetData(pl []byte) {
@@ -142,7 +141,7 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 	// the blocks seems to be fine
 	if rb, got := ReceivedBlocks[idx]; got {
 		rb.Cnt++
-		common.BlocksBandwidthWasted.Add(len(b) + 24)
+		common.CountSafeAdd("BlockBytesWasted", uint64(len(b)))
 		common.CountSafe("BlockSameRcvd")
 		conn.Mutex.Lock()
 		delete(conn.GetBlockInProgress, idx)
@@ -305,8 +304,6 @@ func getBlockToFetch(max_height uint32, cnt_in_progress, avg_block_size uint) (l
 	return
 }
 
-var MaxHeight sys.SyncInt
-
 func (c *OneConnection) GetBlockData() (yes bool) {
 	//MAX_GETDATA_FORWARD
 	// Need to send getdata...?
@@ -358,7 +355,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	// We can issue getdata for this peer
 	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
 
-	max_size_to_go := common.MaxSyncCacheBytes.Get() - common.CachedBlocksSize.Get()
+	max_size_to_go := common.MaxSyncCacheBytes.Get() - CachedBlocksSize.Get()
 	if max_size_to_go < avg_block_size {
 		common.CountSafe("FetchHadFullCache")
 		c.nextGetData = time.Now().Add(3 * time.Second) // wait for some blocks to complete
@@ -405,7 +402,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	var invs_cnt int
 
 	max_blocks_forward := max_height - last_block_height
-	MaxHeight.Store(int(max_height))
+	common.CountSafeStore("FetchMaxHeight", uint64(max_height))
 
 	max_blocks_at_once := common.GetUint32(&common.CFG.Net.MaxBlockAtOnce)
 

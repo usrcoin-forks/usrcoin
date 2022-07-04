@@ -273,21 +273,21 @@ func sync_stats(par string) {
 	}
 	fmt.Printf("@%d\tBlks: %d/%d,  MB :%d/%d, Max:%d, Free:%d -  AvgBlock:%dKB   Errors:%d\n",
 		lb, ready_cached_cnt, len(network.CachedBlocks),
-		cached_ready_bytes>>20, common.CachedBlocksSize.Get()>>20, common.MaxCachedBlocksSize.Get()>>20,
-		(common.MaxSyncCacheBytes.Get()-common.CachedBlocksSize.Get())>>20,
-		common.AverageBlockSize.Get()>>10, common.BlocksUnderflowCount.Get())
+		cached_ready_bytes>>20, network.CachedBlocksSize.Get()>>20, network.MaxCachedBlocksSize.Get()>>20,
+		(common.MaxSyncCacheBytes.Get()-network.CachedBlocksSize.Get())>>20,
+		common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
 	fmt.Printf("\t%s\n", _fetch_counters_str())
 	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d), with stop at %d\n",
-		bip_cnt, ip_min, ip_max, ip_max-ip_min, network.MaxHeight.Get())
-	tot := common.ProcessedBlockSize.Get()
+		bip_cnt, ip_min, ip_max, ip_max-ip_min, common.CounterGet("FetchHadFullCache"))
+	tot := network.ProcessedBlockSize.Get()
 	if tot > 0 {
+		wst := common.CounterGet("BlockBytesWasted")
 		fmt.Printf("\tWasted %d blocks carrying %d/%dMB ==> %.2f%%\n", common.CounterGet("BlockSameRcvd"),
-			common.BlocksBandwidthWasted.Get()>>20, tot>>20,
-			100*float64(common.BlocksBandwidthWasted.Get())/float64(tot))
+			wst>>20, tot>>20, 100*float64(wst)/float64(tot))
 	}
 
 	if par == "r" {
-		common.BlocksUnderflowCount.Store(0)
+		common.CountSafeStore("BlocksUnderflowCount", 0)
 		println("Error counter set to 0")
 	}
 }
