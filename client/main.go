@@ -141,7 +141,7 @@ func retry_cached_blocks() bool {
 			if newbl.Block == nil {
 				os.Remove(common.TempBlocksDir() + newbl.BlockTreeNode.BlockHash.String())
 			}
-			common.CachedBlocksSize.Store(common.CachedBlocksSize.Get() - network.CachedBlocks[idx].Size)
+			common.CachedBlocksSize.Add(-network.CachedBlocks[idx].Size)
 			network.CachedBlocks = append(network.CachedBlocks[:idx], network.CachedBlocks[idx+1:]...)
 			network.CachedBlocksLen.Store(len(network.CachedBlocks))
 			return len(network.CachedBlocks) > 0
@@ -174,7 +174,7 @@ func retry_cached_blocks() bool {
 				return false
 			}
 			// remove it from cache
-			common.CachedBlocksSize.Store(common.CachedBlocksSize.Get() - network.CachedBlocks[idx].Size)
+			common.CachedBlocksSize.Add(-network.CachedBlocks[idx].Size)
 			network.CachedBlocks = append(network.CachedBlocks[:idx], network.CachedBlocks[idx+1:]...)
 			network.CachedBlocksLen.Store(len(network.CachedBlocks))
 			return len(network.CachedBlocks) > 0
@@ -222,7 +222,7 @@ func HandleNetBlock(newbl *network.BlockRcvd) {
 	if !common.BlockChain.HasAllParents(newbl.BlockTreeNode) {
 		// it's not linking - keep it for later
 		network.CachedBlocks = append(network.CachedBlocks, newbl)
-		common.CachedBlocksSize.Store(common.CachedBlocksSize.Get() + newbl.Size)
+		common.CachedBlocksSize.Add(newbl.Size)
 		if common.CachedBlocksSize.Get() > common.MaxCachedBlocksSize.Get() {
 			common.MaxCachedBlocksSize.Store(common.CachedBlocksSize.Get())
 		}
