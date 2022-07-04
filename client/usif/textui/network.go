@@ -202,7 +202,7 @@ func net_friends(par string) {
 	network.FriendsAccess.Unlock()
 }
 
-func _fetch_counters_str() (li string) {
+func print_fetch_counters() (li string) {
 	par := "Fetch"
 	common.CounterMutex.Lock()
 	ck := make([]string, 0)
@@ -217,7 +217,10 @@ func _fetch_counters_str() (li string) {
 		k := ck[i]
 		v := common.Counter[par+k]
 		s := fmt.Sprint(k, ":", v)
-		if li != "" {
+		if len(li)+len(s) > 80 {
+			fmt.Println("\t", li)
+			li = ""
+		} else if li != "" {
 			li += ", "
 		}
 		li += s
@@ -276,7 +279,7 @@ func sync_stats(par string) {
 		cached_ready_bytes>>20, network.CachedBlocksSize.Get()>>20, network.MaxCachedBlocksSize.Get()>>20,
 		(common.MaxSyncCacheBytes.Get()-network.CachedBlocksSize.Get())>>20,
 		common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
-	fmt.Printf("\t%s\n", _fetch_counters_str())
+	print_fetch_counters()
 	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d), with stop at %d\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min, common.CounterGet("FetchHadFullCache"))
 	tot := network.ProcessedBlockSize.Get()
