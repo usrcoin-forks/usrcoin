@@ -151,7 +151,7 @@ func (c *OneConnection) Tick(now time.Time) {
 			return
 		}
 
-		if common.BlockChainSynchronized.Get() {
+		if common.GetBool(&common.BlockChainSynchronized) {
 			// See if to send "getmp" command
 			select {
 			case GetMPInProgressTicket <- true:
@@ -865,7 +865,7 @@ func (c *OneConnection) Run() {
 			}
 
 		case "cmpctblock":
-			if common.BlockChainSynchronized.Get() {
+			if common.GetBool(&common.BlockChainSynchronized) {
 				c.ProcessCmpctBlock(cmd.pl)
 			}
 
