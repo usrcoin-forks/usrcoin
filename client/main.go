@@ -103,6 +103,10 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 		if common.Last.ParseTill == nil && !common.BlockChainSynchronized &&
 			((common.Last.Block.Height%50e3) == 0 || common.Last.Block.Height == network.LastCommitedHeader.Height) {
 			println("Sync to", common.Last.Block.Height, "took", time.Since(common.StartTime).String())
+			if common.Last.Block.Height < 100e3 {
+				// Cache underflow counter is not reliable at teh beginning of chain sync,s o reset it here
+				common.CountSafeStore("BlocksUnderflowCount", 0)
+			}
 		}
 		common.Last.Mutex.Unlock()
 	} else {
