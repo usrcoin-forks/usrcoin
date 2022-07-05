@@ -277,11 +277,11 @@ func sync_stats(par string) {
 			break
 		}
 	}
-	fmt.Printf("@%d\tBlks: %d/%d,  MB :%d/%d, Max:%d, Free:%d -  AvgBlock:%dKB   Errors:%d\n",
+	fmt.Printf("@%d\tBlks: %d/%d,  MB :%d/%d, Max:%d, Free:%d -  AvgBlock:%d   Errors:%d\n",
 		lb, ready_cached_cnt, len(network.CachedBlocks),
 		cached_ready_bytes>>20, network.CachedBlocksSize.Get()>>20, network.MaxCachedBlocksSize.Get()>>20,
 		(common.MaxSyncCacheBytes.Get()-network.CachedBlocksSize.Get())>>20,
-		common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
+		common.AverageBlockSize.Get(), common.CounterGet("BlocksUnderflowCount"))
 	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d), with stop at %d\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min, common.CounterGet("FetchHadFullCache"))
 	tot := common.CounterGet("rbts_block")

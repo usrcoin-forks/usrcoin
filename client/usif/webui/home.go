@@ -125,9 +125,7 @@ func json_system(w http.ResponseWriter, r *http.Request) {
 		out.Blocks_on_disk = common.Last.ParseTill.Height - common.Last.Block.Height
 	}
 	common.Last.Mutex.Unlock()
-	network.MutexRcv.Lock()
-	out.BlocksToGet = len(network.BlocksToGet)
-	network.MutexRcv.Unlock()
+	out.BlocksToGet = network.BlocksToGetCnt()
 	out.Known_peers = peersdb.PeerDB.Count()
 	out.Node_uptime = uint64(time.Since(common.StartTime).Seconds())
 	out.Net_block_qsize = len(network.NetBlocks)

@@ -253,7 +253,7 @@ func HandleNetBlock(newbl *network.BlockRcvd) {
 		newbl.Conn.Misbehave("LocalAcceptBl1", 250)
 	}
 	retryCachedBlocks = retry_cached_blocks()
-	if !common.BlockChainSynchronized && !retryCachedBlocks && len(network.NetBlocks) == 0 {
+	if !retryCachedBlocks && network.BlocksToGetCnt() != 0 {
 		common.CountSafe("BlocksUnderflowCount")
 	}
 }
@@ -516,7 +516,7 @@ func main() {
 			common.CountSafe("MainThreadLoops")
 			for retryCachedBlocks {
 				retryCachedBlocks = retry_cached_blocks()
-				if !common.BlockChainSynchronized && !retryCachedBlocks && len(network.NetBlocks) == 0 {
+				if !retryCachedBlocks && network.BlocksToGetCnt() != 0 {
 					common.CountSafe("BlocksUnderflowCount")
 				}
 				// We have done one per loop - now do something else if pending...
