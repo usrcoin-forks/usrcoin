@@ -2,9 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-//go:build 386 || arm || armbe || mips || mipsle || ppc || s390 || s390x || sparc
-// +build 386 arm armbe mips mipsle ppc s390 s390x sparc
+// +build 386 arm armbe mips mipsle ppc ppc64le s390 s390x sparc
 
-package memory // import "modernc.org/memory"
+package memory
 
-type rawmem [1<<31 - 2]byte
+type rawmem [1<<31 - 1]byte
