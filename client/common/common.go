@@ -264,6 +264,11 @@ func RecalcAverageBlockSize() {
 			avg_bsize_sum += le
 			n = n.Parent
 		}
+		hl := len(avg_bsize_history)
+		for i := 0; i < hl>>1; i++ {
+			avg_bsize_history[i], avg_bsize_history[hl-1-i] = avg_bsize_history[hl-1-i], avg_bsize_history[i]
+		}
+
 		if avg_bsize_sum == 0 || avg_bsize_idx == 0 {
 			new_avg_size = 204
 		} else {
