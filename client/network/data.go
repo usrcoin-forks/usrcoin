@@ -326,7 +326,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	defer func() {
 		MutexRcv.Unlock()
-		if s := time.Since(sta); s > 10*time.Microsecond {
+		if s := time.Since(sta); s > 100*time.Millisecond {
 			println("pipa", s.String())
 		}
 	}()
