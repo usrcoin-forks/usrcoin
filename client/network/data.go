@@ -419,7 +419,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 	}
 
-	println("mam", cnt_so_far, size_so_far)
+	println("mam", cnt_so_far, size_so_far, max_height)
 	blocks2get := make([]*OneBlockToGet, 0, max_height-bh)
 
 	for bh <= max_height {
@@ -433,6 +433,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 	}
 
+	println("sort", len(blocks2get))
 	sort.Slice(blocks2get, func(i, j int) bool {
 		if blocks2get[i].InProgress == blocks2get[j].InProgress {
 			return blocks2get[i].Block.Height < blocks2get[j].Block.Height
