@@ -426,20 +426,32 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	}
 
 	max_block_forward = int(max_cache_size-size_so_far) / int(avg_block_size)
+	if s := time.Since(sta); s > 100*time.Millisecond {
+		println("pipa b", s.String(), lowest_block, LowestIndexToBlocksToGet)
+	}
 	if max_block_forward < 1 {
 		common.CountSafe("FetchMaxBlocksForward")
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
 	}
+	if s := time.Since(sta); s > 100*time.Millisecond {
+		println("pipa c", s.String(), lowest_block, LowestIndexToBlocksToGet)
+	}
 	if max_block_forward > MAX_BLOCKS_FORWARD_CNT {
 		max_block_forward = MAX_BLOCKS_FORWARD_CNT
 	}
+	if s := time.Since(sta); s > 100*time.Millisecond {
+		println("pipa d", s.String(), lowest_block, LowestIndexToBlocksToGet)
+	}
 	max_height = lowest_block + uint32(max_block_forward)
 
+	if s := time.Since(sta); s > 100*time.Millisecond {
+		println("pipa E", s.String(), lowest_block, LowestIndexToBlocksToGet)
+	}
 	blocks2get := make([]*OneBlockToGet, 0, max_height-current_block)
 
 	if s := time.Since(sta); s > 100*time.Millisecond {
-		println("pipa-1", s.String())
+		println("pipa-1", s.String(), max_height, current_block, max_block_forward)
 	}
 	for ; current_block <= max_height; current_block++ {
 		if idxlst, ok := IndexToBlocksToGet[current_block]; ok {
