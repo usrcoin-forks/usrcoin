@@ -398,7 +398,8 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	var size_so_far, cnt_so_far int
 	var bh uint32
-	for bh = lowest_block; bh < LowestIndexToBlocksToGet; bh++ {
+	println("jade", lowest_block, LowestIndexToBlocksToGet)
+	for bh = lowest_block + 1; bh < LowestIndexToBlocksToGet; bh++ {
 		if blen, ok := CachedBlocksSizes[bh]; ok {
 			size_so_far += blen
 		} else {
@@ -418,6 +419,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 	}
 
+	println("mam", cnt_so_far, size_so_far)
 	blocks2get := make([]*OneBlockToGet, 0, max_height-bh)
 
 	for bh <= max_height {
