@@ -394,11 +394,13 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 					blen = avg_block_size
 					blocks_missing_cnt++
 				}
-				if size_so_far += blen; size_so_far > max_cache_size {
+				size_so_far += blen
+				if size_so_far > max_cache_size {
 					break
 				}
 			}
-			if cnt_so_far++; cnt_so_far >= max_block_forward {
+			cnt_so_far++
+			if cnt_so_far >= max_block_forward {
 				break
 			}
 
