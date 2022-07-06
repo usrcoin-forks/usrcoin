@@ -417,10 +417,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			}
 		}
 
-		if bh > max_height_seen {
-			max_height_seen = bh
-		}
-
 		if blocks_missing_cnt == 0 {
 			common.CountSafe("FetchNoNeed")
 			break
@@ -433,9 +429,10 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 				break
 			}
 			if cnt_in_progress == 0 {
+				max_height_seen = bh
 				max_block_forward = int(max_height_seen - LowestIndexToBlocksToGet)
-
 			}
+			max_block_forward >>= 1
 			continue
 		}
 
@@ -461,6 +458,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	}
 
 	common.CountSafeStore("FetchMaxHeight", uint64(max_height_seen))
+	common.CountSafeStore("FetchMinHeight", uint64(LowestIndexToBlocksToGet))
 
 	if invs_cnt == 0 {
 		//println(c.ConnID, "fetch nothing", cbip, block_data_in_progress, max_height-common.Last.BlockHeight(), cnt_in_progress)
