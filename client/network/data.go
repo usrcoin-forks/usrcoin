@@ -411,9 +411,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			if cnt_so_far >= max_block_forward {
 				break
 			}
-			if bh-LowestIndexToBlocksToGet >= MAX_BLOCKS_FORWARD_CNT {
-				println("pipa", bh, LowestIndexToBlocksToGet, cnt_so_far)
-			}
 
 			if idxlst, ok := IndexToBlocksToGet[bh]; ok {
 				for _, idx := range idxlst {
