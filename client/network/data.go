@@ -326,9 +326,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	defer func() {
 		MutexRcv.Unlock()
-		if s := time.Since(sta); s > 100*time.Millisecond {
-			println("pipa", s.String())
-		}
 	}()
 
 	if LowestIndexToBlocksToGet == 0 || len(BlocksToGet) == 0 {
@@ -399,6 +396,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	var cnt_so_far int
 	var current_block uint32
 
+	if s := time.Since(sta); s > 100*time.Millisecond {
+		println("pipa 0", s.String())
+	}
 	for current_block = lowest_block + 1; current_block < LowestIndexToBlocksToGet; current_block++ {
 		/*
 			CachedBlocksMutex.Lock()
@@ -435,6 +435,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	blocks2get := make([]*OneBlockToGet, 0, max_height-current_block)
 
+	if s := time.Since(sta); s > 100*time.Millisecond {
+		println("pipa 1", s.String())
+	}
 	for ; current_block <= max_height; current_block++ {
 		if idxlst, ok := IndexToBlocksToGet[current_block]; ok {
 			for _, idx := range idxlst {
@@ -471,6 +474,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	invs := new(bytes.Buffer)
 	var invs_cnt int
 
+	if s := time.Since(sta); s > 100*time.Millisecond {
+		println("pipa 2", s.String())
+	}
 	for _, b2g := range blocks2get {
 		common.CountSafe(fmt.Sprint("FetchC", b2g.InProgress))
 
@@ -513,6 +519,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		return
 	}
 
+	if s := time.Since(sta); s > 100*time.Millisecond {
+		println("pipa 3", s.String())
+	}
 	bu := new(bytes.Buffer)
 	btc.WriteVlen(bu, uint64(invs_cnt))
 	pl := append(bu.Bytes(), invs.Bytes()...)
