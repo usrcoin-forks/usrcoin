@@ -395,7 +395,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	var bh uint32
 	//println("jade", lowest_block, LowestIndexToBlocksToGet)
 	for bh = lowest_block + 1; bh < LowestIndexToBlocksToGet; bh++ {
-		if blen, ok := CachedBlocksSizes[bh]; ok {
+		CachedBlocksMutex.Lock()
+		blen, ok := CachedBlocksSizes[bh]
+		if ok {
 			size_so_far += blen
 		} else {
 			//println("block", bh, "not in cache", lowest_block, LowestIndexToBlocksToGet)
