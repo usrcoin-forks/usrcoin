@@ -383,25 +383,24 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	for {
 		var lowest_found *OneBlockToGet
 		var size_so_far, cnt_so_far, blocks_missing_cnt int
+		var bh uint32
 
 		// Find block to fetch, with lowest height for the given InProgress==cnt_in_progress
-		for bh := LowestIndexToBlocksToGet; bh <= max_height; bh++ {
-			CachedBlocksMutex.Lock()
-			blen, ok := CachedBlocksSizes[bh]
-			CachedBlocksMutex.Unlock()
-			if !ok {
-				blen = avg_block_size
-				blocks_missing_cnt++
-			}
-			if size_so_far += blen; size_so_far > max_cache_size {
-				break
+		for bh = LowestIndexToBlocksToGet; bh <= max_height; bh++ {
+			if cnt_in_progress == 0 {
+				CachedBlocksMutex.Lock()
+				blen, ok := CachedBlocksSizes[bh]
+				CachedBlocksMutex.Unlock()
+				if !ok {
+					blen = avg_block_size
+					blocks_missing_cnt++
+				}
+				if size_so_far += blen; size_so_far > max_cache_size {
+					break
+				}
 			}
 			if cnt_so_far++; cnt_so_far >= max_block_forward {
 				break
-			}
-
-			if bh > max_height_seen {
-				max_height_seen = bh
 			}
 
 			if idxlst, ok := IndexToBlocksToGet[bh]; ok {
@@ -418,6 +417,10 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			}
 		}
 
+		if bh > max_height_seen {
+			max_height_seen = bh
+		}
+
 		if blocks_missing_cnt == 0 {
 			common.CountSafe("FetchNoNeed")
 			break
@@ -429,8 +432,10 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 				common.CountSafe("FetchReachedEnd")
 				break
 			}
-			max_cache_size >>= 1
-			max_block_forward >>= 1
+			if cnt_in_progress == 0 {
+				max_block_forward = int(max_height_seen - LowestIndexToBlocksToGet)
+
+			}
 			continue
 		}
 
