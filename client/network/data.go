@@ -322,7 +322,14 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	//MAX_GETDATA_FORWARD
 	// Need to send getdata...?
 	MutexRcv.Lock()
-	defer MutexRcv.Unlock()
+	sta := time.Now()
+
+	defer func() {
+		MutexRcv.Unlock()
+		if s := time.Since(sta); s > 10*time.Microsecond {
+			println("pipa", s.String())
+		}
+	}()
 
 	if LowestIndexToBlocksToGet == 0 || len(BlocksToGet) == 0 {
 		common.CountSafe("FetchNoBlocksToGet")
