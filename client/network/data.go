@@ -419,6 +419,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	}
 
 	max_block_forward = uint32(int(max_cache_size-size_so_far) / int(avg_block_size))
+	if max_block_forward > MAX_BLOCKS_FORWARD_CNT {
+		max_block_forward = MAX_BLOCKS_FORWARD_CNT
+	}
 	//println("mam", cnt_so_far, size_so_far, max_height)
 	blocks2get := make([]*OneBlockToGet, 0, max_height-bh)
 
@@ -435,10 +438,10 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 				}
 				how_far := v.Block.Height - lowest_block
 				if how_far < (max_block_forward >> v.InProgress) {
-					println("yes", v.Block.Height, v.InProgress)
+					//println("yes", v.Block.Height, v.InProgress)
 					blocks2get = append(blocks2get, v)
 				} else {
-					println(" NO", v.Block.Height, v.InProgress)
+					//println(" NO", v.Block.Height, v.InProgress)
 				}
 			}
 		}
