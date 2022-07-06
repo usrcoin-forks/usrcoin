@@ -456,6 +456,8 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			&oneBlockDl{hash: lowest_found.BlockHash, start: time.Now(), SentAtPingCnt: c.X.PingSentCnt}
 		c.Mutex.Unlock()
 
+		break
+
 		if cbip+invs_cnt >= MAX_PEERS_BLOCKS_IN_PROGRESS {
 			common.CountSafe("FetchReachedMaxCnt")
 			break // no more than 2000 blocks in progress / peer
