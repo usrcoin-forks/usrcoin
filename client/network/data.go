@@ -319,13 +319,19 @@ func get_cached_block_len(h uint32) (res int) {
 }
 
 func (c *OneConnection) GetBlockData() (yes bool) {
-	//MAX_GETDATA_FORWARD
-	// Need to send getdata...?
+	var size_so_far int
+	var cnt_so_far int
+	var current_block int
+	var block_type uint32
+
 	MutexRcv.Lock()
 	sta := time.Now()
 
 	defer func() {
 		MutexRcv.Unlock()
+		if s := time.Since(sta); s > 100*time.Millisecond {
+			println("pipa", s.String())
+		}
 	}()
 
 	if LowestIndexToBlocksToGet == 0 || len(BlocksToGet) == 0 {
@@ -362,11 +368,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		return
 	}
 
-	var size_so_far int
-	var cnt_so_far int
-	var current_block int
-	var block_type uint32
-
 	if (c.Node.Services & btc.SERVICE_SEGWIT) != 0 {
 		block_type = MSG_WITNESS_BLOCK
 	} else {
@@ -396,16 +397,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	common.CountSafeStore("FetchHeightC", uint64(max_height))
 
 	for current_block = lowest_block; current_block < int(LowestIndexToBlocksToGet); current_block++ {
-		/*
-			CachedBlocksMutex.Lock()
-			blen, ok := CachedBlocksSizes[current_block]
-			CachedBlocksMutex.Unlock()
-			if ok {
-				size_so_far += blen
-			} else {
-				size_so_far += avg_block_size
-			}
-		*/
 		if size_so_far += avg_block_size; size_so_far >= max_cache_size {
 			common.CountSafe("FetchFullBts")
 			c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
@@ -436,9 +427,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	blocks2get := make([]*OneBlockToGet, 0, max_height-current_block+1)
 
-	if s := time.Since(sta); s > 100*time.Millisecond {
-		println("pipa-1", s.String(), max_height, current_block, max_block_forward)
-	}
 	for ; current_block <= max_height; current_block++ {
 		if idxlst, ok := IndexToBlocksToGet[uint32(current_block)]; ok {
 			for _, idx := range idxlst {
@@ -475,9 +463,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	invs := new(bytes.Buffer)
 	var invs_cnt int
 
-	if s := time.Since(sta); s > 100*time.Millisecond {
-		println("pipa 2", s.String())
-	}
 	for _, b2g := range blocks2get {
 		common.CountSafe(fmt.Sprint("FetchC", b2g.InProgress))
 
@@ -520,9 +505,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		return
 	}
 
-	if s := time.Since(sta); s > 100*time.Millisecond {
-		println("pipa 3", s.String())
-	}
 	bu := new(bytes.Buffer)
 	btc.WriteVlen(bu, uint64(invs_cnt))
 	pl := append(bu.Bytes(), invs.Bytes()...)

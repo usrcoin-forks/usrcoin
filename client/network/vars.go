@@ -57,9 +57,9 @@ var (
 	NetBlocks chan *BlockRcvd = make(chan *BlockRcvd, MAX_BLOCKS_FORWARD_CNT+10)
 	NetTxs    chan *TxRcvd    = make(chan *TxRcvd, 2000)
 
-	CachedBlocksMutex   sync.Mutex
-	CachedBlocks        []*BlockRcvd
-	CachedBlocksSizes   map[uint32]int = make(map[uint32]int)
+	CachedBlocksMutex sync.Mutex
+	CachedBlocks      []*BlockRcvd
+	//CachedBlocksSizes   map[uint32]int = make(map[uint32]int)
 	CachedBlocksBytes   sys.SyncInt
 	MaxCachedBlocksSize sys.SyncInt
 	DiscardedBlocks     map[BIDX]bool = make(map[BIDX]bool)
@@ -81,7 +81,7 @@ func CachedBlocksAdd(newbl *BlockRcvd) {
 	if CachedBlocksBytes.Get() > MaxCachedBlocksSize.Get() {
 		MaxCachedBlocksSize.Store(CachedBlocksBytes.Get())
 	}
-	CachedBlocksSizes[newbl.BlockTreeNode.Height] = newbl.Size
+	//CachedBlocksSizes[newbl.BlockTreeNode.Height] = newbl.Size
 	CachedBlocksMutex.Unlock()
 }
 
@@ -90,7 +90,7 @@ func CachedBlocksDel(idx int) {
 	oldbl := CachedBlocks[idx]
 	CachedBlocksBytes.Add(-oldbl.Size)
 	CachedBlocks = append(CachedBlocks[:idx], CachedBlocks[idx+1:]...)
-	delete(CachedBlocksSizes, oldbl.BlockTreeNode.Height)
+	//delete(CachedBlocksSizes, oldbl.BlockTreeNode.Height)
 	CachedBlocksMutex.Unlock()
 }
 
