@@ -3,7 +3,6 @@ package network
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"io/ioutil"
 	"sort"
 	"time"
@@ -369,10 +368,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	// We can issue getdata for this peer
 	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
 
-	invs := new(bytes.Buffer)
-	var cnt_in_progress uint
-	var invs_cnt int
-
 	//max_blocks_forward := max_height - last_block_height
 	//common.CountSafeStore("FetchMaxHeight", uint64(max_height))
 
@@ -398,12 +393,12 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	var size_so_far, cnt_so_far int
 	var bh uint32
-	println("jade", lowest_block, LowestIndexToBlocksToGet)
+	//println("jade", lowest_block, LowestIndexToBlocksToGet)
 	for bh = lowest_block + 1; bh < LowestIndexToBlocksToGet; bh++ {
 		if blen, ok := CachedBlocksSizes[bh]; ok {
 			size_so_far += blen
 		} else {
-			println("block", bh, "not in cache", lowest_block, LowestIndexToBlocksToGet)
+			//println("block", bh, "not in cache", lowest_block, LowestIndexToBlocksToGet)
 			size_so_far += avg_block_size
 		}
 		if size_so_far >= max_cache_size {
@@ -419,7 +414,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 	}
 
-	println("mam", cnt_so_far, size_so_far, max_height)
+	//println("mam", cnt_so_far, size_so_far, max_height)
 	blocks2get := make([]*OneBlockToGet, 0, max_height-bh)
 
 	for ; bh <= max_height; bh++ {
@@ -433,7 +428,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 	}
 
-	println("sort", len(blocks2get))
+	//println("sort", len(blocks2get))
 	sort.Slice(blocks2get, func(i, j int) bool {
 		if blocks2get[i].InProgress == blocks2get[j].InProgress {
 			return blocks2get[i].Block.Height < blocks2get[j].Block.Height
@@ -443,9 +438,11 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	println("fetching from", blocks2get[0].Block.Height, blocks2get[0].InProgress,
 		"to", blocks2get[len(blocks2get)-1].Block.Height, blocks2get[len(blocks2get)-1].InProgress)
-	for _, lowest_found := range blocks2get {
-		common.CountSafe(fmt.Sprint("FetchC", cnt_in_progress))
 
+	invs := new(bytes.Buffer)
+	var invs_cnt int
+
+	for _, lowest_found := range blocks2get {
 		binary.Write(invs, binary.LittleEndian, block_type)
 		invs.Write(lowest_found.BlockHash.Hash[:])
 		lowest_found.InProgress++
