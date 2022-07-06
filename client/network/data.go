@@ -3,6 +3,7 @@ package network
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io/ioutil"
 	"time"
 
@@ -442,6 +443,10 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 				break
 			}
 			max_block_forward >>= 1
+			if int(lowest_block)+max_block_forward <= int(LowestIndexToBlocksToGet) {
+				common.CountSafe(fmt.Sprint("FetchMBF", cnt_in_progress))
+				break
+			}
 			continue
 		}
 
