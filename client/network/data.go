@@ -447,6 +447,12 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 	}
 
+	if len(blocks2get) == 0 {
+		common.CountSafe("FetchNoB2G")
+		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
+		return
+	}
+
 	sort.Slice(blocks2get, func(i, j int) bool {
 		if blocks2get[i].InProgress == blocks2get[j].InProgress {
 			return blocks2get[i].Block.Height < blocks2get[j].Block.Height
