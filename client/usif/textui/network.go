@@ -277,7 +277,7 @@ func sync_stats(par string) {
 			break
 		}
 	}
-	fmt.Printf("@%d\tBlks: %d/%d,  MB :%d/%d, Max:%d, Free:%d -  AvgBlock:%d   Errors:%d\n",
+	fmt.Printf("@%d\tBlks: %d/%d,  MB:%d/%d, Max:%d, Free:%d -  AvgBlock:%d   Errors:%d\n",
 		lb, ready_cached_cnt, len(network.CachedBlocks),
 		cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, network.MaxCachedBlocksSize.Get()>>20,
 		(common.MaxSyncCacheBytes.Get()-network.CachedBlocksBytes.Get())>>20,
