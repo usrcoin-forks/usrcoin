@@ -378,7 +378,14 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	max_height := LastCommitedHeader.Height
 	max_cache_size := common.MaxSyncCacheBytes.Get()
 	max_block_forward := MAX_BLOCKS_FORWARD_CNT
+	lowest_block := common.Last.BlockHeight()
 
+	if int(lowest_block)+max_block_forward <= int(LowestIndexToBlocksToGet) {
+		common.CountSafe("FetchMaxBlocksForward")
+		// wake up in a few seconds, maybe some blocks will complete by then
+		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
+		return
+	}
 	common.CountSafeStore("FetchMinHeight", uint64(LowestIndexToBlocksToGet))
 	for {
 		var lowest_found *OneBlockToGet
@@ -386,7 +393,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		var bh uint32
 
 		// Find block to fetch, with lowest height for the given InProgress==cnt_in_progress
-		for bh = LowestIndexToBlocksToGet; bh <= max_height; bh++ {
+		for bh = lowest_block; bh <= max_height; bh++ {
 			if cnt_in_progress == 0 {
 				CachedBlocksMutex.Lock()
 				blen, ok := CachedBlocksSizes[bh]
