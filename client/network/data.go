@@ -394,10 +394,11 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	var size_so_far int
 	var cnt_so_far uint32
 	var bh uint32
-	println("jade", lowest_block, LowestIndexToBlocksToGet)
+	//println("jade", lowest_block, LowestIndexToBlocksToGet)
 	for bh = lowest_block + 1; bh < LowestIndexToBlocksToGet; bh++ {
 		CachedBlocksMutex.Lock()
 		blen, ok := CachedBlocksSizes[bh]
+		CachedBlocksMutex.Unlock()
 		if ok {
 			size_so_far += blen
 		} else {
@@ -417,7 +418,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 	}
 
-	println("mam", cnt_so_far, size_so_far, max_height)
+	//println("mam", cnt_so_far, size_so_far, max_height)
 	blocks2get := make([]*OneBlockToGet, 0, max_height-bh)
 
 	for ; bh <= max_height; bh++ {
@@ -431,7 +432,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 	}
 
-	println("sort", len(blocks2get))
+	//println("sort", len(blocks2get))
 	sort.Slice(blocks2get, func(i, j int) bool {
 		if blocks2get[i].InProgress == blocks2get[j].InProgress {
 			return blocks2get[i].Block.Height < blocks2get[j].Block.Height
@@ -456,7 +457,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			&oneBlockDl{hash: lowest_found.BlockHash, start: time.Now(), SentAtPingCnt: c.X.PingSentCnt}
 		c.Mutex.Unlock()
 
-		break
+		//bbreak
 
 		if cbip+invs_cnt >= MAX_PEERS_BLOCKS_IN_PROGRESS {
 			common.CountSafe("FetchReachedMaxCnt")
