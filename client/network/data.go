@@ -3,6 +3,7 @@ package network
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io/ioutil"
 	"time"
 
@@ -380,18 +381,18 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	max_block_forward := MAX_BLOCKS_FORWARD_CNT
 	lowest_block := common.Last.BlockHeight()
 
-	if int(lowest_block)+max_block_forward <= int(LowestIndexToBlocksToGet) {
-		common.CountSafe("FetchMaxBlocksForward")
-		// wake up in a few seconds, maybe some blocks will complete by then
-		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
-		return
-	}
 	common.CountSafeStore("FetchMinHeight", uint64(LowestIndexToBlocksToGet))
 	for {
 		var lowest_found *OneBlockToGet
 		var size_so_far, cnt_so_far, blocks_missing_cnt int
 		var bh uint32
 
+		if int(lowest_block)+max_block_forward <= int(LowestIndexToBlocksToGet) {
+			common.CountSafe(fmt.Sprint("FetchMaxCntFwd", cnt_in_progress))
+			// wake up in a few seconds, maybe some blocks will complete by then
+			c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
+			return
+		}
 		// Find block to fetch, with lowest height for the given InProgress==cnt_in_progress
 		for bh = lowest_block; bh <= max_height; bh++ {
 			if cnt_in_progress == 0 {
