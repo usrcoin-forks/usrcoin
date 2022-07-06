@@ -378,15 +378,15 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	max_blocks_at_once := common.GetUint32(&common.CFG.Net.MaxBlockAtOnce)
 	max_cache_size := common.MaxSyncCacheBytes.Get()
-	max_block_forward := uint32(MAX_BLOCKS_FORWARD_CNT)
+	max_block_forward := int(MAX_BLOCKS_FORWARD_CNT)
 	lowest_block := common.Last.BlockHeight()
-	max_height := lowest_block + max_block_forward
+	max_height := lowest_block + uint32(max_block_forward)
 
 	if max_height > LastCommitedHeader.Height {
 		max_height = LastCommitedHeader.Height
 	}
 
-	if lowest_block+max_block_forward <= LowestIndexToBlocksToGet {
+	if int(lowest_block)+max_block_forward <= int(LowestIndexToBlocksToGet) {
 		common.CountSafe("FetchNo-Blocks")
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
@@ -396,7 +396,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	common.CountSafeStore("FetchHeightC", uint64(max_height))
 
 	var size_so_far int
-	var cnt_so_far uint32
+	var cnt_so_far int
 	var current_block uint32
 
 	for current_block = lowest_block + 1; current_block < LowestIndexToBlocksToGet; current_block++ {
@@ -422,7 +422,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 	}
 
-	max_block_forward = uint32(int(max_cache_size-size_so_far) / int(avg_block_size))
+	max_block_forward = int(max_cache_size-size_so_far) / int(avg_block_size)
 	if max_block_forward < 1 {
 		common.CountSafe("FetchMaxBlocksForward")
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
@@ -431,7 +431,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	if max_block_forward > MAX_BLOCKS_FORWARD_CNT {
 		max_block_forward = MAX_BLOCKS_FORWARD_CNT
 	}
-	max_height = lowest_block + max_block_forward
+	max_height = lowest_block + uint32(max_block_forward)
 
 	blocks2get := make([]*OneBlockToGet, 0, max_height-current_block)
 
@@ -446,7 +446,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 					blocks2get = append(blocks2get, v)
 					continue
 				}
-				how_far := v.Block.Height - lowest_block
+				how_far := int(v.Block.Height) - int(lowest_block)
 				if how_far >= (max_block_forward >> v.InProgress) {
 					continue
 				}
