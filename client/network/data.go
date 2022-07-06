@@ -3,6 +3,7 @@ package network
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io/ioutil"
 	"sort"
 	"time"
@@ -463,15 +464,17 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	invs := new(bytes.Buffer)
 	var invs_cnt int
 
-	for _, lowest_found := range blocks2get {
+	for _, b2g := range blocks2get {
+		common.CountSafe(fmt.Sprint("FetchC", b2g.InProgress))
+
 		binary.Write(invs, binary.LittleEndian, block_type)
-		invs.Write(lowest_found.BlockHash.Hash[:])
-		lowest_found.InProgress++
+		invs.Write(b2g.BlockHash.Hash[:])
+		b2g.InProgress++
 		invs_cnt++
 
 		c.Mutex.Lock()
-		c.GetBlockInProgress[lowest_found.BlockHash.BIdx()] =
-			&oneBlockDl{hash: lowest_found.BlockHash, start: time.Now(), SentAtPingCnt: c.X.PingSentCnt}
+		c.GetBlockInProgress[b2g.BlockHash.BIdx()] =
+			&oneBlockDl{hash: b2g.BlockHash, start: time.Now(), SentAtPingCnt: c.X.PingSentCnt}
 		c.Mutex.Unlock()
 
 		if cbip+invs_cnt >= MAX_PEERS_BLOCKS_IN_PROGRESS {
