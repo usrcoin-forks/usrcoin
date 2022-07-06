@@ -455,9 +455,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		return blocks2get[i].InProgress < blocks2get[j].InProgress
 	})
 
-	if len(blocks2get) > 1 {
+	/*if len(blocks2get) > 1 {
 		println("fetching", len(blocks2get), "-from", blocks2get[0].Block.Height, blocks2get[0].InProgress, "to", blocks2get[len(blocks2get)-1].Block.Height, blocks2get[len(blocks2get)-1].InProgress)
-	}
+	}*/
 
 	invs := new(bytes.Buffer)
 	var invs_cnt int
