@@ -368,9 +368,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	// We can issue getdata for this peer
 	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
 
-	//max_blocks_forward := max_height - last_block_height
-	//common.CountSafeStore("FetchMaxHeight", uint64(max_height))
-
 	max_blocks_at_once := common.GetUint32(&common.CFG.Net.MaxBlockAtOnce)
 	max_cache_size := common.MaxSyncCacheBytes.Get()
 	max_block_forward := uint32(MAX_BLOCKS_FORWARD_CNT)
@@ -383,7 +380,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	if lowest_block+max_block_forward <= LowestIndexToBlocksToGet {
 		common.CountSafe("FetchNo-Blocks")
-		// wake up in a few seconds, maybe some blocks will complete by then
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
 	}
@@ -393,25 +389,25 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	var size_so_far int
 	var cnt_so_far uint32
-	var bh uint32
-	//println("jade", lowest_block, LowestIndexToBlocksToGet)
-	for bh = lowest_block + 1; bh < LowestIndexToBlocksToGet; bh++ {
-		CachedBlocksMutex.Lock()
-		blen, ok := CachedBlocksSizes[bh]
-		CachedBlocksMutex.Unlock()
-		if ok {
-			size_so_far += blen
-		} else {
-			//println("block", bh, "not in cache", lowest_block, LowestIndexToBlocksToGet)
-			size_so_far += avg_block_size
-		}
-		if size_so_far >= max_cache_size {
+	var current_block uint32
+
+	for current_block = lowest_block + 1; current_block < LowestIndexToBlocksToGet; current_block++ {
+		/*
+			CachedBlocksMutex.Lock()
+			blen, ok := CachedBlocksSizes[current_block]
+			CachedBlocksMutex.Unlock()
+			if ok {
+				size_so_far += blen
+			} else {
+				size_so_far += avg_block_size
+			}
+		*/
+		if size_so_far += avg_block_size; size_so_far >= max_cache_size {
 			common.CountSafe("FetchFullBts")
 			c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 			return
 		}
-		cnt_so_far++
-		if cnt_so_far >= max_block_forward {
+		if cnt_so_far++; cnt_so_far >= max_block_forward {
 			common.CountSafe("FetchFullCnt")
 			c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 			return
@@ -419,14 +415,20 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	}
 
 	max_block_forward = uint32(int(max_cache_size-size_so_far) / int(avg_block_size))
+	if max_block_forward < 1 {
+		common.CountSafe("FetchMaxBlocksForward")
+		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
+		return
+	}
 	if max_block_forward > MAX_BLOCKS_FORWARD_CNT {
 		max_block_forward = MAX_BLOCKS_FORWARD_CNT
 	}
-	//println("mam", cnt_so_far, size_so_far, max_height)
-	blocks2get := make([]*OneBlockToGet, 0, max_height-bh)
+	max_height = lowest_block + max_block_forward
 
-	for ; bh <= max_height; bh++ {
-		if idxlst, ok := IndexToBlocksToGet[bh]; ok {
+	blocks2get := make([]*OneBlockToGet, 0, max_height-current_block)
+
+	for ; current_block <= max_height; current_block++ {
+		if idxlst, ok := IndexToBlocksToGet[current_block]; ok {
 			for _, idx := range idxlst {
 				v := BlocksToGet[idx]
 				if v.InProgress >= uint(max_blocks_at_once) {
@@ -437,27 +439,20 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 					continue
 				}
 				how_far := v.Block.Height - lowest_block
-				if how_far < (max_block_forward >> v.InProgress) {
-					//println("yes", v.Block.Height, v.InProgress)
-					blocks2get = append(blocks2get, v)
-				} else {
-					//println(" NO", v.Block.Height, v.InProgress)
+				if how_far >= (max_block_forward >> v.InProgress) {
+					continue
 				}
+				blocks2get = append(blocks2get, v)
 			}
 		}
 	}
 
-	//println("sort", len(blocks2get))
 	sort.Slice(blocks2get, func(i, j int) bool {
 		if blocks2get[i].InProgress == blocks2get[j].InProgress {
 			return blocks2get[i].Block.Height < blocks2get[j].Block.Height
 		}
 		return blocks2get[i].InProgress < blocks2get[j].InProgress
 	})
-
-	/*if len(blocks2get) > 1 {
-		println("fetching", len(blocks2get), "-from", blocks2get[0].Block.Height, blocks2get[0].InProgress, "to", blocks2get[len(blocks2get)-1].Block.Height, blocks2get[len(blocks2get)-1].InProgress)
-	}*/
 
 	invs := new(bytes.Buffer)
 	var invs_cnt int
@@ -473,25 +468,22 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			&oneBlockDl{hash: lowest_found.BlockHash, start: time.Now(), SentAtPingCnt: c.X.PingSentCnt}
 		c.Mutex.Unlock()
 
-		//bbreak
-
 		if cbip+invs_cnt >= MAX_PEERS_BLOCKS_IN_PROGRESS {
 			common.CountSafe("FetchReachedMaxCnt")
 			break // no more than 2000 blocks in progress / peer
 		}
-		block_data_in_progress += avg_block_size
-		if block_data_in_progress >= MAX_GETDATA_FORWARD {
+
+		if block_data_in_progress += avg_block_size; block_data_in_progress >= MAX_GETDATA_FORWARD {
 			common.CountSafe("FetchReachedMaxSize")
 			break
 		}
 
-		size_so_far += avg_block_size
-		if size_so_far >= max_cache_size {
+		if size_so_far += avg_block_size; size_so_far >= max_cache_size {
 			common.CountSafe("FetchReachLimitSize")
 			break
 		}
-		cnt_so_far++
-		if cnt_so_far >= max_block_forward {
+
+		if cnt_so_far++; cnt_so_far >= max_block_forward {
 			common.CountSafe("FetchReachLimitCnt")
 			break
 		}
