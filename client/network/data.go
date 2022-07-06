@@ -429,8 +429,16 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 				if v.InProgress >= uint(max_blocks_at_once) {
 					continue
 				}
-				if v.InProgress == 0 || v.Block.Height-lowest_block < (max_block_forward>>v.InProgress) {
+				if v.InProgress == 0 {
 					blocks2get = append(blocks2get, v)
+					continue
+				}
+				how_far := v.Block.Height - lowest_block
+				if how_far < (max_block_forward >> v.InProgress) {
+					println("yes", v.Block.Height, v.InProgress)
+					blocks2get = append(blocks2get, v)
+				} else {
+					println(" NO", v.Block.Height, v.InProgress)
 				}
 			}
 		}
