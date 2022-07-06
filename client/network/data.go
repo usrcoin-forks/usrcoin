@@ -362,6 +362,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		return
 	}
 
+	var size_so_far int
+	var cnt_so_far int
+	var current_block int
 	var block_type uint32
 
 	if (c.Node.Services & btc.SERVICE_SEGWIT) != 0 {
@@ -391,10 +394,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	common.CountSafeStore("FetchHeightA", uint64(lowest_block))
 	common.CountSafeStore("FetchHeightB", uint64(LowestIndexToBlocksToGet))
 	common.CountSafeStore("FetchHeightC", uint64(max_height))
-
-	var size_so_far int
-	var cnt_so_far int
-	var current_block int
 
 	for current_block = lowest_block; current_block < int(LowestIndexToBlocksToGet); current_block++ {
 		/*
@@ -429,8 +428,13 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		max_block_forward = MAX_BLOCKS_FORWARD_CNT
 	}
 	max_height = lowest_block + max_block_forward
+	if max_height < current_block {
+		common.CountSafe("FetchMaxHeightLow")
+		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
+		return
+	}
 
-	blocks2get := make([]*OneBlockToGet, 0, max_height-current_block)
+	blocks2get := make([]*OneBlockToGet, 0, max_height-current_block+1)
 
 	if s := time.Since(sta); s > 100*time.Millisecond {
 		println("pipa-1", s.String(), max_height, current_block, max_block_forward)
