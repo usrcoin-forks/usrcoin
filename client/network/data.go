@@ -439,7 +439,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	blocks2get := make([]*OneBlockToGet, 0, max_height-current_block)
 
 	if s := time.Since(sta); s > 100*time.Millisecond {
-		println("pipa 1", s.String())
+		println("pipa-1", s.String())
 	}
 	for ; current_block <= max_height; current_block++ {
 		if idxlst, ok := IndexToBlocksToGet[current_block]; ok {
