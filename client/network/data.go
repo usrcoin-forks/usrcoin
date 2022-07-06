@@ -421,6 +421,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			return
 		}
 	}
+	if s := time.Since(sta); s > 100*time.Millisecond {
+		println("pipa A", s.String(), lowest_block, LowestIndexToBlocksToGet)
+	}
 
 	max_block_forward = int(max_cache_size-size_so_far) / int(avg_block_size)
 	if max_block_forward < 1 {
