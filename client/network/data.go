@@ -382,7 +382,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	}
 
 	if lowest_block+max_block_forward <= LowestIndexToBlocksToGet {
-		common.CountSafe("FetchMaxBlocksForward")
+		common.CountSafe("FetchNo-Blocks")
 		// wake up in a few seconds, maybe some blocks will complete by then
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
@@ -391,7 +391,8 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	common.CountSafeStore("FetchHeightB", uint64(LowestIndexToBlocksToGet))
 	common.CountSafeStore("FetchHeightC", uint64(max_height))
 
-	var size_so_far, cnt_so_far int
+	var size_so_far int
+	var cnt_so_far uint32
 	var bh uint32
 	//println("jade", lowest_block, LowestIndexToBlocksToGet)
 	for bh = lowest_block + 1; bh < LowestIndexToBlocksToGet; bh++ {
@@ -404,13 +405,13 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			size_so_far += avg_block_size
 		}
 		if size_so_far >= max_cache_size {
-			common.CountSafe("FetchCacheFullBA")
+			common.CountSafe("FetchFullBts")
 			c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 			return
 		}
 		cnt_so_far++
-		if cnt_so_far >= max_cache_size {
-			common.CountSafe("FetchCacheFullCA")
+		if cnt_so_far >= max_block_forward {
+			common.CountSafe("FetchFullCnt")
 			c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 			return
 		}
@@ -462,6 +463,17 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		block_data_in_progress += avg_block_size
 		if block_data_in_progress >= MAX_GETDATA_FORWARD {
 			common.CountSafe("FetchReachedMaxSize")
+			break
+		}
+
+		size_so_far += avg_block_size
+		if size_so_far >= max_cache_size {
+			common.CountSafe("FetchReachLimitSize")
+			break
+		}
+		cnt_so_far++
+		if cnt_so_far >= max_block_forward {
+			common.CountSafe("FetchReachLimitCnt")
 			break
 		}
 	}
