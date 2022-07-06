@@ -379,6 +379,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	max_cache_size := common.MaxSyncCacheBytes.Get()
 	max_block_forward := MAX_BLOCKS_FORWARD_CNT
 
+	common.CountSafeStore("FetchMinHeight", uint64(LowestIndexToBlocksToGet))
 	for {
 		var lowest_found *OneBlockToGet
 		var size_so_far, cnt_so_far, blocks_missing_cnt int
@@ -402,6 +403,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			cnt_so_far++
 			if cnt_so_far >= max_block_forward {
 				break
+			}
+			if bh-LowestIndexToBlocksToGet >= MAX_BLOCKS_FORWARD_CNT {
+				println("pipa", bh, LowestIndexToBlocksToGet, cnt_so_far)
 			}
 
 			if idxlst, ok := IndexToBlocksToGet[bh]; ok {
@@ -430,7 +434,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 				break
 			}
 			if cnt_in_progress == 0 {
-				common.CountSafeStore("FetchMinHeight", uint64(LowestIndexToBlocksToGet))
 				common.CountSafeStore("FetchMaxHeight", uint64(bh))
 				max_block_forward = int(bh - LowestIndexToBlocksToGet)
 			}
