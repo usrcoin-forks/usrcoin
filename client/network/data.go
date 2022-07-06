@@ -439,8 +439,8 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 					blocks2get = append(blocks2get, v)
 					continue
 				}
-				how_far := int(v.Block.Height) - int(lowest_block)
-				if how_far > (max_blocks_forward >> v.InProgress) {
+				// you only want to re-ask for blocks that are needed soon
+				if int(v.Block.Height)-int(lowest_block) > (max_blocks_forward >> v.InProgress) {
 					continue
 				}
 				blocks2get = append(blocks2get, v)
