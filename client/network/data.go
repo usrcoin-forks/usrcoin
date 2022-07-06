@@ -432,14 +432,14 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 
 		if lowest_found == nil {
+			if cnt_in_progress == 0 {
+				common.CountSafeStore("FetchMaxHeight", uint64(bh))
+				max_block_forward = int(bh - LowestIndexToBlocksToGet)
+			}
 			cnt_in_progress++
 			if cnt_in_progress >= uint(max_blocks_at_once) {
 				common.CountSafe("FetchReachedEnd")
 				break
-			}
-			if cnt_in_progress == 0 {
-				common.CountSafeStore("FetchMaxHeight", uint64(bh))
-				max_block_forward = int(bh - LowestIndexToBlocksToGet)
 			}
 			max_block_forward >>= 1
 			continue
