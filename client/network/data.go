@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io/ioutil"
+	"sort"
 	"time"
 
 	"github.com/piotrnar/gocoin/client/common"
@@ -376,81 +377,70 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	//common.CountSafeStore("FetchMaxHeight", uint64(max_height))
 
 	max_blocks_at_once := common.GetUint32(&common.CFG.Net.MaxBlockAtOnce)
-	max_height := LastCommitedHeader.Height
 	max_cache_size := common.MaxSyncCacheBytes.Get()
-	max_block_forward := MAX_BLOCKS_FORWARD_CNT
+	max_block_forward := uint32(MAX_BLOCKS_FORWARD_CNT)
 	lowest_block := common.Last.BlockHeight()
+	max_height := lowest_block + max_block_forward
 
-	if int(lowest_block)+max_block_forward <= int(LowestIndexToBlocksToGet) {
+	if max_height > LastCommitedHeader.Height {
+		max_height = LastCommitedHeader.Height
+	}
+
+	if lowest_block+max_block_forward <= LowestIndexToBlocksToGet {
 		common.CountSafe("FetchMaxBlocksForward")
 		// wake up in a few seconds, maybe some blocks will complete by then
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
 	}
-	common.CountSafeStore("FetchMinHeight", uint64(LowestIndexToBlocksToGet))
-	for {
-		var lowest_found *OneBlockToGet
-		var size_so_far, cnt_so_far, blocks_missing_cnt int
-		var bh uint32
+	common.CountSafeStore("FetchHeightA", uint64(lowest_block))
+	common.CountSafeStore("FetchHeightB", uint64(LowestIndexToBlocksToGet))
+	common.CountSafeStore("FetchHeightC", uint64(max_height))
 
-		// Find block to fetch, with lowest height for the given InProgress==cnt_in_progress
-		for bh = lowest_block; bh <= max_height; bh++ {
-			if cnt_in_progress == 0 {
-				CachedBlocksMutex.Lock()
-				blen, ok := CachedBlocksSizes[bh]
-				CachedBlocksMutex.Unlock()
-				if !ok {
-					blen = avg_block_size
-					blocks_missing_cnt++
-				}
-				size_so_far += blen
-				if size_so_far > max_cache_size {
-					break
-				}
-			}
-			cnt_so_far++
-			if cnt_so_far >= max_block_forward {
-				break
-			}
+	var size_so_far, cnt_so_far int
+	var bh uint32
+	for bh = lowest_block; bh < LowestIndexToBlocksToGet; bh++ {
+		if blen, ok := CachedBlocksSizes[bh]; ok {
+			size_so_far += blen
+		} else {
+			println("block", bh, "not in cache", lowest_block, LowestIndexToBlocksToGet)
+			size_so_far += avg_block_size
+		}
+		if size_so_far >= max_cache_size {
+			common.CountSafe("FetchCacheFullBA")
+			c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
+			return
+		}
+		cnt_so_far++
+		if cnt_so_far >= max_cache_size {
+			common.CountSafe("FetchCacheFullCA")
+			c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
+			return
+		}
+	}
 
-			if idxlst, ok := IndexToBlocksToGet[bh]; ok {
-				for _, idx := range idxlst {
-					v := BlocksToGet[idx]
-					if v.InProgress == cnt_in_progress && (lowest_found == nil || v.Block.Height < lowest_found.Block.Height) {
-						c.Mutex.Lock()
-						if _, ok := c.GetBlockInProgress[idx]; !ok {
-							lowest_found = v
-						}
-						c.Mutex.Unlock()
-					}
+	blocks2get := make([]*OneBlockToGet, 0, max_height-bh)
+
+	for bh <= max_height {
+		if idxlst, ok := IndexToBlocksToGet[bh]; ok {
+			for _, idx := range idxlst {
+				v := BlocksToGet[idx]
+				if v.InProgress < uint(max_blocks_at_once) {
+					blocks2get = append(blocks2get, v)
 				}
 			}
 		}
+	}
 
-		if blocks_missing_cnt == 0 {
-			common.CountSafe("FetchNoNeed")
-			break
+	sort.Slice(blocks2get, func(i, j int) bool {
+		if blocks2get[i].InProgress == blocks2get[j].InProgress {
+			return blocks2get[i].Block.Height < blocks2get[j].Block.Height
 		}
+		return blocks2get[i].InProgress < blocks2get[j].InProgress
+	})
 
-		if lowest_found == nil {
-			if cnt_in_progress == 0 {
-				common.CountSafeStore("FetchMaxHeight", uint64(bh))
-				max_block_forward = int(bh - LowestIndexToBlocksToGet)
-			}
-			cnt_in_progress++
-			if cnt_in_progress >= uint(max_blocks_at_once) {
-				common.CountSafe("FetchReachedEnd")
-				break
-			}
-			max_block_forward >>= 1
-			if int(lowest_block)+max_block_forward <= int(LowestIndexToBlocksToGet) {
-				common.CountSafe(fmt.Sprint("FetchMBF", cnt_in_progress))
-				break
-			}
-			common.CountSafe(fmt.Sprint("FetchMBA", cnt_in_progress))
-			continue
-		}
-
+	println("fetching from", blocks2get[0].Block.Height, blocks2get[0].InProgress,
+		"to", blocks2get[len(blocks2get)-1].Block.Height, blocks2get[len(blocks2get)-1].InProgress)
+	for _, lowest_found := range blocks2get {
 		common.CountSafe(fmt.Sprint("FetchC", cnt_in_progress))
 
 		binary.Write(invs, binary.LittleEndian, block_type)
