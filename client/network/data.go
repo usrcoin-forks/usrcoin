@@ -418,6 +418,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 	}
 
+	max_block_forward = uint32(int(max_cache_size-size_so_far) / int(avg_block_size))
 	//println("mam", cnt_so_far, size_so_far, max_height)
 	blocks2get := make([]*OneBlockToGet, 0, max_height-bh)
 
@@ -425,7 +426,10 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		if idxlst, ok := IndexToBlocksToGet[bh]; ok {
 			for _, idx := range idxlst {
 				v := BlocksToGet[idx]
-				if v.InProgress < uint(max_blocks_at_once) {
+				if v.InProgress >= uint(max_blocks_at_once) {
+					continue
+				}
+				if v.InProgress == 0 || v.Block.Height-lowest_block < (max_block_forward>>v.InProgress) {
 					blocks2get = append(blocks2get, v)
 				}
 			}
@@ -440,7 +444,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		return blocks2get[i].InProgress < blocks2get[j].InProgress
 	})
 
-	//println("fetching from", blocks2get[0].Block.Height, blocks2get[0].InProgress, "to", blocks2get[len(blocks2get)-1].Block.Height, blocks2get[len(blocks2get)-1].InProgress)
+	if len(blocks2get) > 1 {
+		println("fetching", len(blocks2get), "-from", blocks2get[0].Block.Height, blocks2get[0].InProgress, "to", blocks2get[len(blocks2get)-1].Block.Height, blocks2get[len(blocks2get)-1].InProgress)
+	}
 
 	invs := new(bytes.Buffer)
 	var invs_cnt int
