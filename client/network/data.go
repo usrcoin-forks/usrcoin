@@ -422,7 +422,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	println("mam", cnt_so_far, size_so_far, max_height)
 	blocks2get := make([]*OneBlockToGet, 0, max_height-bh)
 
-	for bh <= max_height {
+	for ; bh <= max_height; bh++ {
 		if idxlst, ok := IndexToBlocksToGet[bh]; ok {
 			for _, idx := range idxlst {
 				v := BlocksToGet[idx]
