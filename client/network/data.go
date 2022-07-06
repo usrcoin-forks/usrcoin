@@ -451,6 +451,8 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			continue
 		}
 
+		common.CountSafe(fmt.Sprint("FetchC", cnt_in_progress))
+
 		binary.Write(invs, binary.LittleEndian, block_type)
 		invs.Write(lowest_found.BlockHash.Hash[:])
 		lowest_found.InProgress++
