@@ -144,9 +144,7 @@ func retry_cached_blocks() bool {
 			if newbl.Block == nil {
 				os.Remove(common.TempBlocksDir() + newbl.BlockTreeNode.BlockHash.String())
 			}
-			network.CachedBlocksSize.Add(-network.CachedBlocks[idx].Size)
-			network.CachedBlocks = append(network.CachedBlocks[:idx], network.CachedBlocks[idx+1:]...)
-			network.CachedBlocksLen.Store(len(network.CachedBlocks))
+			network.CachedBlocksDel(idx)
 			return len(network.CachedBlocks) > 0
 		}
 		if common.BlockChain.HasAllParents(newbl.BlockTreeNode) {
@@ -177,9 +175,7 @@ func retry_cached_blocks() bool {
 				return false
 			}
 			// remove it from cache
-			network.CachedBlocksSize.Add(-network.CachedBlocks[idx].Size)
-			network.CachedBlocks = append(network.CachedBlocks[:idx], network.CachedBlocks[idx+1:]...)
-			network.CachedBlocksLen.Store(len(network.CachedBlocks))
+			network.CachedBlocksDel(idx)
 			return len(network.CachedBlocks) > 0
 		} else {
 			idx++
@@ -224,12 +220,7 @@ func HandleNetBlock(newbl *network.BlockRcvd) {
 
 	if !common.BlockChain.HasAllParents(newbl.BlockTreeNode) {
 		// it's not linking - keep it for later
-		network.CachedBlocks = append(network.CachedBlocks, newbl)
-		network.CachedBlocksSize.Add(newbl.Size)
-		if network.CachedBlocksSize.Get() > network.MaxCachedBlocksSize.Get() {
-			network.MaxCachedBlocksSize.Store(network.CachedBlocksSize.Get())
-		}
-		network.CachedBlocksLen.Store(len(network.CachedBlocks))
+		network.CachedBlocksAdd(newbl)
 		common.CountSafe("BlockPostone")
 		return
 	}
@@ -600,7 +591,7 @@ func main() {
 				if (network.HeadersReceived.Get() > int(common.GetUint32(&common.CFG.Net.MaxOutCons)/2) ||
 					peersdb.ConnectOnly != "" && network.HeadersReceived.Get() >= 1) &&
 					network.BlocksToGetCnt() == 0 && len(network.NetBlocks) == 0 &&
-					network.CachedBlocksLen.Get() == 0 {
+					len(network.CachedBlocks) == 0 {
 					// only when we have no pending blocks and rteceived header messages, startup_ticks can go down..
 					if startup_ticks > 0 {
 						startup_ticks--

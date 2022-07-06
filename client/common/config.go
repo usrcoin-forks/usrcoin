@@ -68,7 +68,6 @@ var (
 			MaxUpKBps      uint
 			MaxDownKBps    uint
 			MaxBlockAtOnce uint32
-			MinSegwitCons  uint32
 			ExternalIP     string
 		}
 		TXPool struct {
@@ -141,7 +140,6 @@ func InitConfig() {
 	CFG.Net.MaxOutCons = 9
 	CFG.Net.MaxInCons = 10
 	CFG.Net.MaxBlockAtOnce = 3
-	CFG.Net.MinSegwitCons = 4
 	CFG.Net.BindToIF = "0.0.0.0"
 
 	CFG.TextUI_Enabled = true

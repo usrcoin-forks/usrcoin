@@ -577,32 +577,10 @@ func NetworkTick() {
 	Mutex_net.Unlock()
 
 	if conn_cnt < common.GetUint32(&common.CFG.Net.MaxOutCons) {
-		var segwit_conns uint32
-		if common.CFG.Net.MinSegwitCons > 0 {
-			Mutex_net.Lock()
-			for _, cc := range OpenCons {
-				cc.Mutex.Lock()
-				if (cc.Node.Services & btc.SERVICE_SEGWIT) != 0 {
-					segwit_conns++
-				}
-				cc.Mutex.Unlock()
-			}
-			Mutex_net.Unlock()
-		}
-
 		// First we will choose up to 128 peers that we have seen alive - do not sort them
 		adrs := peersdb.GetRecentPeers(128, false, func(ad *peersdb.PeerAddr) bool {
-			if segwit_conns < common.CFG.Net.MinSegwitCons && (ad.Services&btc.SERVICE_SEGWIT) == 0 {
-				return true
-			}
-			return ad.Banned != 0 || !ad.SeenAlive || ConnectionActive(ad)
+			return ad.Banned != 0 || !ad.SeenAlive || (ad.Services&btc.SERVICE_SEGWIT) == 0 || ConnectionActive(ad)
 		})
-		if len(adrs) == 0 && segwit_conns < common.CFG.Net.MinSegwitCons {
-			// we have only non-segwit peers in the database - take them
-			adrs = peersdb.GetRecentPeers(128, false, func(ad *peersdb.PeerAddr) bool {
-				return ad.Banned != 0 || !ad.SeenAlive || ConnectionActive(ad)
-			})
-		}
 		// now fetch another 128 never tried peers (this time sorted)
 		new_cnt := int(32)
 		if len(adrs) > new_cnt {

@@ -119,7 +119,7 @@ func json_system(w http.ResponseWriter, r *http.Request) {
 		SavingUTXO         bool
 	}
 
-	out.Blocks_cached = network.CachedBlocksLen.Get()
+	out.Blocks_cached = network.CachedBlocksLen()
 	common.Last.Mutex.Lock()
 	if common.Last.ParseTill != nil {
 		out.Blocks_on_disk = common.Last.ParseTill.Height - common.Last.Block.Height

@@ -304,6 +304,18 @@ func getBlockToFetch(max_height uint32, cnt_in_progress, avg_block_size uint) (l
 	return
 }
 
+func get_cached_block_len(h uint32) (res int) {
+	CachedBlocksMutex.Lock()
+	for _, cb := range CachedBlocks {
+		if cb.BlockTreeNode.Height == h {
+			res = cb.Size
+			break
+		}
+	}
+	CachedBlocksMutex.Unlock()
+	return
+}
+
 func (c *OneConnection) GetBlockData() (yes bool) {
 	//MAX_GETDATA_FORWARD
 	// Need to send getdata...?
@@ -355,62 +367,43 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	// We can issue getdata for this peer
 	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
 
-	max_size_to_go := common.MaxSyncCacheBytes.Get() - CachedBlocksSize.Get()
-	if max_size_to_go < avg_block_size {
-		common.CountSafe("FetchHadFullCache")
-		c.nextGetData = time.Now().Add(3 * time.Second) // wait for some blocks to complete
-		return
-	}
-	last_block_height := common.Last.BlockHeight()
-	max_height := last_block_height + uint32(max_size_to_go/avg_block_size)
-	if max_height > last_block_height+MAX_BLOCKS_FORWARD_CNT {
-		max_height = last_block_height + MAX_BLOCKS_FORWARD_CNT
-	}
-
-	if max_height > LastCommitedHeader.Height {
-		max_height = LastCommitedHeader.Height
-		if max_height <= last_block_height {
-			common.CountSafe("FetchHadLastKnown")
-			c.nextGetData = time.Now().Add(10 * time.Second) // wait for some blocks to complete
-			return
-		}
-	}
-
-	if max_height > c.Node.Height {
-		max_height = c.Node.Height
-		if max_height <= last_block_height {
-			common.CountSafe("FetchHadPeerEmpty")
-			c.nextGetData = time.Now().Add(15 * time.Second) // wait for some blocks to complete
-			return
-		}
-	}
-
-	if common.BlockChain.Consensus.Enforce_SEGWIT != 0 && (c.Node.Services&btc.SERVICE_SEGWIT) == 0 { // no segwit node
-		if max_height >= common.BlockChain.Consensus.Enforce_SEGWIT-1 {
-			max_height = common.BlockChain.Consensus.Enforce_SEGWIT - 1
-			if max_height <= last_block_height {
-				common.CountSafe("FetchNoWitness")
-				c.nextGetData = time.Now().Add(time.Hour) // never do getdata
-				c.Disconnect(true, "NoWitness")
-				return
-			}
-		}
-	}
-
 	invs := new(bytes.Buffer)
 	var cnt_in_progress uint
 	var invs_cnt int
 
-	max_blocks_forward := max_height - last_block_height
-	common.CountSafeStore("FetchMaxHeight", uint64(max_height))
+	//max_blocks_forward := max_height - last_block_height
+	//common.CountSafeStore("FetchMaxHeight", uint64(max_height))
 
 	max_blocks_at_once := common.GetUint32(&common.CFG.Net.MaxBlockAtOnce)
+	max_height := LastCommitedHeader.Height
+	max_cache_size := common.MaxSyncCacheBytes.Get()
+	max_block_forward := MAX_BLOCKS_FORWARD_CNT
+	var max_height_seen uint32
 
 	for {
 		var lowest_found *OneBlockToGet
+		var size_so_far, cnt_so_far, blocks_missing_cnt int
 
 		// Find block to fetch, with lowest height for the given InProgress==cnt_in_progress
 		for bh := LowestIndexToBlocksToGet; bh <= max_height; bh++ {
+			CachedBlocksMutex.Lock()
+			blen, ok := CachedBlocksSizes[bh]
+			CachedBlocksMutex.Unlock()
+			if !ok {
+				blen = avg_block_size
+				blocks_missing_cnt++
+			}
+			if size_so_far += blen; size_so_far > max_cache_size {
+				break
+			}
+			if cnt_so_far++; cnt_so_far >= max_block_forward {
+				break
+			}
+
+			if bh > max_height_seen {
+				max_height_seen = bh
+			}
+
 			if idxlst, ok := IndexToBlocksToGet[bh]; ok {
 				for _, idx := range idxlst {
 					v := BlocksToGet[idx]
@@ -425,14 +418,19 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			}
 		}
 
+		if blocks_missing_cnt == 0 {
+			common.CountSafe("FetchNoNeed")
+			break
+		}
+
 		if lowest_found == nil {
 			cnt_in_progress++
 			if cnt_in_progress >= uint(max_blocks_at_once) {
 				common.CountSafe("FetchReachedEnd")
 				break
 			}
-			max_blocks_forward >>= 1
-			max_height = last_block_height + max_blocks_forward
+			max_cache_size >>= 1
+			max_block_forward >>= 1
 			continue
 		}
 
@@ -456,6 +454,8 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			break
 		}
 	}
+
+	common.CountSafeStore("FetchMaxHeight", uint64(max_height_seen))
 
 	if invs_cnt == 0 {
 		//println(c.ConnID, "fetch nothing", cbip, block_data_in_progress, max_height-common.Last.BlockHeight(), cnt_in_progress)
