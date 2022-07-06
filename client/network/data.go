@@ -447,6 +447,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 				common.CountSafe(fmt.Sprint("FetchMBF", cnt_in_progress))
 				break
 			}
+			common.CountSafe(fmt.Sprint("FetchMBA", cnt_in_progress))
 			continue
 		}
 
