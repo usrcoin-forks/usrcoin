@@ -280,7 +280,7 @@ func sync_stats(par string) {
 	fmt.Printf("@%d\tBlks: %d/%d,  MB:%d/%d/%d/max:%d%%  |  AvgBlock:%dK   Underfows:%d\n",
 		lb, ready_cached_cnt, len(network.CachedBlocks),
 		cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, network.MaxCachedBlocksSize.Get()>>20,
-		common.MaxSyncCacheBytes.Get(),
+		100*common.MaxSyncCacheBytes.Get()/network.MaxCachedBlocksSize.Get(),
 		common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
 	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d), with stop at %d\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min, common.CounterGet("FetchHadFullCache"))
