@@ -285,11 +285,12 @@ func sync_stats(par string) {
 	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d)\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min)
 	if a := common.CounterGet("FetcHeightA"); a != 0 {
-		b := common.CounterGet("FetcHeightB")
 		c := common.CounterGet("FetcHeightC")
-		fil := b - a
-		siz := c - a
-		fmt.Printf("\tLast Fetch from %d / %d / up to %d  (ready %d%%)\n", a, b, c, 100*fil/siz)
+		if siz := c - a; siz > 0 {
+			b := common.CounterGet("FetcHeightB")
+			fil := b - a
+			fmt.Printf("\tLast Fetch from %d / %d / up to %d  (ready %d%%)\n", a, b, c, 100*fil/siz)
+		}
 	}
 	tot := common.CounterGet("rbts_block")
 	if tot > 0 {
