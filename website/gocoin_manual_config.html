@@ -165,16 +165,11 @@ Note that Bitcoin Core (before version 23.0) does not connect to TCP ports other
 <td class="cfg_info"> When a new block appears, (up to) how many peers to ask for its data at the same time.</td>
 </tr>
 <tr class="odd">
-<td class="cfg_name"> Net.MinSegwitCons</td>
-<td class="cfg_type"> uint32</td>
-<td> 4</td>
-<td class="cfg_info"> Maintain at least so many connections to nodes indicating support for Segregated Witness (via bit 0x8 in Services).</td>
-<tr class="odd">
 <td class="cfg_name"> Net.ExternalIP</td>
 <td class="cfg_type"> string</td>
 <td> ""</td>
 <td class="cfg_info"> If the string is a valid IP v4 address, it will be used as <code>addr_from</code> inside <code>version</code> messages.</td>
-
+</tr>
 <tr class="even">
 <td class="cfg_name"> TXPool.Enabled</td>
 <td class="cfg_type"> bool</td>
@@ -256,14 +251,17 @@ therefore setting it to 0.0 will route all the accepted transactions.</td>
 <td class="cfg_type"> int </td>
 <td> 30</td>
 <td class="cfg_info"> A threshold (in percent) to trigger Go's garbage collector engine.<br>
-    The higher you set it, the better performance should be (at a cost of RAM).</td>
+    The higher you set it, the better performance should be (at a cost of RAM).<br>
+    The default is set to a low value, to minimize node's memory requirements.<br>
+    Increase it to <b>100</b> or more, if you have RAM to spare.</td>
 </tr>
 <tr class="even">
 <td class="cfg_name"> Memory.UseGoHeap</td>
 <td class="cfg_type"> bool</td>
 <td> false</td>
 <td class="cfg_info"> Use native Go heap with Garbage Collector for UTXO records.<br>
-Using native heap makes the node a bit faster at a cost of using more RAM, although it is not always the case.
+Using native heap should inprove the node's performance, but will require more RAM.<br>
+With native heap enabled, we advise <b>GCPercTrshold</b> of at least <b>100</b> (needs at least 32 GB or RAM)
 </td>
 </tr>
 <tr class="even">
@@ -276,8 +274,19 @@ Using native heap makes the node a bit faster at a cost of using more RAM, altho
 <td class="cfg_name"> Memory.CacheOnDisk</td>
 <td class="cfg_type"> bool</td>
 <td> true</td>
-<td class="cfg_info"> During chain sync, store bigger blocks on disk (in datadir's "tmpblk/") instead of holding them in RAM.<br>
-Makes block chain sync process a bit slower, but saves RAM instead.</td>
+<td class="cfg_info"> During chain sync, store pre-cached blocks on disk, instead of holding them in RAM (for when they're needed).<br>
+Makes block chain sync process significantly slower, but lowers memory requirements.<br>
+On systems with more than 16GB or RAM, it is advised to disable the disk caching (set this value to <b>false</b>).
+</td>
+</tr>
+<tr class="even">
+<td class="cfg_name"> Memory.MaxSyncCacheMB</td>
+<td class="cfg_type"> uint</td>
+<td> 500</td>
+<td class="cfg_info"> Size of cache for blocks during chain sync. Increasing this value may speed up initial chain sync and decrease bandwidth overhead.
+    It will however increase memory requirements, in particular with <b>CacheOnDisk</b> disabled.<br>
+    If you have RAM to spare, we consider <b>2000</b> to be an optimal value.
+</td>
 </tr>
 <tr class="even">
 <td class="cfg_name"> Memory.MaxDataFileMB</td>

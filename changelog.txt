@@ -7,6 +7,7 @@
 * Client: Removed config value "CFG.Stat.BSizeBlks" (replaced with constant 2016)
 * Client: "CFG.Net.MaxBlockAtOnce" is used in a smarter way (during initial sync)
 * Lib: Updated "lib/others/memory" to the recent version from "gitlab.com/cznic/memory" (old one could crash)
+* Client: No more talking to peers that do not advertise segwit support (unless through the friends.txt file)
 
 1.10.1 - 2022-06-15                                                   
 * btc.VerifyKeyPair() alos does Schnorr sign/verify on the given key pair
