@@ -115,8 +115,8 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 			}
 		}
 		if !common.BlockChainSynchronized && (common.Last.Block.Height%10e3) == 0 {
-			fmt.Printf("    Global:  %.2f txs/s,  %.2f blocks/s,  %.2f MB/s\n",
-				float64(txs_so_far)/(float64(time.Since(common.StartTime).Milliseconds())/1000),
+			fmt.Printf("    From Start:  %d txs/s,  %.2f blocks/s,  %.2f MB/s\n",
+				1000*txs_so_far)/time.Since(common.StartTime).Milliseconds(),
 				float64(blocks_so_far)/(float64(time.Since(common.StartTime).Milliseconds())/1000),
 				float64(size_so_far>>20)/(float64(time.Since(common.StartTime).Milliseconds())/10000))
 		}
