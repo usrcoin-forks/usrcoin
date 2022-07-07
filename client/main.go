@@ -59,6 +59,8 @@ func blockUndone(bl *btc.Block) {
 	network.BlockUndone(bl)
 }
 
+var size_so_far, blocks_so_far, txs_so_far int
+
 func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 	bl := newbl.Block
 	if common.FLAG.TrustAll || newbl.BlockTreeNode.Trusted.Get() {
@@ -80,6 +82,10 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 	e = common.BlockChain.CommitBlock(bl, newbl.BlockTreeNode)
 
 	if e == nil {
+		blocks_so_far++
+		size_so_far += len(bl.Raw)
+		txs_so_far += len(bl.Txs)
+
 		// new block accepted
 		newbl.TmAccepted = time.Now()
 
@@ -107,6 +113,12 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 				// Cache underflow counter is not reliable at teh beginning of chain sync,s o reset it here
 				common.CountSafeStore("BlocksUnderflowCount", 0)
 			}
+		}
+		if !common.BlockChainSynchronized && (common.Last.Block.Height%50e3) == 0 {
+			fmt.Printf("Speed:  %d txs/sec,  %d blocks/min,  %d MB/min",
+				txs_so_far/int(time.Since(common.StartTime).Seconds()),
+				blocks_so_far/int(time.Since(common.StartTime).Minutes()),
+				size_so_far/int(time.Since(common.StartTime).Minutes()))
 		}
 		common.Last.Mutex.Unlock()
 	} else {
