@@ -114,7 +114,7 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 				common.CountSafeStore("BlocksUnderflowCount", 0)
 			}
 		}
-		if !common.BlockChainSynchronized && (common.Last.Block.Height%10e3) == 0 {
+		if common.Last.Block.Height != 0 && !common.BlockChainSynchronized && (common.Last.Block.Height%10e3) == 0 {
 			fmt.Printf("    From Start:  %d txs/s,  %.2f blocks/s,  %.2f MB/s\n",
 				txs_so_far/int(time.Since(common.StartTime).Seconds()),
 				float64(blocks_so_far)/(float64(time.Since(common.StartTime).Milliseconds())/1000),
