@@ -277,7 +277,7 @@ func sync_stats(par string) {
 			break
 		}
 	}
-	fmt.Printf("@%d\tBlks: %d/%d,  MB:%d/%d/%d (max:%d%%)  |  AvgBlock:%dK   Underfows:%d\n",
+	fmt.Printf("@%d\tBlks: %d/%d,  MB:%d/%d/%d (max %d%%)  |  AvgBlock:%dK   Underfows:%d\n",
 		lb, ready_cached_cnt, len(network.CachedBlocks),
 		cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, common.MaxSyncCacheBytes.Get()>>20,
 		100*network.MaxCachedBlocksSize.Get()/common.MaxSyncCacheBytes.Get(),
@@ -289,7 +289,7 @@ func sync_stats(par string) {
 		c := common.CounterGet("FetcHeightC")
 		fil := b - a
 		siz := c - a
-		fmt.Printf("\tLast Fetch from %d / %d / up to %d  (%d%%)\n", a, b, c, 100*fil/siz)
+		fmt.Printf("\tLast Fetch from %d / %d / up to %d  (ready %d%%)\n", a, b, c, 100*fil/siz)
 	}
 	tot := common.CounterGet("rbts_block")
 	if tot > 0 {

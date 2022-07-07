@@ -331,7 +331,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	defer func() {
 		MutexRcv.Unlock()
 		if s := time.Since(sta); s > 100*time.Millisecond {
-			println("pipa", s.String())
+			println("pipa", s.String()) // TODO
 		}
 	}()
 
@@ -353,7 +353,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	c.Mutex.Unlock()
 
 	if cbip >= MAX_PEERS_BLOCKS_IN_PROGRESS {
-		common.CountSafe("FetchHadMaxCount")
+		common.CountSafe("Fetch**HadMaxCount?**")
 		// wake up in a few seconds, maybe some blocks will complete by then
 		c.nextGetData = time.Now().Add(1 * time.Second)
 		return
@@ -363,7 +363,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	block_data_in_progress := cbip * avg_block_size
 
 	if (block_data_in_progress + avg_block_size) > MAX_GETDATA_FORWARD {
-		common.CountSafe("FetchHadMaxSize")
+		common.CountSafe("FetchCacheGotFull")
 		// wake up in a few seconds, maybe some blocks will complete by then
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
@@ -389,7 +389,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	}
 
 	if int(lowest_block)+max_blocks_forward <= int(LowestIndexToBlocksToGet) {
-		common.CountSafe("Fetch*NoBlocks*")
+		common.CountSafe("Fetch*NoBlocks?*")
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
 	}
@@ -399,12 +399,12 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	for current_block = lowest_block; current_block < int(LowestIndexToBlocksToGet); current_block++ {
 		if size_so_far += avg_block_size; size_so_far >= max_cache_size {
-			common.CountSafe("FetchFullBts")
+			common.CountSafe("FetchFullGlobSize")
 			c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 			return
 		}
 		if cnt_so_far++; cnt_so_far >= max_blocks_forward {
-			common.CountSafe("FetchFullCnt")
+			common.CountSafe("FetchFullGlobCnt")
 			c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 			return
 		}
@@ -412,7 +412,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	max_blocks_forward = int(max_cache_size-size_so_far) / int(avg_block_size)
 	if max_blocks_forward < 1 {
-		common.CountSafe("FetchMaxBlocksForward")
+		common.CountSafe("Fetch*MaxBlocksForward*")
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
 	}
@@ -479,23 +479,23 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		c.Mutex.Unlock()
 
 		if cbip+invs_cnt >= MAX_PEERS_BLOCKS_IN_PROGRESS {
-			common.CountSafe("FetchReachedMaxCnt")
+			common.CountSafe("FetchReachPeerCnt")
 			break // no more than 2000 blocks in progress / peer
 		}
 
 		if block_data_in_progress += avg_block_size; block_data_in_progress >= MAX_GETDATA_FORWARD {
-			common.CountSafe("FetchReachedMaxSize")
+			common.CountSafe("FetchReachPeerSize")
 			break
 		}
 
 		// This below should not be neccessary as checking cnt_so_far should do the same.
 		if size_so_far += avg_block_size; size_so_far >= max_cache_size {
-			common.CountSafe("FetchReach*LimitSize*")
+			common.CountSafe("FetchReachGlobSize*")
 			break
 		}
 
 		if cnt_so_far++; cnt_so_far >= max_blocks_forward {
-			common.CountSafe("FetchReachLimitCnt")
+			common.CountSafe("FetchReachGlobCnt")
 			break
 		}
 	}
