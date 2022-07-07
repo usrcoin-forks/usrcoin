@@ -275,8 +275,8 @@ With native heap enabled, we advise <b>GCPercTrshold</b> of at least <b>100</b> 
 <td class="cfg_type"> bool</td>
 <td> true</td>
 <td class="cfg_info"> During chain sync, store pre-cached blocks on disk, instead of holding them in RAM (for when they're needed).<br>
-Makes block chain sync process significantly slower, but lowers memory requirements.<br>
-On systems with more than 16GB or RAM, it is advised to disable the disk caching (set this value to <b>false</b>).
+Disk caching makes block chain sync process significantly slower, but lowers memory requirements.<br>
+If you have enough RAM, it is advised to set this value to <b>false</b> for the initial chain sync.
 </td>
 </tr>
 <tr class="even">
