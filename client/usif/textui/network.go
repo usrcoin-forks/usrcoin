@@ -282,8 +282,8 @@ func sync_stats(par string) {
 		cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, common.MaxSyncCacheBytes.Get()>>20,
 		100*network.MaxCachedBlocksSize.Get()/common.MaxSyncCacheBytes.Get(),
 		common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
-	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d), with stop at %d\n",
-		bip_cnt, ip_min, ip_max, ip_max-ip_min, common.CounterGet("FetchHadFullCache"))
+	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d)\n",
+		bip_cnt, ip_min, ip_max, ip_max-ip_min)
 	if a := common.CounterGet("FetcHeightA"); a != 0 {
 		b := common.CounterGet("FetcHeightB")
 		c := common.CounterGet("FetcHeightC")
