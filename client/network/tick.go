@@ -581,15 +581,17 @@ func NetworkTick() {
 		adrs := peersdb.GetRecentPeers(128, false, func(ad *peersdb.PeerAddr) bool {
 			return ad.Banned != 0 || !ad.SeenAlive || (ad.Services&btc.SERVICE_SEGWIT) == 0 || ConnectionActive(ad)
 		})
-		// now fetch another 128 never tried peers (this time sorted)
+		// now fetch another 32 never tried peers (this time sorted)
 		new_cnt := int(32)
 		if len(adrs) > new_cnt {
 			new_cnt = len(adrs)
 		}
 		adrs2 := peersdb.GetRecentPeers(uint(new_cnt), true, func(ad *peersdb.PeerAddr) bool {
-			return ad.Banned != 0 || ad.SeenAlive // ignore those that have been seen alive
+			return ad.Banned != 0 || ad.SeenAlive || (ad.Services&btc.SERVICE_SEGWIT) == 0 // ignore those that have been seen alive
 		})
-		adrs = append(adrs, adrs2...)
+		adrs = append(adrs, adrs2...)   
+		// Now we should have 128 peers known to be alive and 32 never tried ones
+		// ... giving us 20% chance of selecting a never tried one.
 		if len(adrs) != 0 {
 			ad := adrs[rand.Int31n(int32(len(adrs)))]
 			//print("chosen ", ad.String(), "\n> ")
