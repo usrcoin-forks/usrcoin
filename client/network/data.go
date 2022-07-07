@@ -326,14 +326,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	var block_type uint32
 
 	MutexRcv.Lock()
-	sta := time.Now()
-
-	defer func() {
-		MutexRcv.Unlock()
-		if s := time.Since(sta); s > 100*time.Millisecond {
-			println("pipa", s.String()) // TODO
-		}
-	}()
+	defer MutexRcv.Unlock()
 
 	if LowestIndexToBlocksToGet == 0 || len(BlocksToGet) == 0 {
 		common.CountSafe("FetchNoBlocksToGet")
@@ -372,7 +365,12 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	if (c.Node.Services & btc.SERVICE_SEGWIT) != 0 {
 		block_type = MSG_WITNESS_BLOCK
 	} else {
-		block_type = MSG_BLOCK
+		//block_type = MSG_BLOCK
+		// It can still connect to non-segwit peers via friends.txt file
+		// ... but don't ask them for blocks.
+		common.CountSafe("FetchNoSegwit")
+		c.nextGetData = time.Now().Add(time.Hour)
+		return
 	}
 
 	// We can issue getdata for this peer
@@ -412,7 +410,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	max_blocks_forward = int(max_cache_size-size_so_far) / int(avg_block_size)
 	if max_blocks_forward < 1 {
-		common.CountSafe("Fetch*MaxBlocksForward*")
+		common.CountSafe("FetchCantGoForward")
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
 	}
