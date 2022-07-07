@@ -353,7 +353,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	c.Mutex.Unlock()
 
 	if cbip >= MAX_PEERS_BLOCKS_IN_PROGRESS {
-		common.CountSafe("Fetch**HadMaxCount?**")
+		common.CountSafe("FetchPeerCntStillMax")
 		// wake up in a few seconds, maybe some blocks will complete by then
 		c.nextGetData = time.Now().Add(1 * time.Second)
 		return
@@ -363,7 +363,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	block_data_in_progress := cbip * avg_block_size
 
 	if (block_data_in_progress + avg_block_size) > MAX_GETDATA_FORWARD {
-		common.CountSafe("FetchCacheGotFull")
+		common.CountSafe("FetchPeerSizeNowMax")
 		// wake up in a few seconds, maybe some blocks will complete by then
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
