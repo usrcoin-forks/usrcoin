@@ -100,11 +100,19 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 
 		if common.Last.ParseTill != nil && (common.Last.Block.Height%100e3) == 0 {
 			println("Parsing to", common.Last.Block.Height, "took", time.Since(newbl.TmStart).String())
+			fmt.Printf("    From Start:  %d txs/s,  %.2f blocks/s,  %.2f MB/s\n",
+				txs_so_far/int(time.Since(common.StartTime).Seconds()),
+				float64(blocks_so_far)/(float64(time.Since(common.StartTime).Milliseconds())/1000),
+				float64(size_so_far>>20)/(float64(time.Since(common.StartTime).Milliseconds())/1000))
 		}
 
 		if common.Last.ParseTill != nil && common.Last.Block == common.Last.ParseTill {
 			println("Initial parsing finished in", time.Since(newbl.TmStart).String())
 			common.Last.ParseTill = nil
+			fmt.Printf("    From Start:  %d txs/s,  %.2f blocks/s,  %.2f MB/s\n",
+				txs_so_far/int(time.Since(common.StartTime).Seconds()),
+				float64(blocks_so_far)/(float64(time.Since(common.StartTime).Milliseconds())/1000),
+				float64(size_so_far>>20)/(float64(time.Since(common.StartTime).Milliseconds())/1000))
 		}
 		if common.Last.ParseTill == nil && !common.BlockChainSynchronized &&
 			((common.Last.Block.Height%50e3) == 0 || common.Last.Block.Height == network.LastCommitedHeader.Height) {
@@ -113,12 +121,6 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 				// Cache underflow counter is not reliable at teh beginning of chain sync,s o reset it here
 				common.CountSafeStore("BlocksUnderflowCount", 0)
 			}
-		}
-		if common.Last.Block.Height != 0 && !common.BlockChainSynchronized && (common.Last.Block.Height%10e3) == 0 {
-			fmt.Printf("    From Start:  %d txs/s,  %.2f blocks/s,  %.2f MB/s\n",
-				txs_so_far/int(time.Since(common.StartTime).Seconds()),
-				float64(blocks_so_far)/(float64(time.Since(common.StartTime).Milliseconds())/1000),
-				float64(size_so_far>>20)/(float64(time.Since(common.StartTime).Milliseconds())/1000))
 		}
 		common.Last.Mutex.Unlock()
 	} else {
