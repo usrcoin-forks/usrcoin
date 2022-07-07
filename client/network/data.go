@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/piotrnar/gocoin/client/common"
@@ -195,7 +196,7 @@ func netBlockReceived(conn *OneConnection, b []byte) {
 		// We don't need to remove from conn.GetBlockInProgress as we're disconnecting
 		// ... decreasing of b2g.InProgress will also be done then.
 
-		if b2g.Block.MerkleRootMatch() {
+		if b2g.Block.MerkleRootMatch() && !strings.Contains(er.Error(), "RPC_Result:bad-witness-nonce-size") {
 			println(" <- It was a wrongly mined one - give it up")
 			DelB2G(idx) //remove it from BlocksToGet
 			if b2g.BlockTreeNode == LastCommitedHeader {
