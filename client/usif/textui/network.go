@@ -277,13 +277,20 @@ func sync_stats(par string) {
 			break
 		}
 	}
-	fmt.Printf("@%d\tBlks: %d/%d,  MB:%d/%d, Max:%d, Free:%d -  AvgBlock:%d   Errors:%d\n",
+	fmt.Printf("@%d\tBlks: %d/%d,  MB:%d/%d/%d/max:%d%%  |  AvgBlock:%dK   Underfows:%d\n",
 		lb, ready_cached_cnt, len(network.CachedBlocks),
 		cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, network.MaxCachedBlocksSize.Get()>>20,
-		(common.MaxSyncCacheBytes.Get()-network.CachedBlocksBytes.Get())>>20,
-		common.AverageBlockSize.Get(), common.CounterGet("BlocksUnderflowCount"))
+		common.MaxSyncCacheBytes.Get(),
+		common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
 	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d), with stop at %d\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min, common.CounterGet("FetchHadFullCache"))
+	if a := common.CounterGet("FetcHeightA"); a != 0 {
+		b := common.CounterGet("FetcHeightB")
+		c := common.CounterGet("FetcHeightC")
+		fil := b - a
+		siz := c - a
+		fmt.Printf("\tLast Fetch at %d with first to load %d up to %d - %ddd\n", a, b, c, 100*fil/siz)
+	}
 	tot := common.CounterGet("rbts_block")
 	if tot > 0 {
 		wst := common.CounterGet("BlockBytesWasted")
