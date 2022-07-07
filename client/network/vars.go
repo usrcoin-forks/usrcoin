@@ -65,6 +65,10 @@ var (
 	DiscardedBlocks     map[BIDX]bool = make(map[BIDX]bool)
 
 	HeadersReceived sys.SyncInt
+
+	BlockchainBlocksSoFar sys.SyncInt
+	BlockchainSizeSoFar   sys.SyncInt
+	BlockchainTxsSoFar    sys.SyncInt
 )
 
 func CachedBlocksLen() (l int) {

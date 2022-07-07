@@ -290,6 +290,10 @@ func sync_stats(par string) {
 		fil := b - a
 		siz := c - a
 		fmt.Printf("\tLast Fetch from %d / %d / up to %d  (ready %d%%)\n", a, b, c, 100*fil/siz)
+		fmt.Printf("Speed:   %d txs/s,  %.0f blocks/s,  %.2f MB/s\n",
+			network.BlockchainTxsSoFar.Get()/int(time.Since(common.StartTime).Seconds()),
+			float64(network.BlockchainBlocksSoFar.Get())/(float64(time.Since(common.StartTime).Milliseconds())/1000),
+			float64(network.BlockchainSizeSoFar.Get()>>20)/(float64(time.Since(common.StartTime).Milliseconds())/1000))
 	}
 	tot := common.CounterGet("rbts_block")
 	if tot > 0 {

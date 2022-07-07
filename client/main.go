@@ -59,8 +59,6 @@ func blockUndone(bl *btc.Block) {
 	network.BlockUndone(bl)
 }
 
-var size_so_far, blocks_so_far, txs_so_far int
-
 func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 	bl := newbl.Block
 	if common.FLAG.TrustAll || newbl.BlockTreeNode.Trusted.Get() {
@@ -82,9 +80,9 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 	e = common.BlockChain.CommitBlock(bl, newbl.BlockTreeNode)
 
 	if e == nil {
-		blocks_so_far++
-		size_so_far += len(bl.Raw)
-		txs_so_far += len(bl.Txs)
+		network.BlockchainBlocksSoFar.Add(1)
+		network.BlockchainSizeSoFar.Add(len(bl.Raw))
+		network.BlockchainTxsSoFar.Add(len(bl.Txs))
 
 		// new block accepted
 		newbl.TmAccepted = time.Now()
@@ -100,19 +98,11 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 
 		if common.Last.ParseTill != nil && (common.Last.Block.Height%100e3) == 0 {
 			println("Parsing to", common.Last.Block.Height, "took", time.Since(newbl.TmStart).String())
-			fmt.Printf("    From Start:  %d txs/s,  %.2f blocks/s,  %.2f MB/s\n",
-				txs_so_far/int(time.Since(common.StartTime).Seconds()),
-				float64(blocks_so_far)/(float64(time.Since(common.StartTime).Milliseconds())/1000),
-				float64(size_so_far>>20)/(float64(time.Since(common.StartTime).Milliseconds())/1000))
 		}
 
 		if common.Last.ParseTill != nil && common.Last.Block == common.Last.ParseTill {
 			println("Initial parsing finished in", time.Since(newbl.TmStart).String())
 			common.Last.ParseTill = nil
-			fmt.Printf("    From Start:  %d txs/s,  %.2f blocks/s,  %.2f MB/s\n",
-				txs_so_far/int(time.Since(common.StartTime).Seconds()),
-				float64(blocks_so_far)/(float64(time.Since(common.StartTime).Milliseconds())/1000),
-				float64(size_so_far>>20)/(float64(time.Since(common.StartTime).Milliseconds())/1000))
 		}
 		if common.Last.ParseTill == nil && !common.BlockChainSynchronized &&
 			((common.Last.Block.Height%50e3) == 0 || common.Last.Block.Height == network.LastCommitedHeader.Height) {
