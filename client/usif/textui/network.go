@@ -242,8 +242,13 @@ func sync_stats(par string) {
 	li2get := network.LowestIndexToBlocksToGet
 	network.MutexRcv.Unlock()
 
-	fmt.Printf("@%d\tAverage Block Size: %d   Cache Blocks Ready: %d   Empty Cache Counter: %d\n",
-		lb, common.AverageBlockSize.Get(), li2get-lb-1, common.CounterGet("BlocksUnderflowCount"))
+	network.CachedBlocksMutex.Lock()
+	lencb := len(network.CachedBlocks)
+	lencbs := len(network.CachedBlockSizes)
+	network.CachedBlocksMutex.Unlock()
+
+	fmt.Printf("@%d\tAverage Block Size: %d   Cache Blocks Ready: %d/%d/%d   Empty Cache Counter: %d\n",
+		lb, common.AverageBlockSize.Get(), li2get-lb-1, lencb, lencbs, common.CounterGet("BlocksUnderflowCount"))
 	tot := common.CounterGet("rbts_block")
 	if tot > 0 {
 		wst := common.CounterGet("BlockBytesWasted")
@@ -274,11 +279,8 @@ func sync_stats(par string) {
 				break
 			}
 		}
-		network.CachedBlocksMutex.Lock()
-		lencbs := len(network.CachedBlockSizes)
-		network.CachedBlocksMutex.Unlock()
 		fmt.Printf("\tCached blocks: %d/%d/%d  =>  MB:%d/%d/%d (max used %d%%)\n",
-			ready_cached_cnt, lencbs, len(network.CachedBlocks),
+			ready_cached_cnt, lencb, lencbs,
 			cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, common.SyncMaxCacheBytes.Get()>>20,
 			100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get())
 	}
