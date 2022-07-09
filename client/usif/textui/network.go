@@ -238,35 +238,46 @@ func sync_stats(par string) {
 	lb := common.Last.Block.Height
 	common.Last.Mutex.Unlock()
 
-	var lowest_cached_height, highest_cached_height uint32
-	var ready_cached_cnt uint32
-	var cached_ready_bytes int
-	for _, b := range network.CachedBlocks {
-		bh := b.BlockTreeNode.Height
-		m[bh] = b
-		if lowest_cached_height == 0 {
-			lowest_cached_height, highest_cached_height = bh, bh
-		} else if b.BlockTreeNode.Height < lowest_cached_height {
-			lowest_cached_height = bh
-		} else if bh > highest_cached_height {
-			highest_cached_height = bh
-		}
+	fmt.Printf("@%d\tBlks: Average-Block-Size:%dK   Cache-Empty-Count:%d\n",
+		lb, common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
+	tot := common.CounterGet("rbts_block")
+	if tot > 0 {
+		wst := common.CounterGet("BlockBytesWasted")
+		fmt.Printf("\tWasted %d blocks carrying %d/%dMB ==> %.2f%%\n", common.CounterGet("BlockSameRcvd"),
+			wst>>20, tot>>20, 100*float64(wst)/float64(tot))
 	}
-	for {
-		if b, ok := m[lb+ready_cached_cnt+1]; ok {
-			ready_cached_cnt++
-			cached_ready_bytes += b.Size
-		} else {
-			break
-		}
-	}
-	fmt.Printf("@%d\tBlks: %d/%d,  MB:%d/%d/%d (max %d%%)  |  AvgBlock:%dK   Empty:%d\n",
-		lb, ready_cached_cnt, len(network.CachedBlocks),
-		cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, common.SyncMaxCacheBytes.Get()>>20,
-		100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get(),
-		common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
 
 	if par == "x" {
+		var lowest_cached_height, highest_cached_height uint32
+		var ready_cached_cnt uint32
+		var cached_ready_bytes int
+		for _, b := range network.CachedBlocks {
+			bh := b.BlockTreeNode.Height
+			m[bh] = b
+			if lowest_cached_height == 0 {
+				lowest_cached_height, highest_cached_height = bh, bh
+			} else if b.BlockTreeNode.Height < lowest_cached_height {
+				lowest_cached_height = bh
+			} else if bh > highest_cached_height {
+				highest_cached_height = bh
+			}
+		}
+		for {
+			if b, ok := m[lb+ready_cached_cnt+1]; ok {
+				ready_cached_cnt++
+				cached_ready_bytes += b.Size
+			} else {
+				break
+			}
+		}
+		network.CachedBlocksMutex.Lock()
+		lencbs := len(network.CachedBlockSizes)
+		network.CachedBlocksMutex.Unlock()
+		fmt.Printf("@%d\tBlks: %d/%d/%d,  MB:%d/%d/%d (max %d%%)\n",
+			lb, ready_cached_cnt, lencbs, len(network.CachedBlocks),
+			cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, common.SyncMaxCacheBytes.Get()>>20,
+			100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get())
+
 		var bip_cnt, ip_min, ip_max uint32
 		network.MutexRcv.Lock()
 		for _, bip := range network.BlocksToGet {
@@ -283,12 +294,8 @@ func sync_stats(par string) {
 			}
 		}
 		network.MutexRcv.Unlock()
-
-		network.CachedBlocksMutex.Lock()
-		lencbs := len(network.CachedBlockSizes)
-		network.CachedBlocksMutex.Unlock()
-		fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d)  len(CBS):%d\n",
-			bip_cnt, ip_min, ip_max, ip_max-ip_min, lencbs)
+		fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d)\n",
+			bip_cnt, ip_min, ip_max, ip_max-ip_min)
 	}
 
 	if d := common.CounterGet("FetcHeightD"); d != 0 {
@@ -300,12 +307,6 @@ func sync_stats(par string) {
 			fmt.Printf("\tLast Fetch from %d:%d to %d:%d -> BTG:%d (ready %d%% of %d)\n", a, b, d, c,
 				common.CounterGet("FetcB2G"), 100*fil/siz, siz)
 		}
-	}
-	tot := common.CounterGet("rbts_block")
-	if tot > 0 {
-		wst := common.CounterGet("BlockBytesWasted")
-		fmt.Printf("\tWasted %d blocks carrying %d/%dMB ==> %.2f%%\n", common.CounterGet("BlockSameRcvd"),
-			wst>>20, tot>>20, 100*float64(wst)/float64(tot))
 	}
 	print_fetch_counters()
 	/*
