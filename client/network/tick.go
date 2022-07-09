@@ -209,7 +209,7 @@ func (c *OneConnection) Tick(now time.Time) {
 		if !c.X.GetBlocksDataNow && now.After(c.nextGetData) {
 			c.X.GetBlocksDataNow = true
 		}
-		if c.X.GetBlocksDataNow {
+		if c.X.GetBlocksDataNow && len(c.GetBlockInProgress) <= c.keepBlocksOver {
 			c.X.GetBlocksDataNow = false
 			c.Mutex.Unlock()
 			c.GetBlockData()
@@ -589,7 +589,7 @@ func NetworkTick() {
 		adrs2 := peersdb.GetRecentPeers(uint(new_cnt), true, func(ad *peersdb.PeerAddr) bool {
 			return ad.Banned != 0 || ad.SeenAlive || (ad.Services&btc.SERVICE_SEGWIT) == 0 // ignore those that have been seen alive
 		})
-		adrs = append(adrs, adrs2...)   
+		adrs = append(adrs, adrs2...)
 		// Now we should have 128 peers known to be alive and 32 never tried ones
 		// ... giving us 20% chance of selecting a never tried one.
 		if len(adrs) != 0 {

@@ -504,6 +504,11 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	c.SendRawMsg("getdata", pl)
 	yes = true
 
-	// we dont set c.nextGetData here, as it will be done in tick.go after "block" message
+	// we don't set c.nextGetData here, as it will be done in tick.go after "block" message
+	c.Mutex.Lock()
+	// we will come back here only after receiving half of the blocks that we have requested
+	c.keepBlocksOver = len(c.GetBlockInProgress) / 2
+	c.Mutex.Unlock()
+
 	return
 }

@@ -219,6 +219,7 @@ type OneConnection struct {
 	blocksreceived  []time.Time
 	nextMaintanence time.Time
 	nextGetData     time.Time
+	keepBlocksOver  int
 
 	// we need these three below to count txs received only during last hour
 	txsCur int
