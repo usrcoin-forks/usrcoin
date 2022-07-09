@@ -102,7 +102,7 @@ var (
 			MaxCacheSize     uint // When syncing chain, prebuffer up to this MB of bocks data
 			MaxBlocksForward uint // Never ask for a block higher than current top + this value
 			MaxPeerBlocks    uint // Never ask a peer for more than this amount of bytes at a time
-			MaxPeerData      uint // Never ask a peer for more than this amount of bytes (estimate by avg_block_size)
+			MaxPeerDataMB    uint // Never ask a peer for more than this amount of bytes (estimate by avg_block_size)
 			MaxBlockAtOnce   uint32
 		}
 		AllBalances struct {
@@ -180,7 +180,7 @@ func InitConfig() {
 
 	CFG.Sync.MaxCacheSize = 500
 	CFG.Sync.MaxPeerBlocks = 2000
-	CFG.Sync.MaxPeerData = 4e6
+	CFG.Sync.MaxPeerDataMB = 2
 	CFG.Sync.MaxBlocksForward = 50e3
 	CFG.Sync.MaxBlockAtOnce = 6
 
@@ -361,7 +361,7 @@ func Reset() {
 	}
 
 	SyncMaxPeerBlocks.Store(int(CFG.Sync.MaxPeerBlocks))
-	SyncMaxPeerData.Store(int(CFG.Sync.MaxPeerData))
+	SyncMaxPeerData.Store(int(CFG.Sync.MaxPeerDataMB << 20))
 	SyncMaxBlocksForward.Store(int(CFG.Sync.MaxBlocksForward))
 	SyncMaxBlockAtOnce.Store(int(CFG.Sync.MaxBlockAtOnce))
 
