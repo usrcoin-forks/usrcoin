@@ -243,7 +243,7 @@ func sync_stats(par string) {
 	tot := common.CounterGet("rbts_block")
 	if tot > 0 {
 		wst := common.CounterGet("BlockBytesWasted")
-		fmt.Printf("\tWasted %d blocks carrying %d/%dMB ==> %.2f%%\n", common.CounterGet("BlockSameRcvd"),
+		fmt.Printf("\tWasted %d blocks carrying %d/%dMB, which was %.2f%% of blocks bandwidth\n", common.CounterGet("BlockSameRcvd"),
 			wst>>20, tot>>20, 100*float64(wst)/float64(tot))
 	}
 
