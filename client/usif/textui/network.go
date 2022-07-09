@@ -247,12 +247,8 @@ func sync_stats(par string) {
 	lencbs := len(network.CachedBlockSizes)
 	network.CachedBlocksMutex.Unlock()
 
-	s := "???"
-	if lencb > 0 {
-		s = fmt.Sprint(100 * int(li2get-lb-1) / lencb)
-	}
-	fmt.Printf("@%d\tCache Blks Ready: %d/%d (%s%%)  Avg.Bl.Size: %d   EmptyCache: %d\n",
-		lb, li2get-lb-1, lencb, s,
+	fmt.Printf("@%d\tLowest2Get: %d (%d)   InCacheCnt: %d   Avg.Bl.Size: %d   EmptyCache: %d\n",
+		lb, li2get, li2get-lb-1, lencb,
 		common.AverageBlockSize.Get(), common.CounterGet("BlocksUnderflowCount"))
 	if lencb != lencbs {
 		fmt.Println("\tWARNING: len(CB) mismatches len(CBS):", lencb, lencbs)
@@ -287,8 +283,9 @@ func sync_stats(par string) {
 				break
 			}
 		}
-		fmt.Printf("\tCached Data MB -   Ready: %d   Used: %d   Limit: %d   Max Used: %d%%\n",
-			cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, common.SyncMaxCacheBytes.Get()>>20,
+		fmt.Printf("\tCached Data -   Ready: %d:%dMB   Used: %d:%dMB   Limit: %dMB   Max Used: %d%%\n",
+			ready_cached_cnt, cached_ready_bytes>>20, lencb, network.CachedBlocksBytes.Get()>>20,
+			common.SyncMaxCacheBytes.Get()>>20,
 			100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get())
 	}
 
