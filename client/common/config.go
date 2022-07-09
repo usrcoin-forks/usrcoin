@@ -179,9 +179,9 @@ func InitConfig() {
 	CFG.Memory.CompressBlockDB = true
 
 	CFG.Sync.MaxCacheSize = 500
-	CFG.Sync.MaxPeerBlocks = 2000
+	CFG.Sync.MaxPeerBlocks = 500
 	CFG.Sync.MaxPeerDataMB = 2
-	CFG.Sync.MaxBlocksForward = 50e3
+	CFG.Sync.MaxBlocksForward = 10e3
 	CFG.Sync.MaxBlockAtOnce = 6
 
 	CFG.Stat.HashrateHrs = 12
