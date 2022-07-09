@@ -283,8 +283,7 @@ func sync_stats(par string) {
 				break
 			}
 		}
-		fmt.Printf("\tCached blocks: %d/%d/%d  =>  MB:%d/%d/%d (max used %d%%)\n",
-			ready_cached_cnt, lencb, lencbs,
+		fmt.Printf("\tCached Data MB -   Ready: %d   Used: %d   Limit: %d   Max Used: %d%%\n",
 			cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, common.SyncMaxCacheBytes.Get()>>20,
 			100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get())
 	}
