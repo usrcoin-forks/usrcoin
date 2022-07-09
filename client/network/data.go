@@ -318,7 +318,7 @@ func get_cached_block_size(height uint32, avg_block_size int) int {
 	}
 }
 
-const FACTOR_PERC = 90
+const FACTOR_PERC = 95
 
 var factor []int
 
