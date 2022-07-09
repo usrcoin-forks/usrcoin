@@ -109,8 +109,9 @@ func node_info(par string) {
 		}
 		sort.Strings(mms)
 		for _, msg := range mms {
-			fmt.Printf("%s \t%d \t%d \t%d \t%d\n", msg, r.Counters["rcvd_"+msg], r.Counters["rbtc_"+msg],
-				r.Counters["sent_"+msg], r.Counters["sbtc_"+msg])
+			fmt.Printf("%20s  Rcvd: %10d %12d      Sent: %10d %12d\n", msg,
+				r.Counters["rcvd_"+msg], r.Counters["rbts_"+msg],
+				r.Counters["sent_"+msg], r.Counters["sbts_"+msg])
 		}
 	} else {
 		fmt.Println("Not yet connected")
