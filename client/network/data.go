@@ -318,22 +318,6 @@ func get_cached_block_size(height uint32, avg_block_size int) int {
 	}
 }
 
-const FACTOR_PERC = 95
-
-var factor []int
-
-func init() {
-	ppp := 1000
-	factor = make([]int, 100)
-	for i := range factor {
-		factor[i] = ppp
-		ppp = FACTOR_PERC * ppp / 100
-		if ppp < 0 {
-			ppp = 1
-		}
-	}
-}
-
 func (c *OneConnection) GetBlockData() (yes bool) {
 	var size_so_far int
 	var current_block int
@@ -456,7 +440,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 					continue
 				}
 				// you only want to re-ask for blocks that are needed soon
-				if int(v.Block.Height)-int(lowest_block) > factor[v.InProgress]*max_blocks_forward/1000 {
+				if int(v.Block.Height)-int(lowest_block) > (max_blocks_forward >> int(v.InProgress)) {
 					continue
 				}
 				blocks2get = append(blocks2get, v)
