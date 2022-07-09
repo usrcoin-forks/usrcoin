@@ -238,23 +238,6 @@ func sync_stats(par string) {
 	lb := common.Last.Block.Height
 	common.Last.Mutex.Unlock()
 
-	var bip_cnt, ip_min, ip_max uint32
-	network.MutexRcv.Lock()
-	for _, bip := range network.BlocksToGet {
-		if bip.InProgress > 0 {
-			if ip_min == 0 {
-				ip_min = bip.BlockTreeNode.Height
-				ip_max = ip_min
-			} else if bip.BlockTreeNode.Height < ip_min {
-				ip_min = bip.BlockTreeNode.Height
-			} else if bip.BlockTreeNode.Height > ip_max {
-				ip_max = bip.BlockTreeNode.Height
-			}
-			bip_cnt++
-		}
-	}
-	network.MutexRcv.Unlock()
-
 	var lowest_cached_height, highest_cached_height uint32
 	var ready_cached_cnt uint32
 	var cached_ready_bytes int
@@ -277,17 +260,37 @@ func sync_stats(par string) {
 			break
 		}
 	}
-	fmt.Printf("@%d\tBlks: %d/%d,  MB:%d/%d/%d (max %d%%)  |  AvgBlock:%dK   Underfows:%d\n",
+	fmt.Printf("@%d\tBlks: %d/%d,  MB:%d/%d/%d (max %d%%)  |  AvgBlock:%dK   Empty:%d\n",
 		lb, ready_cached_cnt, len(network.CachedBlocks),
 		cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, common.SyncMaxCacheBytes.Get()>>20,
 		100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get(),
 		common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
 
-	network.CachedBlocksMutex.Lock()
-	lencbs := len(network.CachedBlockSizes)
-	network.CachedBlocksMutex.Unlock()
-	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d)  len(CBS):%d\n",
-		bip_cnt, ip_min, ip_max, ip_max-ip_min, lencbs)
+	if par == "x" {
+		var bip_cnt, ip_min, ip_max uint32
+		network.MutexRcv.Lock()
+		for _, bip := range network.BlocksToGet {
+			if bip.InProgress > 0 {
+				if ip_min == 0 {
+					ip_min = bip.BlockTreeNode.Height
+					ip_max = ip_min
+				} else if bip.BlockTreeNode.Height < ip_min {
+					ip_min = bip.BlockTreeNode.Height
+				} else if bip.BlockTreeNode.Height > ip_max {
+					ip_max = bip.BlockTreeNode.Height
+				}
+				bip_cnt++
+			}
+		}
+		network.MutexRcv.Unlock()
+
+		network.CachedBlocksMutex.Lock()
+		lencbs := len(network.CachedBlockSizes)
+		network.CachedBlocksMutex.Unlock()
+		fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d)  len(CBS):%d\n",
+			bip_cnt, ip_min, ip_max, ip_max-ip_min, lencbs)
+	}
+
 	if d := common.CounterGet("FetcHeightD"); d != 0 {
 		a := common.CounterGet("FetcHeightA")
 		if siz := d - a; siz > 0 {
@@ -323,5 +326,5 @@ func init() {
 	newUi("conn", false, net_conn, "Connect to the given node (specify IP and optionally a port)")
 	newUi("rd", false, net_rd, "Show recently disconnected incoming connections")
 	newUi("friends", false, net_friends, "Show current friends settings")
-	newUi("ss", true, sync_stats, "Show chain sync statistics. Use 'ss r' to reset the error couter.")
+	newUi("ss", true, sync_stats, "Show chain sync statistics. Use 'ss x' for extra info, 'ss r' to reset empty couter")
 }
