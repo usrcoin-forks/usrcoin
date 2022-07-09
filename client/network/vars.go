@@ -87,7 +87,7 @@ func CachedBlocksAdd(newbl *BlockRcvd) {
 	if CachedBlocksBytes.Get() > MaxCachedBlocksSize.Get() {
 		MaxCachedBlocksSize.Store(CachedBlocksBytes.Get())
 	}
-	CachedBlockSizes[newbl.Block.Height] = newbl.Size
+	CachedBlockSizes[newbl.BlockTreeNode.Height] = newbl.Size
 	CachedBlocksMutex.Unlock()
 }
 
