@@ -243,7 +243,7 @@ func sync_stats(par string) {
 	tot := common.CounterGet("rbts_block")
 	if tot > 0 {
 		wst := common.CounterGet("BlockBytesWasted")
-		fmt.Printf("\tWasted %d blocks carrying %d/%dMB, which was %.2f%% of blocks bandwidth\n", common.CounterGet("BlockSameRcvd"),
+		fmt.Printf("\tWasted %d blocks carrying %d / %dMB, which was %.2f%% of blocks bandwidth\n", common.CounterGet("BlockSameRcvd"),
 			wst>>20, tot>>20, 100*float64(wst)/float64(tot))
 	}
 
@@ -279,7 +279,7 @@ func sync_stats(par string) {
 			100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get())
 	}
 
-	if strings.Index(par, "p") != -1 {
+	if strings.Index(par, "x") != -1 {
 		var bip_cnt, ip_min, ip_max uint32
 		network.MutexRcv.Lock()
 		for _, bip := range network.BlocksToGet {
@@ -329,5 +329,5 @@ func init() {
 	newUi("conn", false, net_conn, "Connect to the given node (specify IP and optionally a port)")
 	newUi("rd", false, net_rd, "Show recently disconnected incoming connections")
 	newUi("friends", false, net_friends, "Show current friends settings")
-	newUi("ss", true, sync_stats, "Show chain sync statistics. Add charecter 'c' (cache), 'p' (in progress) or 'r' (reset couter)")
+	newUi("ss", true, sync_stats, "Show chain sync statistics. Add charecter 'c' (cache), 'x' (in progress) or 'r' (reset couter)")
 }
