@@ -447,6 +447,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			}
 		}
 	}
+	common.CountSafeStore("FetcB2G", uint64(len(blocks2get)))
 
 	if len(blocks2get) == 0 {
 		common.CountSafe("FetchForwardLimit")

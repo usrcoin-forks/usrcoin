@@ -294,7 +294,8 @@ func sync_stats(par string) {
 			b := common.CounterGet("FetcHeightB")
 			c := common.CounterGet("FetcHeightC")
 			fil := b - a
-			fmt.Printf("\tLast Fetch from %d / %d / up to %d/%d  (ready %d%% of %d)\n", a, b, c, d, 100*fil/siz, siz)
+			fmt.Printf("\tLast Fetch from %d:%d to %d:%d -> BTG:%d (ready %d%% of %d)\n", a, b, d, c,
+				common.CounterGet("FetcB2G"), 100*fil/siz, siz)
 		}
 	}
 	tot := common.CounterGet("rbts_block")
