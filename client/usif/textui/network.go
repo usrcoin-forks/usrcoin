@@ -168,7 +168,7 @@ func net_stats(par string) {
 		}
 		fmt.Print("  ", v.Node.Agent)
 		if v.X.IsSpecial {
-			fmt.Print(" F", v.Node.Agent)
+			fmt.Print(" F")
 		}
 
 		if b2s := v.BytesToSent(); b2s > 0 {
