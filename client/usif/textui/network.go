@@ -284,12 +284,13 @@ func sync_stats(par string) {
 		common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
 	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d)\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min)
-	if a := common.CounterGet("FetcHeightA"); a != 0 {
-		c := common.CounterGet("FetcHeightC")
+	if c := common.CounterGet("FetcHeightC"); c != 0 {
+		a := common.CounterGet("FetcHeightA")
 		if siz := c - a; siz > 0 {
 			b := common.CounterGet("FetcHeightB")
 			fil := b - a
-			fmt.Printf("\tLast Fetch from %d / %d / up to %d  (ready %d%%)\n", a, b, c, 100*fil/siz)
+			fmt.Printf("\tLast Fetch from %d / %d / up to %d  (ready %d%% or %d/%d)\n",
+				a, b, c, 100*fil/siz, siz, common.SyncMaxBlocksForward.Get())
 		}
 	}
 	tot := common.CounterGet("rbts_block")
