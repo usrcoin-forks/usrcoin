@@ -247,7 +247,7 @@ func sync_stats(par string) {
 			wst>>20, tot>>20, 100*float64(wst)/float64(tot))
 	}
 
-	if par == "x" {
+	if strings.Index(par, "c") != -1 {
 		var lowest_cached_height, highest_cached_height uint32
 		var ready_cached_cnt uint32
 		var cached_ready_bytes int
@@ -277,7 +277,9 @@ func sync_stats(par string) {
 			lb, ready_cached_cnt, lencbs, len(network.CachedBlocks),
 			cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, common.SyncMaxCacheBytes.Get()>>20,
 			100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get())
+	}
 
+	if strings.Index(par, "p") != -1 {
 		var bip_cnt, ip_min, ip_max uint32
 		network.MutexRcv.Lock()
 		for _, bip := range network.BlocksToGet {
@@ -315,7 +317,7 @@ func sync_stats(par string) {
 			float64(network.BlockchainBlocksSoFar.Get())/(float64(time.Since(common.StartTime).Milliseconds())/1000),
 			float64(network.BlockchainSizeSoFar.Get()>>20)/(float64(time.Since(common.StartTime).Milliseconds())/1000))
 	*/
-	if par == "r" {
+	if strings.Index(par, "r") != -1 {
 		common.CountSafeStore("BlocksUnderflowCount", 0)
 		println("Error counter set to 0")
 	}
@@ -327,5 +329,5 @@ func init() {
 	newUi("conn", false, net_conn, "Connect to the given node (specify IP and optionally a port)")
 	newUi("rd", false, net_rd, "Show recently disconnected incoming connections")
 	newUi("friends", false, net_friends, "Show current friends settings")
-	newUi("ss", true, sync_stats, "Show chain sync statistics. Use 'ss x' for extra info, 'ss r' to reset empty couter")
+	newUi("ss", true, sync_stats, "Show chain sync statistics. Add charecter 'c' (cache), 'p' (in progress) or 'r' (reset couter)")
 }
