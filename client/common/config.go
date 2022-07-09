@@ -60,15 +60,14 @@ var (
 			TCPPort  uint32
 		}
 		Net struct {
-			ListenTCP      bool
-			TCPPort        uint16
-			BindToIF       string
-			MaxOutCons     uint32
-			MaxInCons      uint32
-			MaxUpKBps      uint
-			MaxDownKBps    uint
-			MaxBlockAtOnce uint32
-			ExternalIP     string
+			ListenTCP   bool
+			TCPPort     uint16
+			BindToIF    string
+			MaxOutCons  uint32
+			MaxInCons   uint32
+			MaxUpKBps   uint
+			MaxDownKBps uint
+			ExternalIP  string
 		}
 		TXPool struct {
 			Enabled        bool // Global on/off swicth
@@ -93,12 +92,18 @@ var (
 			MaxCachedBlks        uint
 			FreeAtStart          bool // Free all possible memory after initial loading of block chain
 			CacheOnDisk          bool
-			MaxSyncCacheMB       uint32 // When syncing chain, prebuffer up to this MB of bocks data
 			MaxDataFileMB        uint   // 0 for unlimited size
 			DataFilesKeep        uint32 // 0 for all
 			OldDataBackup        bool   // move old dat files to "oldat/" folder (instead of removing them)
 			PurgeUnspendableUTXO bool
 			CompressBlockDB      bool
+		}
+		Sync struct {
+			MaxCacheSize     uint // When syncing chain, prebuffer up to this MB of bocks data
+			MaxPeerBlocks    uint // Never ask a peer for more than this amount of bytes at a time
+			MaxPeerData      uint // Never ask a peer for more than this amount of bytes (estimate by avg_block_size)
+			MaxBlocksForward uint // Never ask for a block higher than current top + this value
+			MaxBlockAtOnce   uint32
 		}
 		AllBalances struct {
 			MinValue  uint64 // Do not keep balance records for values lower than this
@@ -139,7 +144,6 @@ func InitConfig() {
 	CFG.Net.ListenTCP = true
 	CFG.Net.MaxOutCons = 9
 	CFG.Net.MaxInCons = 10
-	CFG.Net.MaxBlockAtOnce = 3
 	CFG.Net.BindToIF = "0.0.0.0"
 
 	CFG.TextUI_Enabled = true
@@ -171,9 +175,14 @@ func InitConfig() {
 	CFG.Memory.GCPercTrshold = 30 // 30% (To save mem)
 	CFG.Memory.MaxCachedBlks = 200
 	CFG.Memory.CacheOnDisk = true
-	CFG.Memory.MaxSyncCacheMB = 500
 	CFG.Memory.MaxDataFileMB = 1000 // max 1GB per single data file
 	CFG.Memory.CompressBlockDB = true
+
+	CFG.Sync.MaxCacheSize = 500
+	CFG.Sync.MaxPeerBlocks = 2000
+	CFG.Sync.MaxPeerData = 4e6
+	CFG.Sync.MaxBlocksForward = 50e3
+	CFG.Sync.MaxBlockAtOnce = 6
 
 	CFG.Stat.HashrateHrs = 12
 	CFG.Stat.MiningHrs = 24
@@ -341,15 +350,20 @@ func Reset() {
 	atomic.StoreUint64(&minFeePerKB, uint64(CFG.TXPool.FeePerByte*1000))
 	atomic.StoreUint64(&minminFeePerKB, MinFeePerKB())
 
-	if CFG.Memory.MaxSyncCacheMB < 100 {
-		CFG.Memory.MaxSyncCacheMB = 100
+	if CFG.Sync.MaxCacheSize < 100 {
+		CFG.Sync.MaxCacheSize = 100
 	}
 	if CFG.Memory.CacheOnDisk {
 		// with caching on disk we can go crazy here
-		MaxSyncCacheBytes.Store(int(10*CFG.Memory.MaxSyncCacheMB) << 20)
+		SyncMaxCacheBytes.Store(int(10*CFG.Sync.MaxCacheSize) << 20)
 	} else {
-		MaxSyncCacheBytes.Store(int(CFG.Memory.MaxSyncCacheMB) << 20)
+		SyncMaxCacheBytes.Store(int(CFG.Sync.MaxCacheSize) << 20)
 	}
+
+	SyncMaxPeerBlocks.Store(int(CFG.Sync.MaxPeerBlocks))
+	SyncMaxPeerData.Store(int(CFG.Sync.MaxPeerData))
+	SyncMaxBlocksForward.Store(int(CFG.Sync.MaxBlocksForward))
+	SyncMaxBlockAtOnce.Store(int(CFG.Sync.MaxBlockAtOnce))
 
 	if CFG.Stat.NoCounters {
 		if !NoCounters.Get() {

@@ -345,7 +345,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	cbip := len(c.GetBlockInProgress)
 	c.Mutex.Unlock()
 
-	if cbip >= MAX_PEERS_BLOCKS_IN_PROGRESS {
+	if cbip >= common.SyncMaxPeerBlocks.Get() {
 		common.CountSafe("FetchPeerCntStillMax")
 		// wake up in a few seconds, maybe some blocks will complete by then
 		c.nextGetData = time.Now().Add(1 * time.Second)
@@ -355,7 +355,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	avg_block_size := common.AverageBlockSize.Get()
 	block_data_in_progress := cbip * avg_block_size
 
-	if (block_data_in_progress + avg_block_size) > MAX_GETDATA_FORWARD {
+	if (block_data_in_progress + avg_block_size) > common.SyncMaxPeerData.Get() {
 		common.CountSafe("FetchPeerSizeNowMax")
 		// wake up in a few seconds, maybe some blocks will complete by then
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
@@ -376,9 +376,9 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	// We can issue getdata for this peer
 	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
 
-	max_blocks_at_once := common.GetUint32(&common.CFG.Net.MaxBlockAtOnce)
-	max_cache_size := common.MaxSyncCacheBytes.Get()
-	max_blocks_forward := int(MAX_BLOCKS_FORWARD_CNT)
+	max_blocks_at_once := common.GetUint32(&common.CFG.Sync.MaxBlockAtOnce)
+	max_cache_size := common.SyncMaxCacheBytes.Get()
+	max_blocks_forward := common.SyncMaxBlocksForward.Get()
 	lowest_block := int(common.Last.BlockHeight()) + 1
 	max_height := lowest_block + max_blocks_forward
 
@@ -414,8 +414,8 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
 	}
-	if max_blocks_forward > MAX_BLOCKS_FORWARD_CNT {
-		max_blocks_forward = MAX_BLOCKS_FORWARD_CNT
+	if max_blocks_forward > common.SyncMaxBlocksForward.Get() {
+		max_blocks_forward = common.SyncMaxBlocksForward.Get()
 	}
 	max_height = lowest_block + max_blocks_forward
 	// at this time current_block is LowestIndexToBlocksToGet
@@ -476,12 +476,12 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			&oneBlockDl{hash: b2g.BlockHash, start: time.Now(), SentAtPingCnt: c.X.PingSentCnt}
 		c.Mutex.Unlock()
 
-		if cbip+invs_cnt >= MAX_PEERS_BLOCKS_IN_PROGRESS {
+		if cbip+invs_cnt >= common.SyncMaxPeerBlocks.Get() {
 			common.CountSafe("FetchReachPeerCnt")
 			break // no more than 2000 blocks in progress / peer
 		}
 
-		if block_data_in_progress += avg_block_size; block_data_in_progress >= MAX_GETDATA_FORWARD {
+		if block_data_in_progress += avg_block_size; block_data_in_progress >= common.SyncMaxPeerData.Get() {
 			common.CountSafe("FetchReachPeerSize")
 			break
 		}
