@@ -89,8 +89,28 @@ func node_info(par string) {
 		fmt.Println("GetBlocksDataNow:", r.GetBlocksDataNow)
 		fmt.Println("AllHeadersReceived:", r.AllHeadersReceived)
 		fmt.Println("Total Received:", r.BytesReceived, " /  Sent:", r.BytesSent)
+		mts := make(map[string]bool)
+		var had bool
 		for k, v := range r.Counters {
-			fmt.Println(k, ":", v)
+			if len(k) > 5 && strings.HasPrefix(k, "rbts_") || strings.HasPrefix(k, "sbts_") ||
+				strings.HasPrefix(k, "rcvd_") || strings.HasPrefix(k, "sent_") {
+				mts[k[5:]] = true
+			} else {
+				fmt.Print(k, ":", v, "  ")
+				had = true
+			}
+		}
+		if had {
+			fmt.Println()
+		}
+		mms := make([]string, 0, len(mts))
+		for k, _ := range mts {
+			mms = append(mms, k)
+		}
+		sort.Strings(mms)
+		for _, msg := range mms {
+			fmt.Printf("%s \t%d \t%d \t%d \t%d\n", msg, r.Counters["rcvd_"+msg], r.Counters["rbtc_"+msg],
+				r.Counters["sent_"+msg], r.Counters["sbtc_"+msg])
 		}
 	} else {
 		fmt.Println("Not yet connected")
