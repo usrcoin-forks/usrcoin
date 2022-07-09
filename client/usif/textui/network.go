@@ -310,6 +310,14 @@ func sync_stats(par string) {
 				common.CounterGet("FetcB2G"), 100*fil/siz, siz)
 		}
 	}
+
+	max_blocks_at_once := common.GetUint32(&common.CFG.Sync.MaxBlockAtOnce)
+	fmt.Print("\t")
+	for i := uint32(0); i < max_blocks_at_once; i++ {
+		fmt.Printf("  C%d:%d", i, common.CounterGet(fmt.Sprint("FetcC", i)))
+	}
+	fmt.Println()
+
 	print_fetch_counters()
 	/*
 		fmt.Printf("\tSpeed:  %d txs/s,  %.0f blocks/s,  %.2f MB/s\n",

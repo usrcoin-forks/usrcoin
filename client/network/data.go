@@ -466,7 +466,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	var invs_cnt int
 
 	for _, b2g := range blocks2get {
-		common.CountSafe(fmt.Sprint("FetchC", b2g.InProgress))
+		common.CountSafe(fmt.Sprint("FetcC", b2g.InProgress))
 
 		binary.Write(invs, binary.LittleEndian, block_type)
 		invs.Write(b2g.BlockHash.Hash[:])
