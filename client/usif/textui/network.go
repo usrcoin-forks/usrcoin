@@ -282,14 +282,19 @@ func sync_stats(par string) {
 		cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, common.SyncMaxCacheBytes.Get()>>20,
 		100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get(),
 		common.AverageBlockSize.Get()>>10, common.CounterGet("BlocksUnderflowCount"))
-	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d)\n",
-		bip_cnt, ip_min, ip_max, ip_max-ip_min)
+
+	network.CachedBlocksMutex.Lock()
+	lencbs := len(network.CachedBlockSizes)
+	network.CachedBlocksMutex.Unlock()
+	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d)  len(CBS:):%d\n",
+		bip_cnt, ip_min, ip_max, ip_max-ip_min, lencbs)
 	if c := common.CounterGet("FetcHeightC"); c != 0 {
 		a := common.CounterGet("FetcHeightA")
 		if siz := c - a; siz > 0 {
 			b := common.CounterGet("FetcHeightB")
 			fil := b - a
-			fmt.Printf("\tLast Fetch from %d / %d / up to %d  (ready %d%% of %d)\n", a, b, c, 100*fil/siz, siz)
+			fmt.Printf("\tLast Fetch from %d / %d / up to %d/%d  (ready %d%% of %d)\n", a, b, c,
+				common.CounterGet("FetcHeightD"), 100*fil/siz, siz)
 		}
 	}
 	tot := common.CounterGet("rbts_block")

@@ -435,6 +435,25 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	blocks2get := make([]*OneBlockToGet, 0, max_height-current_block+1)
 
+	var bytes_ahead int
+	for ; current_block <= max_height; current_block++ {
+		CachedBlocksMutex.Lock()
+		siz, ok := CachedBlockSizes[uint32(current_block)]
+		CachedBlocksMutex.Unlock()
+		if ok {
+			bytes_ahead += siz
+		} else {
+			bytes_ahead += avg_block_size
+		}
+		if size_so_far+bytes_ahead >= max_cache_size {
+			common.CountSafe("FetchPIPA")
+			max_height = current_block
+			max_blocks_forward = max_height - lowest_block
+			break
+		}
+	}
+	common.CountSafeStore("FetcHeightD", uint64(max_height))
+
 	for ; current_block <= max_height; current_block++ {
 		if idxlst, ok := IndexToBlocksToGet[uint32(current_block)]; ok {
 			for _, idx := range idxlst {
