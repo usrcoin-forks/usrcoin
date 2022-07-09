@@ -109,7 +109,7 @@ func node_info(par string) {
 		}
 		sort.Strings(mms)
 		for _, msg := range mms {
-			fmt.Printf("\t%-12s      R:[%8d %10s]     S:[%8d %10s]\n", msg,
+			fmt.Printf("\t%-12s      R:[%8d | %10s]     S:[%8d | %10s]\n", msg,
 				r.Counters["rcvd_"+msg], common.BytesToString(r.Counters["rbts_"+msg]),
 				r.Counters["sent_"+msg], common.BytesToString(r.Counters["sbts_"+msg]))
 		}
