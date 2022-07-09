@@ -307,16 +307,15 @@ func getBlockToFetch(max_height uint32, cnt_in_progress, avg_block_size uint) (l
 	return
 }
 
-func get_cached_block_len(h uint32) (res int) {
+func get_cached_block_size(height uint32, avg_block_size int) int {
 	CachedBlocksMutex.Lock()
-	for _, cb := range CachedBlocks {
-		if cb.BlockTreeNode.Height == h {
-			res = cb.Size
-			break
-		}
-	}
+	size, ok := CachedBlockSizes[uint32(height)]
 	CachedBlocksMutex.Unlock()
-	return
+	if ok {
+		return size
+	} else {
+		return avg_block_size
+	}
 }
 
 func (c *OneConnection) GetBlockData() (yes bool) {
@@ -395,15 +394,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	common.CountSafeStore("FetcHeightB", uint64(LowestIndexToBlocksToGet))
 
 	for current_block = lowest_block; current_block < int(LowestIndexToBlocksToGet); current_block++ {
-		var ok bool
-		var cur_block_size int
-		CachedBlocksMutex.Lock()
-		cur_block_size, ok = CachedBlockSizes[uint32(current_block)]
-		CachedBlocksMutex.Unlock()
-		if !ok {
-			cur_block_size = avg_block_size
-		}
-		if size_so_far += cur_block_size; size_so_far >= max_cache_size {
+		if size_so_far += get_cached_block_size(uint32(current_block), avg_block_size); size_so_far >= max_cache_size {
 			common.CountSafe("FetchFullGlobSize")
 			c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 			return
@@ -437,14 +428,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 	var bytes_ahead int
 	for current_block = int(LowestIndexToBlocksToGet); current_block <= max_height; current_block++ {
-		CachedBlocksMutex.Lock()
-		siz, ok := CachedBlockSizes[uint32(current_block)]
-		CachedBlocksMutex.Unlock()
-		if ok {
-			bytes_ahead += siz
-		} else {
-			bytes_ahead += avg_block_size
-		}
+		bytes_ahead += get_cached_block_size(uint32(current_block), avg_block_size)
 		if size_so_far+bytes_ahead >= max_cache_size {
 			common.CountSafe("FetchPIPA")
 			max_height = current_block
