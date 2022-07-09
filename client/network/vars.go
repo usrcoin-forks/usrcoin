@@ -61,8 +61,8 @@ var (
 	CachedBlocks        []*BlockRcvd
 	CachedBlocksBytes   sys.SyncInt
 	MaxCachedBlocksSize sys.SyncInt
-	CachedBlockSizes    map[uint32]int
-	DiscardedBlocks     map[BIDX]bool = make(map[BIDX]bool)
+	CachedBlockSizes    map[uint32]int = make(map[uint32]int)
+	DiscardedBlocks     map[BIDX]bool  = make(map[BIDX]bool)
 
 	HeadersReceived sys.SyncInt
 
