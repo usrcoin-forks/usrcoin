@@ -330,7 +330,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	if LowestIndexToBlocksToGet == 0 || len(BlocksToGet) == 0 {
 		common.CountSafe("FetchNoBlocksToGet")
 		// wake up in one minute, just in case
-		c.nextGetData = time.Now().Add(60 * time.Second)
+		c.nextGetData = time.Now().Add(time.Minute)
 		return
 	}
 
