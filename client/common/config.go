@@ -100,9 +100,9 @@ var (
 		}
 		Sync struct {
 			MaxCacheSize     uint // When syncing chain, prebuffer up to this MB of bocks data
+			MaxBlocksForward uint // Never ask for a block higher than current top + this value
 			MaxPeerBlocks    uint // Never ask a peer for more than this amount of bytes at a time
 			MaxPeerData      uint // Never ask a peer for more than this amount of bytes (estimate by avg_block_size)
-			MaxBlocksForward uint // Never ask for a block higher than current top + this value
 			MaxBlockAtOnce   uint32
 		}
 		AllBalances struct {

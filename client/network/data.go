@@ -448,7 +448,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	}
 
 	if len(blocks2get) == 0 {
-		common.CountSafe("FetchNoB2G")
+		common.CountSafe("FetchForwardLimit")
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
 	}
