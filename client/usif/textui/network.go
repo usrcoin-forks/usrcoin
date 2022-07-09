@@ -248,7 +248,8 @@ func sync_stats(par string) {
 	network.CachedBlocksMutex.Unlock()
 
 	fmt.Printf("@%d\tCache Blocks Ready: %d/%d/%d   Avg. Block Size: %d   EmptyCache: %d\n",
-		lb, common.AverageBlockSize.Get(), li2get-lb-1, lencb, lencbs, common.CounterGet("BlocksUnderflowCount"))
+		lb, li2get-lb-1, lencb, lencbs,
+		common.AverageBlockSize.Get(), common.CounterGet("BlocksUnderflowCount"))
 	tot := common.CounterGet("rbts_block")
 	if tot > 0 {
 		wst := common.CounterGet("BlockBytesWasted")
