@@ -4,7 +4,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/piotrnar/gocoin/client/common"
 	"github.com/piotrnar/gocoin/lib/btc"
 	"github.com/piotrnar/gocoin/lib/chain"
 	"github.com/piotrnar/gocoin/lib/others/sys"
@@ -55,8 +54,8 @@ var (
 	LastCommitedHeader       *chain.BlockTreeNode
 	MutexRcv                 sync.Mutex
 
-	NetBlocks chan *BlockRcvd = make(chan *BlockRcvd, common.SyncMaxBlocksForward.Get()+10)
-	NetTxs    chan *TxRcvd    = make(chan *TxRcvd, 2000)
+	NetBlocks chan *BlockRcvd
+	NetTxs    chan *TxRcvd = make(chan *TxRcvd, 2000)
 
 	CachedBlocksMutex   sync.Mutex
 	CachedBlocks        []*BlockRcvd
