@@ -238,8 +238,12 @@ func sync_stats(par string) {
 	lb := common.Last.Block.Height
 	common.Last.Mutex.Unlock()
 
-	fmt.Printf("@%d\tAverage Block Size: %d    Empty Cache Counter: %d\n",
-		lb, common.AverageBlockSize.Get(), common.CounterGet("BlocksUnderflowCount"))
+	network.MutexRcv.Lock()
+	li2get := network.LowestIndexToBlocksToGet
+	network.MutexRcv.Unlock()
+
+	fmt.Printf("@%d\tAverage Block Size: %d   Cache Blocks Ready: %d   Empty Cache Counter: %d\n",
+		lb, common.AverageBlockSize.Get(), li2get-lb-1, common.CounterGet("BlocksUnderflowCount"))
 	tot := common.CounterGet("rbts_block")
 	if tot > 0 {
 		wst := common.CounterGet("BlockBytesWasted")

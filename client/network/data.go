@@ -409,7 +409,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		return
 	}
 
-	// now we adjust max_blocks_forward based on teh sizes od the blocks in cache...
+	// now we adjust max_blocks_forward based on the sizes od the blocks in cache...
 	for current_block = int(LowestIndexToBlocksToGet); current_block <= max_height; current_block++ {
 		bytes_ahead += get_cached_block_size(uint32(current_block), avg_block_size)
 		if size_so_far+bytes_ahead >= max_cache_size {
@@ -450,7 +450,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	common.CountSafeStore("FetcB2G", uint64(len(blocks2get)))
 
 	if len(blocks2get) == 0 {
-		common.CountSafe("FetchForwardLimit")
+		common.CountSafe("FetchEmptyB2G")
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
 	}
