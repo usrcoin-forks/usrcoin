@@ -440,7 +440,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 					continue
 				}
 				// you only want to re-ask for blocks that are needed soon
-				if int(v.Block.Height)-int(lowest_block) > (max_blocks_forward >> v.InProgress) {
+				if int(v.Block.Height)-int(lowest_block) > (max_blocks_forward / int(v.InProgress+1)) {
 					continue
 				}
 				blocks2get = append(blocks2get, v)
