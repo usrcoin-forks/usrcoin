@@ -273,8 +273,8 @@ func sync_stats(par string) {
 		network.CachedBlocksMutex.Lock()
 		lencbs := len(network.CachedBlockSizes)
 		network.CachedBlocksMutex.Unlock()
-		fmt.Printf("@%d\tBlks: %d/%d/%d,  MB:%d/%d/%d (max %d%%)\n",
-			lb, ready_cached_cnt, lencbs, len(network.CachedBlocks),
+		fmt.Printf("\tCached blocks: %d/%d/%d  =>  MB:%d/%d/%d (max used %d%%)\n",
+			ready_cached_cnt, lencbs, len(network.CachedBlocks),
 			cached_ready_bytes>>20, network.CachedBlocksBytes.Get()>>20, common.SyncMaxCacheBytes.Get()>>20,
 			100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get())
 	}
