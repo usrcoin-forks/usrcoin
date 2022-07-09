@@ -393,7 +393,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	}
 	common.CountSafeStore("FetcHeightA", uint64(lowest_block))
 	common.CountSafeStore("FetcHeightB", uint64(LowestIndexToBlocksToGet))
-	common.CountSafeStore("FetcHeightC", uint64(max_height))
 
 	for current_block = lowest_block; current_block < int(LowestIndexToBlocksToGet); current_block++ {
 		if size_so_far += avg_block_size; size_so_far >= max_cache_size {
@@ -418,6 +417,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		max_blocks_forward = common.SyncMaxBlocksForward.Get()
 	}
 	max_height = lowest_block + max_blocks_forward
+	common.CountSafeStore("FetcHeightC", uint64(max_height))
 	// at this time current_block is LowestIndexToBlocksToGet
 	if max_height < current_block {
 		common.CountSafe("FetchMaxHeightLow")
