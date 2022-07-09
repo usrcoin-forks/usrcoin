@@ -66,9 +66,11 @@ var (
 
 	HeadersReceived sys.SyncInt
 
-	BlockchainBlocksSoFar sys.SyncInt
-	BlockchainSizeSoFar   sys.SyncInt
-	BlockchainTxsSoFar    sys.SyncInt
+	/*
+		BlockchainBlocksSoFar sys.SyncInt
+		BlockchainSizeSoFar   sys.SyncInt
+		BlockchainTxsSoFar    sys.SyncInt
+	*/
 )
 
 func CachedBlocksLen() (l int) {

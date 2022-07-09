@@ -288,13 +288,13 @@ func sync_stats(par string) {
 	network.CachedBlocksMutex.Unlock()
 	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d)  len(CBS:):%d\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min, lencbs)
-	if c := common.CounterGet("FetcHeightC"); c != 0 {
+	if d := common.CounterGet("FetcHeightD"); d != 0 {
 		a := common.CounterGet("FetcHeightA")
-		if siz := c - a; siz > 0 {
+		if siz := d - a; siz > 0 {
 			b := common.CounterGet("FetcHeightB")
+			c := common.CounterGet("FetcHeightC")
 			fil := b - a
-			fmt.Printf("\tLast Fetch from %d / %d / up to %d/%d  (ready %d%% of %d)\n", a, b, c,
-				common.CounterGet("FetcHeightD"), 100*fil/siz, siz)
+			fmt.Printf("\tLast Fetch from %d / %d / up to %d/%d  (ready %d%% of %d)\n", a, b, c, d, 100*fil/siz, siz)
 		}
 	}
 	tot := common.CounterGet("rbts_block")
@@ -304,11 +304,12 @@ func sync_stats(par string) {
 			wst>>20, tot>>20, 100*float64(wst)/float64(tot))
 	}
 	print_fetch_counters()
-	fmt.Printf("\tSpeed:  %d txs/s,  %.0f blocks/s,  %.2f MB/s\n",
-		network.BlockchainTxsSoFar.Get()/int(time.Since(common.StartTime).Seconds()),
-		float64(network.BlockchainBlocksSoFar.Get())/(float64(time.Since(common.StartTime).Milliseconds())/1000),
-		float64(network.BlockchainSizeSoFar.Get()>>20)/(float64(time.Since(common.StartTime).Milliseconds())/1000))
-
+	/*
+		fmt.Printf("\tSpeed:  %d txs/s,  %.0f blocks/s,  %.2f MB/s\n",
+			network.BlockchainTxsSoFar.Get()/int(time.Since(common.StartTime).Seconds()),
+			float64(network.BlockchainBlocksSoFar.Get())/(float64(time.Since(common.StartTime).Milliseconds())/1000),
+			float64(network.BlockchainSizeSoFar.Get()>>20)/(float64(time.Since(common.StartTime).Milliseconds())/1000))
+	*/
 	if par == "r" {
 		common.CountSafeStore("BlocksUnderflowCount", 0)
 		println("Error counter set to 0")

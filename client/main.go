@@ -80,9 +80,11 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 	e = common.BlockChain.CommitBlock(bl, newbl.BlockTreeNode)
 
 	if e == nil {
-		network.BlockchainBlocksSoFar.Add(1)
-		network.BlockchainSizeSoFar.Add(len(bl.Raw))
-		network.BlockchainTxsSoFar.Add(len(bl.Txs))
+		/*
+			network.BlockchainBlocksSoFar.Add(1)
+			network.BlockchainSizeSoFar.Add(len(bl.Raw))
+			network.BlockchainTxsSoFar.Add(len(bl.Txs))
+		*/
 
 		// new block accepted
 		newbl.TmAccepted = time.Now()
