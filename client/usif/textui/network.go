@@ -286,7 +286,7 @@ func sync_stats(par string) {
 	network.CachedBlocksMutex.Lock()
 	lencbs := len(network.CachedBlockSizes)
 	network.CachedBlocksMutex.Unlock()
-	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d)  len(CBS:):%d\n",
+	fmt.Printf("\tIn Progress: %d, starting from %d, up to %d (%d)  len(CBS):%d\n",
 		bip_cnt, ip_min, ip_max, ip_max-ip_min, lencbs)
 	if d := common.CounterGet("FetcHeightD"); d != 0 {
 		a := common.CounterGet("FetcHeightA")

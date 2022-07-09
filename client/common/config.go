@@ -181,7 +181,7 @@ func InitConfig() {
 	CFG.Sync.MaxCacheSize = 500
 	CFG.Sync.MaxPeerBlocks = 500
 	CFG.Sync.MaxPeerDataMB = 2
-	CFG.Sync.MaxBlocksForward = 10e3
+	CFG.Sync.MaxBlocksForward = 20e3
 	CFG.Sync.MaxBlockAtOnce = 6
 
 	CFG.Stat.HashrateHrs = 12

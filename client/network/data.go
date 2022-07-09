@@ -320,9 +320,9 @@ func get_cached_block_size(height uint32, avg_block_size int) int {
 
 func (c *OneConnection) GetBlockData() (yes bool) {
 	var size_so_far int
-	var cnt_so_far int
 	var current_block int
 	var block_type uint32
+	var bytes_ahead int
 
 	MutexRcv.Lock()
 	defer MutexRcv.Unlock()
@@ -379,13 +379,11 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	max_cache_size := common.SyncMaxCacheBytes.Get()
 	max_blocks_forward := common.SyncMaxBlocksForward.Get()
 	lowest_block := int(common.Last.BlockHeight()) + 1
-	max_height := lowest_block + max_blocks_forward
 
 	common.CountSafeStore("FetcHeightA", uint64(lowest_block))
 	common.CountSafeStore("FetcHeightB", uint64(LowestIndexToBlocksToGet))
 
-	cnt_so_far = int(LowestIndexToBlocksToGet) - lowest_block
-	if cnt_so_far >= max_blocks_forward {
+	if int(LowestIndexToBlocksToGet)-lowest_block >= max_blocks_forward {
 		common.CountSafe("FetchFetchFullGlobCnt")
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
@@ -399,8 +397,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 	}
 
-	max_blocks_forward = common.SyncMaxBlocksForward.Get()
-	max_height = lowest_block + max_blocks_forward
+	max_height := lowest_block + max_blocks_forward
 	if max_height > int(LastCommitedHeader.Height) {
 		max_height = int(LastCommitedHeader.Height)
 	}
@@ -412,11 +409,11 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		return
 	}
 
-	var bytes_ahead int
+	// now we adjust max_blocks_forward based on teh sizes od the blocks in cache...
 	for current_block = int(LowestIndexToBlocksToGet); current_block <= max_height; current_block++ {
 		bytes_ahead += get_cached_block_size(uint32(current_block), avg_block_size)
 		if size_so_far+bytes_ahead >= max_cache_size {
-			common.CountSafe("FetchPIPA")
+			common.CountSafe("FetchRangeLimited")
 			max_height = current_block
 			max_blocks_forward = max_height - lowest_block
 			break
@@ -487,17 +484,6 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 
 		if block_data_in_progress += avg_block_size; block_data_in_progress >= common.SyncMaxPeerData.Get() {
 			common.CountSafe("FetchReachPeerSize")
-			break
-		}
-
-		// This below should not be neccessary as checking cnt_so_far should do the same.
-		if size_so_far += avg_block_size; size_so_far >= max_cache_size {
-			common.CountSafe("FetchReachGlobSize*")
-			break
-		}
-
-		if cnt_so_far++; cnt_so_far >= max_blocks_forward {
-			common.CountSafe("FetchReachGlobCnt")
 			break
 		}
 	}
