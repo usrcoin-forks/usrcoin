@@ -395,7 +395,15 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	common.CountSafeStore("FetcHeightB", uint64(LowestIndexToBlocksToGet))
 
 	for current_block = lowest_block; current_block < int(LowestIndexToBlocksToGet); current_block++ {
-		if size_so_far += avg_block_size; size_so_far >= max_cache_size {
+		var ok bool
+		var cur_block_size int
+		CachedBlocksMutex.Lock()
+		cur_block_size, ok = CachedBlockSizes[uint32(current_block)]
+		CachedBlocksMutex.Unlock()
+		if !ok {
+			cur_block_size = avg_block_size
+		}
+		if size_so_far += cur_block_size; size_so_far >= max_cache_size {
 			common.CountSafe("FetchFullGlobSize")
 			c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 			return
