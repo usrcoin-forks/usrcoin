@@ -406,25 +406,15 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 		}
 	}
 
-	max_blocks_forward = int(max_cache_size-size_so_far) / int(avg_block_size)
-	if max_blocks_forward < 1 {
-		common.CountSafe("FetchCantGoForward")
-		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
-		return
-	}
-	if max_blocks_forward > common.SyncMaxBlocksForward.Get() {
-		max_blocks_forward = common.SyncMaxBlocksForward.Get()
-	}
+	max_blocks_forward = common.SyncMaxBlocksForward.Get()
 	max_height = lowest_block + max_blocks_forward
 	common.CountSafeStore("FetcHeightC", uint64(max_height))
-	// at this time current_block is LowestIndexToBlocksToGet
-	if max_height < current_block {
-		common.CountSafe("FetchMaxHeightLow")
+
+	if max_height < int(LowestIndexToBlocksToGet) {
+		common.CountSafe("Fetch**MaxHeightLow**")
 		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
 		return
 	}
-
-	blocks2get := make([]*OneBlockToGet, 0, max_height-current_block+1)
 
 	var bytes_ahead int
 	for current_block = int(LowestIndexToBlocksToGet); current_block <= max_height; current_block++ {
@@ -438,6 +428,13 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	}
 	common.CountSafeStore("FetcHeightD", uint64(max_height))
 
+	if max_height < int(LowestIndexToBlocksToGet) {
+		common.CountSafe("FetchCacheFull")
+		c.nextGetData = time.Now().Add(1 * time.Second) // wait for some blocks to complete
+		return
+	}
+
+	blocks2get := make([]*OneBlockToGet, 0, max_height-current_block+1)
 	for current_block = int(LowestIndexToBlocksToGet); current_block <= max_height; current_block++ {
 		if idxlst, ok := IndexToBlocksToGet[uint32(current_block)]; ok {
 			for _, idx := range idxlst {
