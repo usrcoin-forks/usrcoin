@@ -355,7 +355,7 @@ func Reset() {
 	}
 	if CFG.Memory.CacheOnDisk {
 		// with caching on disk we can go crazy here
-		SyncMaxCacheBytes.Store(int(10*CFG.Sync.MaxCacheSize) << 20)
+		SyncMaxCacheBytes.Store(int(2*CFG.Sync.MaxCacheSize) << 20)
 	} else {
 		SyncMaxCacheBytes.Store(int(CFG.Sync.MaxCacheSize) << 20)
 	}
