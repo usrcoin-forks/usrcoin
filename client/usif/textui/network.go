@@ -324,7 +324,12 @@ func sync_stats(par string) {
 	max_blocks_at_once := common.GetUint32(&common.CFG.Sync.MaxBlockAtOnce)
 	fmt.Print("\t")
 	for i := uint32(0); i < max_blocks_at_once; i++ {
-		fmt.Printf("  C%d:%d", i, common.CounterGet(fmt.Sprint("FetcC", i)))
+		cnt := common.CounterGet(fmt.Sprint("FetcC", i))
+		if cnt == 0 {
+			fmt.Printf("  C%d:-", i)
+		} else {
+			fmt.Printf("  C%d:%d", i, cnt)
+		}
 	}
 	fmt.Println()
 
