@@ -38,6 +38,8 @@ const (
 
 	ExpireCachedAfter = 20 * time.Minute /*If a block stays in the cache for that long, drop it*/
 
+	MAX_BLOCKS_FORWARD_CNT       = 20000 // Never ask for a block higher than current top + this value
+
 	MAINTANENCE_PERIOD = time.Minute
 
 	MAX_INV_HISTORY = 500

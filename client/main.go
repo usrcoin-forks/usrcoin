@@ -417,7 +417,6 @@ func main() {
 
 		common.RecalcAverageBlockSize()
 
-		network.NetBlocks = make(chan *network.BlockRcvd, common.SyncMaxBlocksForward.Get()+10)
 		peersTick := time.Tick(peersdb.ExpirePeersPeriod)
 		netTick := time.Tick(time.Second)
 

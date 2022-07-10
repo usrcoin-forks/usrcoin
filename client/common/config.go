@@ -100,7 +100,6 @@ var (
 		}
 		Sync struct {
 			MaxCacheSize     uint // When syncing chain, prebuffer up to this MB of bocks data
-			MaxBlocksForward uint // Never ask for a block higher than current top + this value
 			MaxPeerBlocks    uint // Never ask a peer for more than this amount of bytes at a time
 			MaxPeerDataMB    uint // Never ask a peer for more than this amount of bytes (estimate by avg_block_size)
 			MaxBlockAtOnce   uint32
@@ -181,8 +180,7 @@ func InitConfig() {
 	CFG.Sync.MaxCacheSize = 500
 	CFG.Sync.MaxPeerBlocks = 500
 	CFG.Sync.MaxPeerDataMB = 2
-	CFG.Sync.MaxBlocksForward = 20e3
-	CFG.Sync.MaxBlockAtOnce = 6
+	CFG.Sync.MaxBlockAtOnce = 3
 
 	CFG.Stat.HashrateHrs = 12
 	CFG.Stat.MiningHrs = 24
@@ -355,14 +353,13 @@ func Reset() {
 	}
 	if CFG.Memory.CacheOnDisk {
 		// with caching on disk we can go crazy here
-		SyncMaxCacheBytes.Store(int(2*CFG.Sync.MaxCacheSize) << 20)
+		SyncMaxCacheBytes.Store(int(10*CFG.Sync.MaxCacheSize) << 20)
 	} else {
 		SyncMaxCacheBytes.Store(int(CFG.Sync.MaxCacheSize) << 20)
 	}
 
 	SyncMaxPeerBlocks.Store(int(CFG.Sync.MaxPeerBlocks))
 	SyncMaxPeerData.Store(int(CFG.Sync.MaxPeerDataMB << 20))
-	SyncMaxBlocksForward.Store(int(CFG.Sync.MaxBlocksForward))
 	SyncMaxBlockAtOnce.Store(int(CFG.Sync.MaxBlockAtOnce))
 
 	if CFG.Stat.NoCounters {

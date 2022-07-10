@@ -87,7 +87,6 @@ var (
 	SyncMaxCacheBytes    sys.SyncInt
 	SyncMaxPeerBlocks    sys.SyncInt
 	SyncMaxPeerData      sys.SyncInt
-	SyncMaxBlocksForward sys.SyncInt
 	SyncMaxBlockAtOnce   sys.SyncInt
 )
 
