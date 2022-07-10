@@ -273,7 +273,8 @@ func sync_stats(par string) {
 
 	network.CachedBlocksMutex.Lock()
 	lencb := len(network.CachedBlocks)
-	lencbs := len(network.CachedBlockSizes)
+	//lencbs := len(network.CachedBlockSizes)
+	lencbs := lencb
 	network.CachedBlocksMutex.Unlock()
 
 	fmt.Printf("@%d\tReady: %d   InCacheCnt: %d   Avg.Bl.Size: %d   EmptyCache: %d\n",
@@ -350,7 +351,7 @@ func sync_stats(par string) {
 		}
 	}
 
-	max_blocks_at_once := common.GetUint32(&common.CFG.Sync.MaxBlockAtOnce)
+	max_blocks_at_once := common.GetUint32(&common.CFG.Net.MaxBlockAtOnce)
 	fmt.Print("\t")
 	for i := uint32(0); i < max_blocks_at_once; i++ {
 		cnt := common.CounterGet(fmt.Sprint("FetcC", i))

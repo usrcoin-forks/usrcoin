@@ -84,10 +84,7 @@ var (
 
 	NoCounters sys.SyncBool
 
-	SyncMaxCacheBytes    sys.SyncInt
-	SyncMaxPeerBlocks    sys.SyncInt
-	SyncMaxPeerData      sys.SyncInt
-	SyncMaxBlockAtOnce   sys.SyncInt
+	SyncMaxCacheBytes sys.SyncInt
 )
 
 type TheLastBlock struct {

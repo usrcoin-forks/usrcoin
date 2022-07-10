@@ -61,7 +61,7 @@ var (
 	CachedBlocks        []*BlockRcvd
 	CachedBlocksBytes   sys.SyncInt
 	MaxCachedBlocksSize sys.SyncInt
-	CachedBlockSizes    map[uint32]int = make(map[uint32]int)
+	//CachedBlockSizes    map[uint32]int = make(map[uint32]int)
 	DiscardedBlocks     map[BIDX]bool  = make(map[BIDX]bool)
 
 	HeadersReceived sys.SyncInt
@@ -87,14 +87,14 @@ func CachedBlocksAdd(newbl *BlockRcvd) {
 	if CachedBlocksBytes.Get() > MaxCachedBlocksSize.Get() {
 		MaxCachedBlocksSize.Store(CachedBlocksBytes.Get())
 	}
-	CachedBlockSizes[newbl.BlockTreeNode.Height] = newbl.Size
+	//CachedBlockSizes[newbl.BlockTreeNode.Height] = newbl.Size
 	CachedBlocksMutex.Unlock()
 }
 
 func CachedBlocksDel(idx int) {
 	CachedBlocksMutex.Lock()
 	oldbl := CachedBlocks[idx]
-	delete(CachedBlockSizes, oldbl.Block.Height)
+	//delete(CachedBlockSizes, oldbl.Block.Height)
 	CachedBlocksBytes.Add(-oldbl.Size)
 	CachedBlocks = append(CachedBlocks[:idx], CachedBlocks[idx+1:]...)
 	CachedBlocksMutex.Unlock()
