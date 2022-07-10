@@ -924,3 +924,7 @@ func (c *OneConnection) Run() {
 	}
 	c.Conn.Close()
 }
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
