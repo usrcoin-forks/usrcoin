@@ -315,8 +315,8 @@ func sync_stats(par string) {
 		}
 		fmt.Printf("\tCache Ready: %d:%dMB   Used: %d:%dMB   Limit: %dMB   Max Used: %d%%\n",
 			ready_cached_cnt, cached_ready_bytes>>20, lencb, network.CachedBlocksBytes.Get()>>20,
-			common.SyncMaxCacheBytes.Get()>>20,
-			100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get())
+			common.MaxSyncCacheBytes.Get()>>20,
+			100*network.MaxCachedBlocksSize.Get()/common.MaxSyncCacheBytes.Get())
 	}
 
 	if strings.Index(par, "x") != -1 {

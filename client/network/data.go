@@ -378,7 +378,7 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	// Let's look for the lowest height block in BlocksToGet that isn't being downloaded yet
 
 	max_blocks_at_once := common.GetUint32(&common.CFG.Net.MaxBlockAtOnce)
-	max_cache_size := common.SyncMaxCacheBytes.Get()
+	max_cache_size := common.MaxSyncCacheBytes.Get()
 	max_blocks_forward := MAX_BLOCKS_FORWARD_CNT
 	lowest_block := int(common.Last.BlockHeight()) + 1
 	max_height := lowest_block + max_blocks_forward
@@ -516,10 +516,13 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 	yes = true
 
 	// we don't set c.nextGetData here, as it will be done in tick.go after "block" message
+	/*
 	c.Mutex.Lock()
 	// we will come back here only after receiving half of the blocks that we have requested
 	c.keepBlocksOver = len(c.GetBlockInProgress) / 2
-	c.Mutex.Unlock()
+	c.
+	Mutex.Unlock()
+	*/
 
 	return
 }
