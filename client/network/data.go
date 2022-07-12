@@ -487,17 +487,11 @@ func (c *OneConnection) GetBlockData() (yes bool) {
 			common.CountSafe("FetchReachPeerSize")
 			break
 		}
-
-		// This below should not be neccessary as checking cnt_so_far should do the same.
-		if size_so_far += avg_block_size; size_so_far >= max_cache_size {
-			common.CountSafe("Fetch**?ReachGlobSize*")
-			break
-		}
 	}
 
 	if invs_cnt == 0 {
 		//println(c.ConnID, "fetch nothing", cbip, block_data_in_progress, max_height-common.Last.BlockHeight(), cnt_in_progress)
-		common.CountSafe("Fetch*Nothing*")
+		common.CountSafe("Fetch**?Nothing")
 		// wake up in a few seconds, maybe it will be different next time
 		c.nextGetData = time.Now().Add(1 * time.Second)
 		return
