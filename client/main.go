@@ -107,7 +107,7 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 			((common.Last.Block.Height%50e3) == 0 || common.Last.Block.Height == network.LastCommitedHeader.Height) {
 			al, sy := sys.MemUsed()
 			cb, _ := common.MemUsed()
-			fmt.Printf("Sync to %dk took %s - %.1f min.  Mem:%d/%d/%dMB  Errs:%d\n",
+			fmt.Printf("Sync to %d took %s  -  %.1f min.  Mem: %d %d %d MB  - errs: %d\n",
 				common.Last.Block.Height, time.Since(common.StartTime).String(),
 				float64(time.Since(common.StartTime))/float64(time.Minute), al>>20, sy>>20, cb>>20,
 				common.CounterGet("BlocksUnderflowCount"))
