@@ -262,7 +262,6 @@ func print_fetch_counters() (li string) {
 }
 
 func sync_stats(par string) {
-	m := make(map[uint32]*network.BlockRcvd)
 	common.Last.Mutex.Lock()
 	lb := common.Last.Block.Height
 	common.Last.Mutex.Unlock()
@@ -293,6 +292,7 @@ func sync_stats(par string) {
 		var lowest_cached_height, highest_cached_height uint32
 		var ready_cached_cnt uint32
 		var cached_ready_bytes int
+		m := make(map[uint32]*network.BlockRcvd)
 		for _, b := range network.CachedBlocks {
 			bh := b.BlockTreeNode.Height
 			m[bh] = b
@@ -315,6 +315,10 @@ func sync_stats(par string) {
 		fmt.Printf("\tCache Ready: %d:%dMB   Used: %d:%dMB   Limit: %dMB   Max Used: %d%%\n",
 			ready_cached_cnt, cached_ready_bytes>>20, lencb, network.CachedBlocksBytes.Get()>>20,
 			common.SyncMaxCacheBytes.Get()>>20,
+			100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get())
+	} else {
+		fmt.Printf("\tCache Used: %d:%dMB   Limit: %dMB   Max Used: %d%%\n",
+			lencb, network.CachedBlocksBytes.Get()>>20, common.SyncMaxCacheBytes.Get()>>20,
 			100*network.MaxCachedBlocksSize.Get()/common.SyncMaxCacheBytes.Get())
 	}
 
@@ -363,12 +367,6 @@ func sync_stats(par string) {
 	fmt.Println()
 
 	print_fetch_counters()
-	/*
-		fmt.Printf("\tSpeed:  %d txs/s,  %.0f blocks/s,  %.2f MB/s\n",
-			network.BlockchainTxsSoFar.Get()/int(time.Since(common.StartTime).Seconds()),
-			float64(network.BlockchainBlocksSoFar.Get())/(float64(time.Since(common.StartTime).Milliseconds())/1000),
-			float64(network.BlockchainSizeSoFar.Get()>>20)/(float64(time.Since(common.StartTime).Milliseconds())/1000))
-	*/
 	if strings.Index(par, "r") != -1 {
 		common.CountSafeStore("BlocksUnderflowCount", 0)
 		println("Error counter set to 0")

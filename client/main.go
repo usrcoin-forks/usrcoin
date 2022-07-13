@@ -83,12 +83,6 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 	e = common.BlockChain.CommitBlock(bl, newbl.BlockTreeNode)
 
 	if e == nil {
-		/*
-			network.BlockchainBlocksSoFar.Add(1)
-			network.BlockchainSizeSoFar.Add(len(bl.Raw))
-			network.BlockchainTxsSoFar.Add(len(bl.Txs))
-		*/
-
 		// new block accepted
 		newbl.TmAccepted = time.Now()
 
@@ -113,10 +107,15 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 			((common.Last.Block.Height%50e3) == 0 || common.Last.Block.Height == network.LastCommitedHeader.Height) {
 			al, sy := sys.MemUsed()
 			cb, _ := common.MemUsed()
+			fmt.Printf("Sync to %dk took %s - %.1f min.  Mem:%d/%d/%dMB  Errs:%d  Wst:%dMB (%d)",
+				common.Last.Block.Height, time.Since(common.StartTime).String(),
+				float64(time.Since(common.StartTime))/float64(time.Minute), al>>20, sy>>20, cb>>20,
+				common.CounterGet("BlocksUnderflowCount"), common.CounterGet("BlockBytesWasted")>>20,
+				common.CounterGet("BlockSameRcvd"))
 			println("Sync to", common.Last.Block.Height, "took", time.Since(common.StartTime).String(), " - ",
 				time.Since(common.StartTime)/time.Minute, "min.  Mem:", al>>20, sy>>20, cb>>20, "MB  - errs:",
 				common.CounterGet("BlocksUnderflowCount"))
-			if common.Last.Block.Height < 100e3 {
+			if common.Last.Block.Height <= 100e3 {
 				// Cache underflow counter is not reliable at the beginning of chain sync,s o reset it here
 				common.CountSafeStore("BlocksUnderflowCount", 0)
 			}
