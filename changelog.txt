@@ -1,9 +1,10 @@
 1.10.2:
 * Client: New config value "Memory.CompressBlockDB" (default true)
+* Client: New config value "UTXOSave.CompressRecords" (default false)
 * Tools: utxo_compress and utxo_decompress have been fixed
 * Wallet: "bip39" switch can now have value of "-1", in which case the seed password will be treated as mnemonic
 * Wallet: New commands "-encrypt" and "-decrypt", for encrypting and decrypting files with wallet's seed (password)
-* Client: fixed a bug that causing a chain sync to abort with series of "bad-txnmrklroot" errors
+* Client: fixed a bug that could cause chain sync to abort with series of "bad-txnmrklroot" errors
 * Client: Removed config value "CFG.Stat.BSizeBlks" (replaced with constant 2016)
 * Client: "CFG.Net.MaxBlockAtOnce" is used in a smarter way (during initial sync)
 * Lib: Updated "lib/others/memory" to the recent version from "gitlab.com/cznic/memory" (old one could crash)
