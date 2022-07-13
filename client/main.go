@@ -120,6 +120,7 @@ func LocalAcceptBlock(newbl *network.BlockRcvd) (e error) {
 			fmt.Printf("Wasted %dMB from %d blocks.  Max cache used: %d / %dMB\n",
 				common.CounterGet("BlockBytesWasted")>>20, common.CounterGet("BlockSameRcvd"),
 				network.MaxCachedBlocksSize.Get()>>20, common.SyncMaxCacheBytes.Get()>>20)
+			common.PrintBWStats()
 			fmt.Print("Reached given block ", *exitat, ". Now exiting....\n\n\n\n")
 			os.Exit(0)
 		}
