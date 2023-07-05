@@ -24,7 +24,7 @@ import (
 	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
 )
 
-const usrcoinVersion = "0.0.1"
+const usrcoinVersion = "2.0.0-0.0.1"
 
 var (
 	retryCachedBlocks bool

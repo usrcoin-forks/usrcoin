@@ -34,7 +34,7 @@ var (
 	show_prompt bool = true
 )
 
-const usrcoinVersion = "0.0.1"
+const usrcoinVersion = "2.0.0-0.0.1"
 
 // newUi adds a new UI commend handler.
 func newUi(cmds string, sync bool, hn func(string), help string) {

@@ -81,7 +81,7 @@ func cleanExit(code int) {
 
 func main() {
 	// Print the logo to stderr
-	const usrcoinVersion = "0.0.1"
+	const usrcoinVersion = "2.0.0-0.0.1"
 	println("Gocoin Wallet version", usrcoinVersion)
 	println("This program comes with ABSOLUTELY NO WARRANTY")
 	println()

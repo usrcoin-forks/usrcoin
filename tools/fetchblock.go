@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	const usrcoinVersion = "0.0.1"
+	const usrcoinVersion = "2.0.0-0.0.1"
 	fmt.Println("Gocoin FetchBlock version", usrcoinVersion)
 
 	if len(os.Args) < 2 {

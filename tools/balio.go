@@ -19,7 +19,7 @@ import (
 	"github.com/usrcoin-forks/usrcoin/lib/utxo"
 )
 
-const usrcoinVersion = "0.0.1"
+const usrcoinVersion = "2.0.0-0.0.1"
 
 const MAX_UNSPENT_AT_ONCE = 20
 

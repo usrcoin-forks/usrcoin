@@ -17,7 +17,7 @@ import (
 	"github.com/usrcoin-forks/usrcoin/client/usif"
 )
 
-const usrcoinVersion = "0.0.1"
+const usrcoinVersion = "2.0.0-0.0.1"
 
 var start_time time.Time
 
