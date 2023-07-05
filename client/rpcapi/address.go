@@ -2,8 +2,9 @@ package rpcapi
 
 import (
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/lib/btc"
-	//"github.com/piotrnar/gocoin/client/common"
+
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	//"github.com/usrcoin-forks/usrcoin/client/common"
 )
 
 /*
@@ -19,19 +20,19 @@ import (
 */
 
 type ValidAddressResponse struct {
-	IsValid bool `json:"isvalid"`
-	Address string `json:"address"`
+	IsValid      bool   `json:"isvalid"`
+	Address      string `json:"address"`
 	ScriptPubKey string `json:"scriptPubKey"`
-	IsMine bool `json:"ismine"`
-	IsWatchOnly bool `json:"iswatchonly"`
-	IsScript bool `json:"isscript"`
+	IsMine       bool   `json:"ismine"`
+	IsWatchOnly  bool   `json:"iswatchonly"`
+	IsScript     bool   `json:"isscript"`
 }
 
 type InvalidAddressResponse struct {
 	IsValid bool `json:"isvalid"`
 }
 
-func ValidateAddress(addr string) (interface{}) {
+func ValidateAddress(addr string) interface{} {
 	a, e := btc.NewAddrFromString(addr)
 	if e != nil {
 		return new(InvalidAddressResponse)

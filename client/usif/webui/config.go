@@ -8,13 +8,13 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/network"
-	"github.com/piotrnar/gocoin/client/network/peersdb"
-	"github.com/piotrnar/gocoin/client/usif"
-	"github.com/piotrnar/gocoin/client/wallet"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/client/network"
+	"github.com/usrcoin-forks/usrcoin/client/network/peersdb"
+	"github.com/usrcoin-forks/usrcoin/client/usif"
+	"github.com/usrcoin-forks/usrcoin/client/wallet"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
 )
 
 func p_cfg(w http.ResponseWriter, r *http.Request) {

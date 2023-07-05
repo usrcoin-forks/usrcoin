@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/bip39"
-	"github.com/piotrnar/gocoin/lib/others/scrypt"
-	"github.com/piotrnar/gocoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/bip39"
+	"github.com/usrcoin-forks/usrcoin/lib/others/scrypt"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
 )
 
 var (

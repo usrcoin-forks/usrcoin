@@ -2,10 +2,11 @@ package main
 
 import (
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/lib/btc"
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 var CNT int = 100e3

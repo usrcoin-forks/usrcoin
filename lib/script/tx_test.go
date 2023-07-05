@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 	"io/ioutil"
 	"testing"
 )

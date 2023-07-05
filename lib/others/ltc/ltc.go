@@ -3,9 +3,9 @@ package ltc
 import (
 	"bytes"
 
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/utils"
-	"github.com/piotrnar/gocoin/lib/utxo"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/utils"
+	"github.com/usrcoin-forks/usrcoin/lib/utxo"
 )
 
 const LTC_ADDR_VERSION = 48

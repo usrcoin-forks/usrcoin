@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/piotrnar/gocoin"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/sys"
+	// "github.com/usrcoin-forks/usrcoin"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
 )
 
 var (
@@ -81,7 +81,8 @@ func cleanExit(code int) {
 
 func main() {
 	// Print the logo to stderr
-	println("Gocoin Wallet version", gocoin.Version)
+	const usrcoinVersion = "0.0.1"
+	println("Gocoin Wallet version", usrcoinVersion)
 	println("This program comes with ABSOLUTELY NO WARRANTY")
 	println()
 

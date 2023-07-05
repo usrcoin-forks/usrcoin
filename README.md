@@ -66,10 +66,10 @@ executables.
 
 Download the source code from github to a local folder of your choice by executing:
 
-	git clone https://github.com/piotrnar/gocoin.git
+	git clone https://github.com/usrcoin-forks/usrcoin.git
 
 Alternatively - if you don't want to use git - download the code archive
-from [github.com/piotrnar/gocoin](https://github.com/piotrnar/gocoin)
+from [github.com/usrcoin-forks/usrcoin](https://github.com/usrcoin-forks/usrcoin)
 using any web browser. Then extract the archive to your local disk.
 
 # Building

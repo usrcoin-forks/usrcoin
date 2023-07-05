@@ -9,10 +9,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/sys"
-	"github.com/piotrnar/gocoin/lib/secp256k1"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/lib/secp256k1"
 )
 
 var IgnoreExternalIpFrom = []string{}

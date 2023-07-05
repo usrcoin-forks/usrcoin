@@ -9,8 +9,8 @@ import (
 	"math/big"
 	"os"
 
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/secp256k1"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/secp256k1"
 )
 
 // sign_tx prepares a signed transaction.

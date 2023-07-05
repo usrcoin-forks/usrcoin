@@ -2,16 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/piotrnar/gocoin/lib/btc"
 	"io/ioutil"
-	"github.com/piotrnar/gocoin/lib/others/utils"
-	"github.com/piotrnar/gocoin"
 	"os"
+
+	// "github.com/usrcoin-forks/usrcoin"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/utils"
 )
 
-
 func main() {
-	fmt.Println("Gocoin FetchTx version", gocoin.Version)
+	const usrcoinVersion = "0.0.1"
+	fmt.Println("Gocoin FetchTx version", usrcoinVersion)
 
 	if len(os.Args) < 2 {
 		fmt.Println("Specify transaction id on the command line (MSB).")
@@ -25,7 +26,7 @@ func main() {
 	}
 
 	rawtx := utils.GetTxFromWeb(txid)
-	if rawtx==nil {
+	if rawtx == nil {
 		fmt.Println("Error fetching the transaction")
 	} else {
 		ioutil.WriteFile(txid.String()+".tx", rawtx, 0666)

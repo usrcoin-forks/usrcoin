@@ -13,12 +13,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/network"
-	"github.com/piotrnar/gocoin/client/usif"
-	"github.com/piotrnar/gocoin/client/wallet"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/utxo"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/client/network"
+	"github.com/usrcoin-forks/usrcoin/client/usif"
+	"github.com/usrcoin-forks/usrcoin/client/wallet"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/utxo"
 )
 
 const (

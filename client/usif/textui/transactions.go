@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/network"
-	"github.com/piotrnar/gocoin/client/usif"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/client/network"
+	"github.com/usrcoin-forks/usrcoin/client/usif"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 func load_tx(par string) {

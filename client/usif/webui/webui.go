@@ -13,10 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/piotrnar/gocoin"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/usif"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/client/usif"
 )
+
+const usrcoinVersion = "0.0.1"
 
 var start_time time.Time
 
@@ -131,7 +132,7 @@ func write_html_head(w http.ResponseWriter, r *http.Request) {
 	} else {
 		s = strings.Replace(s, "{HELPURL}", "help", 1)
 	}
-	s = strings.Replace(s, "{VERSION}", gocoin.Version, 1)
+	s = strings.Replace(s, "{VERSION}", usrcoinVersion, 1)
 	if common.Testnet {
 		s = strings.Replace(s, "{TESTNET}", " Testnet ", 1)
 	} else {

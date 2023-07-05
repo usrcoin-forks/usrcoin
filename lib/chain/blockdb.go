@@ -13,8 +13,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/snappy"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/snappy"
 )
 
 const (

@@ -1,9 +1,10 @@
 package utxo
 
 import (
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/script"
 	"sync"
+
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/script"
 )
 
 /*

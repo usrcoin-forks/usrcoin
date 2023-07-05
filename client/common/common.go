@@ -11,11 +11,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/chain"
-	"github.com/piotrnar/gocoin/lib/others/memory"
-	"github.com/piotrnar/gocoin/lib/others/sys"
-	"github.com/piotrnar/gocoin/lib/others/utils"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/chain"
+	"github.com/usrcoin-forks/usrcoin/lib/others/memory"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/lib/others/utils"
 )
 
 const (
@@ -163,7 +163,7 @@ func BytesToString(val uint64) string {
 	return fmt.Sprintf("%.2f GB", float64(val)/1e9)
 }
 
-//max 6 characters
+// max 6 characters
 func UintToString(num uint64) string {
 	if num < 1e5 {
 		return fmt.Sprint(num) + " "

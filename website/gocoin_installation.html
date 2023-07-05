@@ -12,13 +12,13 @@ For instance, it will work on even the oldest Raspberry Pi model A with 256MB of
 <br><br>
 
 However, in order to run the full node (<b>client</b>), you need a 64-bit OS with a decent amount of RAM.<br>
-See the <a href="https://github.com/piotrnar/gocoin/blob/master/README.md#hardware" target="_blank">README.md</a> file
+See the <a href="https://github.com/usrcoin-forks/usrcoin/blob/master/README.md#hardware" target="_blank">README.md</a> file
 for the current RAM requirement.<br>
 <br>
 You also need a file system that supports large files (bigger than 4GB) and a decent size of a free space on it.<br>
 <br>
 Note that you can purge blocks from disk, allowing you to run the node with a limited storage (e.g. 20GB).<br>
-See <a href="gocoin_manual_config.html">config file</a> values:
+See <a href="usrcoin_manual_config.html">config file</a> values:
 <span class="cfg_name">Memory.MaxDataFileMB</span> and <span class="cfg_name">Memory.DataFilesKeep</span> (set this one to non-zero, e.g. 10)<br>
 <br>
 The node runs very well on Linux based virtual servers, as long as they have enough RAM.<br>
@@ -76,15 +76,15 @@ To quickly assess a performance of a chosen platform, you can use the benchmark 
 You will need <b>git</b> and <b>go</b> commands installed in your system.<br>
 <br>
 Download the source code from github to a local folder of your choice, e.g. by executing:
-<code>git clone https://github.com/piotrnar/gocoin.git</code>
+<code>git clone https://github.com/usrcoin-forks/usrcoin.git</code>
 <br>
-Then go to <code>gocoin/client/</code> and execute <code>go build</code> there.
-Do the same in <code>gocoin/wallet/</code>, to build the wallet. <br>
+Then go to <code>usrcoin/client/</code> and execute <code>go build</code> there.
+Do the same in <code>usrcoin/wallet/</code>, to build the wallet. <br>
 In order to build <code>balio</code> or some other tool, go to <code>gocoin/tools/</code> and do <code>go build balio.go</code><br>
 <br>
 
 The process is also described in the main <b>README.md</b> file of the github repo
-<a target="_blank" href="https://github.com/piotrnar/gocoin">piotrnar/gocoin</a><br>
+<a target="_blank" href="https://github.com/usrcoin-forks/usrcoin">piotrnar/gocoin</a><br>
 <br>
 
 <h2>Binaries</h2>

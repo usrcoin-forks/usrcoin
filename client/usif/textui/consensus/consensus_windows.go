@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 // On Windows OS copy this file to gocoin\client\usif\textui to enable consensus checking
@@ -8,13 +9,14 @@ package textui
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/script"
 	"sync"
 	"sync/atomic"
 	"syscall"
 	"unsafe"
+
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/script"
 )
 
 const (

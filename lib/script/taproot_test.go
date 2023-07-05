@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 	"io/ioutil"
 	"testing"
 )
@@ -69,9 +69,9 @@ func TestTaprootScritps(t *testing.T) {
 		tx.Spent_outputs = make([]*btc.TxOut, len(tv.Prevouts))
 
 		/*
-		_b := new(bytes.Buffer)
-		btc.WriteVlen(_b, uint64(len(tv.Prevouts)))
-		outs := _b.Bytes()
+			_b := new(bytes.Buffer)
+			btc.WriteVlen(_b, uint64(len(tv.Prevouts)))
+			outs := _b.Bytes()
 		*/
 
 		for i, pks := range tv.Prevouts {

@@ -2,9 +2,10 @@ package main
 
 import (
 	"bufio"
-	"github.com/piotrnar/gocoin/lib/btc"
 	"os"
 	"strings"
+
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 // oneSendTo is resolved while parsing "-send" parameter.

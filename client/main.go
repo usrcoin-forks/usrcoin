@@ -10,20 +10,21 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/piotrnar/gocoin"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/network"
-	"github.com/piotrnar/gocoin/client/network/peersdb"
-	"github.com/piotrnar/gocoin/client/rpcapi"
-	"github.com/piotrnar/gocoin/client/usif"
-	"github.com/piotrnar/gocoin/client/usif/textui"
-	"github.com/piotrnar/gocoin/client/usif/webui"
-	"github.com/piotrnar/gocoin/client/wallet"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/chain"
-	"github.com/piotrnar/gocoin/lib/others/qdb"
-	"github.com/piotrnar/gocoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/client/network"
+	"github.com/usrcoin-forks/usrcoin/client/network/peersdb"
+	"github.com/usrcoin-forks/usrcoin/client/rpcapi"
+	"github.com/usrcoin-forks/usrcoin/client/usif"
+	"github.com/usrcoin-forks/usrcoin/client/usif/textui"
+	"github.com/usrcoin-forks/usrcoin/client/usif/webui"
+	"github.com/usrcoin-forks/usrcoin/client/wallet"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/chain"
+	"github.com/usrcoin-forks/usrcoin/lib/others/qdb"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
 )
+
+const usrcoinVersion = "0.0.1"
 
 var (
 	retryCachedBlocks bool
@@ -390,7 +391,7 @@ func main() {
 		fmt.Println("WARNING: Gocoin client shall be build for 64-bit arch. It will likely crash now.")
 	}
 
-	fmt.Println("Gocoin client version", gocoin.Version)
+	fmt.Println("Gocoin client version", usrcoinVersion)
 
 	// Disable Ctrl+C
 	signal.Notify(common.KillChan, os.Interrupt, os.Kill)

@@ -11,9 +11,9 @@ package main
 */
 
 import (
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/cgo/sipasec"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/cgo/sipasec"
 )
 
 func sipa_ec_verify(k, s, h []byte) bool {

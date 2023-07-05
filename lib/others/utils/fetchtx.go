@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 // GetTxFromExplorer downloads (and re-assembles) raw transaction from blockexplorer.com.

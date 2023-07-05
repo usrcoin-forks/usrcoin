@@ -13,9 +13,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/network/peersdb"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/client/network/peersdb"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 var (
@@ -636,7 +636,7 @@ func (c *OneConnection) Run() {
 			fmt.Println()
 			fmt.Println("********************** THIS SHOULD NOT HAPPEN **********************")
 			fmt.Println("Please report by sending email to piotr@gocoin.pl")
-			fmt.Println("or by logging new issue at https://github.com/piotrnar/gocoin/issues")
+			fmt.Println("or by logging new issue at https://github.com/usrcoin-forks/usrcoin/issues")
 			fmt.Println()
 			fmt.Println("Make sure to include the data below:")
 			fmt.Println()

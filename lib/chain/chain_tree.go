@@ -6,8 +6,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
 )
 
 type BlockTreeNode struct {

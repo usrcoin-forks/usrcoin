@@ -16,10 +16,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/qdb"
-	"github.com/piotrnar/gocoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/qdb"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
 )
 
 const (
@@ -586,23 +586,23 @@ func InitPeers(dir string) {
 		go func() {
 			if !Testnet {
 				initSeeds([]string{
-					"seed.bitcoin.sipa.be",
-					"dnsseed.bluematt.me",
-					"dnsseed.bitcoin.dashjr.org",
-					"seed.bitcoinstats.com",
-					"seed.bitcoin.jonasschnelli.ch",
-					"seed.btc.petertodd.org",
-					"seed.bitcoin.sprovoost.nl",
-					"seed.bitnodes.io",
-					"dnsseed.emzy.de",
-					"seed.bitcoin.wiz.biz",
+					"seed.usrcoin.com",
+					// "dnsseed.bluematt.me",
+					// "dnsseed.bitcoin.dashjr.org",
+					// "seed.bitcoinstats.com",
+					// "seed.bitcoin.jonasschnelli.ch",
+					// "seed.btc.petertodd.org",
+					// "seed.bitcoin.sprovoost.nl",
+					// "seed.bitnodes.io",
+					// "dnsseed.emzy.de",
+					// "seed.bitcoin.wiz.biz",
 				}, 8333)
 			} else {
 				initSeeds([]string{
-					"testnet-seed.bitcoin.jonasschnelli.ch",
-					"seed.tbtc.petertodd.org",
-					"seed.testnet.bitcoin.sprovoost.nl",
-					"testnet-seed.bluematt.me",
+					// "testnet-seed.bitcoin.jonasschnelli.ch",
+					// "seed.tbtc.petertodd.org",
+					// "seed.testnet.bitcoin.sprovoost.nl",
+					"testnet-seed.usrcoin.com",
 				}, 18333)
 			}
 		}()

@@ -1,7 +1,7 @@
 package utxo
 
 import (
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 /*
@@ -37,13 +37,12 @@ var (
 )
 
 var (
-	FullUtxoRec func(dat []byte) *UtxoRec = FullUtxoRecU
-	NewUtxoRecStatic func(key UtxoKeyType, dat []byte) *UtxoRec = NewUtxoRecStaticU
-	NewUtxoRec func(key UtxoKeyType, dat []byte) *UtxoRec = NewUtxoRecU
-	OneUtxoRec func(key UtxoKeyType, dat []byte, vout uint32) *btc.TxOut = OneUtxoRecU
-	Serialize func(rec *UtxoRec, full bool, use_buf []byte) (buf []byte) = SerializeU
+	FullUtxoRec      func(dat []byte) *UtxoRec                                  = FullUtxoRecU
+	NewUtxoRecStatic func(key UtxoKeyType, dat []byte) *UtxoRec                 = NewUtxoRecStaticU
+	NewUtxoRec       func(key UtxoKeyType, dat []byte) *UtxoRec                 = NewUtxoRecU
+	OneUtxoRec       func(key UtxoKeyType, dat []byte, vout uint32) *btc.TxOut  = OneUtxoRecU
+	Serialize        func(rec *UtxoRec, full bool, use_buf []byte) (buf []byte) = SerializeU
 )
-
 
 func (r *UtxoRec) ToUnspent(idx uint32, ad *btc.BtcAddr) (nr *OneUnspentTx) {
 	nr = new(OneUnspentTx)

@@ -6,7 +6,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/piotrnar/gocoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
 )
 
 type Block struct {

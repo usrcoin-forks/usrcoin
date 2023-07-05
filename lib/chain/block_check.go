@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/script"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/script"
 )
 
 // Make sure to call this function with ch.BlockIndexAccess locked

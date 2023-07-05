@@ -1,3 +1,4 @@
+//go:build linux
 // +build linux
 
 // Place the bitcoin consensus lib (libbitcoinconsensus.so) where OS can find it.
@@ -54,12 +55,13 @@ import "C"
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/script"
 	"sync"
 	"sync/atomic"
 	"unsafe"
+
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/script"
 )
 
 var (

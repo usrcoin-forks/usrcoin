@@ -69,8 +69,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/piotrnar/gocoin/lib/btc"
 	"unsafe"
+
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 func verify_script_with_amount(pkScr []byte, amount uint64, i int, tx *btc.Tx, ver_flags uint32) (result bool) {
@@ -132,7 +133,7 @@ func txout_serialize(to *btc.TxOut) []byte {
 func myVerifyTxScript(pkScr []byte, checker *SigChecker, ver_flags uint32) (result bool) {
 	tx := checker.Tx
 	i := checker.Idx
-	
+
 	if (ver_flags & VER_TAPROOT) != 0 {
 		_b := new(bytes.Buffer)
 		btc.WriteVlen(_b, uint64(len(tx.Spent_outputs)))
@@ -143,7 +144,7 @@ func myVerifyTxScript(pkScr []byte, checker *SigChecker, ver_flags uint32) (resu
 
 		return verify_script_with_spent_outputs(pkScr, checker.Amount, outs, i, tx, ver_flags)
 	}
-	
+
 	return verify_script_with_amount(pkScr, checker.Amount, i, tx, ver_flags)
 }
 

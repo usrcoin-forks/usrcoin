@@ -13,9 +13,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/chain"
-	"github.com/piotrnar/gocoin/lib/others/snappy"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/chain"
+	"github.com/usrcoin-forks/usrcoin/lib/others/snappy"
 )
 
 /*

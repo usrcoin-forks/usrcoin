@@ -2,10 +2,11 @@ package main
 
 import (
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/lib/others/cgo/sipasec"
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/usrcoin-forks/usrcoin/lib/others/cgo/sipasec"
 )
 
 var CNT int = 100e3

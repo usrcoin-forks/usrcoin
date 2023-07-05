@@ -5,8 +5,8 @@ import (
 	"encoding/gob"
 	"io/ioutil"
 
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/utxo"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/lib/utxo"
 )
 
 var (

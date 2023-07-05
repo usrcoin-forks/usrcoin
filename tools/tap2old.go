@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 func dump_all_addrs(pk []byte, testnet bool) {

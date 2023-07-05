@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/piotrnar/gocoin/lib/others/sys"
-	"github.com/piotrnar/gocoin/lib/utxo"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/lib/utxo"
 )
 
 func main() {

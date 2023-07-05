@@ -10,17 +10,18 @@ package main
 
 import (
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
 	"os"
 	"syscall"
 	"unsafe"
+
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 var (
-	dll           = syscall.NewLazyDLL("secp256k1.dll")
-	DLL_EC_Verify = dll.NewProc("EC_Verify")
-	DLL_Schnorr_Verify = dll.NewProc("Schnorr_Verify")
+	dll                    = syscall.NewLazyDLL("secp256k1.dll")
+	DLL_EC_Verify          = dll.NewProc("EC_Verify")
+	DLL_Schnorr_Verify     = dll.NewProc("Schnorr_Verify")
 	DLL_CheckPayToContract = dll.NewProc("CheckPayToContract")
 )
 

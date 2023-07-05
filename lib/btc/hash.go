@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding"
-	"github.com/piotrnar/gocoin/lib/others/ripemd160"
 	"hash"
+
+	"github.com/usrcoin-forks/usrcoin/lib/others/ripemd160"
 )
 
 const (
@@ -17,7 +18,7 @@ const (
 
 var (
 	hash_tags = []string{"TapSighash", "TapLeaf", "TapBranch", "TapTweak"}
-	hashers [HASHER_TAPTWEAK + 1][]byte
+	hashers   [HASHER_TAPTWEAK + 1][]byte
 )
 
 func _TaggedHash(tag string) hash.Hash {

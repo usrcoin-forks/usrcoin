@@ -4,9 +4,10 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"errors"
-	"github.com/piotrnar/gocoin/lib/secp256k1"
 	"math/big"
 	"sync/atomic"
+
+	"github.com/usrcoin-forks/usrcoin/lib/secp256k1"
 )
 
 var (

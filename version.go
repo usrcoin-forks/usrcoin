@@ -1,7 +1,7 @@
-package gocoin
+package usrcoin
 
-import (
-	// This file use to be only to make "go get" working.
-)
+// import (
+// 	// This file use to be only to make "go get" working.
+// )
 
-const Version = "1.10.3pre"
+const Version = "0.0.1"

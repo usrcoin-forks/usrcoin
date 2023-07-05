@@ -13,7 +13,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/piotrnar/gocoin/lib/secp256k1"
+	"github.com/usrcoin-forks/usrcoin/lib/secp256k1"
 )
 
 const (

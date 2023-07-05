@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/piotrnar/gocoin/lib/btc"
 	"io"
 	"os"
+
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 func main() {

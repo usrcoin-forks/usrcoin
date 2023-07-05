@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 type unspRec struct {

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"sort"
 
-	"github.com/piotrnar/gocoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/client/common"
 )
 
 type many_counters []one_counter

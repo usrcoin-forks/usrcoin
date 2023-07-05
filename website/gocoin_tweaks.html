@@ -9,12 +9,12 @@ of a running <b>client</b>.<br>
 <br>
 
 <h2>Disable counters</h2>
-Edit the <a href="gocoin_manual_config.html">config file</a> and set the value of <code>Stats.NoCounters</code> to <b>true</b>.<br>
+Edit the <a href="usrcoin_manual_config.html">config file</a> and set the value of <code>Stats.NoCounters</code> to <b>true</b>.<br>
 This will turn off node's internal statistics which should improve performance.<br>
 <br>
 
 <h2>Turn off caching on disk</h2>
-Edit the <a href="gocoin_manual_config.html">config file</a> and set the value of <code>Memory.CacheOnDisk</code> to <b>false</b>.<br>
+Edit the <a href="usrcoin_manual_config.html">config file</a> and set the value of <code>Memory.CacheOnDisk</code> to <b>false</b>.<br>
 This will prevent the node from caching blocks on disk, 
 which may improve initial chain sync performance (at a cost of using more RAM).<br>
 <br>
@@ -27,7 +27,7 @@ In order to do so, use TextUI command <code>wallet off</code> or click the disab
 <br>
 If you don't want the wallet functionality to automatically enable after the node is started,
 set the value of <code>AllBalances.AutoLoad</code> to <code>false</code> in the
-<a href="gocoin_manual_config.html">config file</a>.<br>
+<a href="usrcoin_manual_config.html">config file</a>.<br>
 <br>
 <i>Note: You can manually enable wallet functionality at any time while the node is running,
 either from WebUI or by executing TextUI command <code>wallet on</code></i><br>
@@ -75,15 +75,15 @@ On Debian based Linux system, simply execute the following commands:<br>
 <code>&nbsp;&nbsp;sudo make install</code> <br>
 <br>
 <i>Note: When the library is properly installed, executing <code>go test</code> inside
-<code>gocoin/lib/others/cgo/sipasec/</code> says <b>PASS</b></i>
+<code>usrcoin/lib/others/cgo/sipasec/</code> says <b>PASS</b></i>
 </td>
 
 <td valign="top">
 To use <code>sipadll.go</code> speedup, you have to place <b>secp256k1.dll</b>
-in <code>gocoin/client/</code> or in any folder where Windows looks for executables
+in <code>usrcoin/client/</code> or in any folder where Windows looks for executables
 (e.g. <code>C:\WINDOWS</code>).<br>
 <br>
-You can find <b>secp256k1.dll</b> in <code>gocoin/tools/sipa_dll/</code>
+You can find <b>secp256k1.dll</b> in <code>usrcoin/tools/sipa_dll/</code>
 or you can download it from <a target="_blank" href="https://sourceforge.net/projects/gocoin/files/?source=directory">sourceforge.net</a>
 (it's inside <a target="_blank" href="https://sourceforge.net/projects/gocoin/files/secp256k1.dll_v2-amd64.zip/download">secp256k1.dll_v2-amd64.zip</a>).<br>
 <br>
@@ -111,7 +111,7 @@ and increasing Garbage Collector's treshold.<br>
 This will increase memory usage, but should improve block processing performance
 (e.g. during initial blockchain download).<br>
 <br>
-Edit the <a href="gocoin_manual_config.html">config file</a> to set
+Edit the <a href="usrcoin_manual_config.html">config file</a> to set
 <code>Memory.UseGoHeap</code> to <b>true</b> and
 <code>Memory.GCPercTrshold</code> to <b>100</b> or more (higher value for more effect).<br>
 You may also try only increasing <code>Memory.GCPercTrshold</code>, leaving <code>Memory.UseGoHeap</code> set to <b>false</b>.<br>

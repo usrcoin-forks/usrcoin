@@ -8,7 +8,7 @@ import (
 	"math/big"
 	"strings"
 
-	"github.com/piotrnar/gocoin/lib/others/bech32"
+	"github.com/usrcoin-forks/usrcoin/lib/others/bech32"
 )
 
 type BtcAddr struct {

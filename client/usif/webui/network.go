@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/network"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/client/network"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 func p_net(w http.ResponseWriter, r *http.Request) {

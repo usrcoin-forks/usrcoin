@@ -14,13 +14,12 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/piotrnar/gocoin"
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/client/network"
-	"github.com/piotrnar/gocoin/client/network/peersdb"
-	"github.com/piotrnar/gocoin/client/usif"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/client/network"
+	"github.com/usrcoin-forks/usrcoin/client/network/peersdb"
+	"github.com/usrcoin-forks/usrcoin/client/usif"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
 )
 
 type oneUiCmd struct {
@@ -34,6 +33,8 @@ var (
 	uiCmds      []*oneUiCmd
 	show_prompt bool = true
 )
+
+const usrcoinVersion = "0.0.1"
 
 // newUi adds a new UI commend handler.
 func newUi(cmds string, sync bool, hn func(string), help string) {
@@ -134,7 +135,7 @@ func show_info(par string) {
 	network.MutexRcv.Unlock()
 
 	fmt.Printf("Gocoin: %s,  Synced: %t (%d),  Uptime %s,  Peers: %d,  ECDSAs: %d %d %d\n",
-		gocoin.Version, common.GetBool(&common.BlockChainSynchronized), network.HeadersReceived.Get(),
+		usrcoinVersion, common.GetBool(&common.BlockChainSynchronized), network.HeadersReceived.Get(),
 		time.Since(common.StartTime).String(), peersdb.PeerDB.Count(),
 		btc.EcdsaVerifyCnt(), btc.SchnorrVerifyCnt(), btc.CheckPay2ContractCnt())
 

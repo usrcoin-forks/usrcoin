@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/bip39"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/bip39"
 )
 
 /*

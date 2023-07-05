@@ -5,13 +5,13 @@
 package main
 
 import (
-	"os"
-	"fmt"
-	"strconv"
 	"encoding/hex"
-	"github.com/piotrnar/gocoin/lib/btc"
-)
+	"fmt"
+	"os"
+	"strconv"
 
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+)
 
 func main() {
 	var testnet bool
@@ -27,9 +27,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	if len(public_key)==33 && (public_key[0]==2 || public_key[0]==3) {
+	if len(public_key) == 33 && (public_key[0] == 2 || public_key[0] == 3) {
 		fmt.Println("Compressed")
-	} else if len(public_key)==65 && (public_key[0]==4) {
+	} else if len(public_key) == 65 && (public_key[0] == 4) {
 		fmt.Println("Uncompressed")
 	} else {
 		println("Incorrect public key")
@@ -63,7 +63,7 @@ func main() {
 	fmt.Println("#", hex.EncodeToString(public_key))
 	fmt.Println("#", hex.EncodeToString(secret))
 
-	for i:=1; i<=int(n); i++ {
+	for i := 1; i <= int(n); i++ {
 		fmt.Println(btc.NewAddrFromPubkey(public_key, btc.AddrVerPubkey(testnet)).String(), "TypB", i)
 		if i >= int(n) {
 			break

@@ -6,8 +6,8 @@ import (
 	"math/big"
 	"sync"
 
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/utxo"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/utxo"
 )
 
 var AbortNow bool // set it to true to abort any activity

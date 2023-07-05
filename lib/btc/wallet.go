@@ -6,7 +6,7 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/piotrnar/gocoin/lib/secp256k1"
+	"github.com/usrcoin-forks/usrcoin/lib/secp256k1"
 )
 
 // PublicFromPrivate gets the ECDSA public key in Bitcoin protocol format, from the give private key.

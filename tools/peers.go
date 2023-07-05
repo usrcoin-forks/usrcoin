@@ -6,9 +6,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/piotrnar/gocoin/client/network/peersdb"
-	"github.com/piotrnar/gocoin/lib/others/qdb"
-	"github.com/piotrnar/gocoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/client/network/peersdb"
+	"github.com/usrcoin-forks/usrcoin/lib/others/qdb"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
 )
 
 type manyPeers []*peersdb.PeerAddr

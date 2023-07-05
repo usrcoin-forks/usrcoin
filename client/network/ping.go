@@ -8,7 +8,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/piotrnar/gocoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/client/common"
 )
 
 const (

@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/piotrnar/gocoin/client/common"
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/client/common"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 func (rec *OneTxToSend) IIdx(key uint64) int {

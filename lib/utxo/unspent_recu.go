@@ -1,7 +1,7 @@
 package utxo
 
 import (
-	"github.com/piotrnar/gocoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
 )
 
 /*
@@ -142,9 +142,10 @@ func OneUtxoRecU(key UtxoKeyType, dat []byte, vout uint32) *btc.TxOut {
 }
 
 // Serialize() returns UTXO-heap pointer to the freshly allocated serialized record.
-//  rec - UTXO record to serialize
-//  full - to have entire 256 bits of TxID at the beginning of the record.
-//  use_buf - the data will be serialized into this memory. if nil, it will be allocated by Memory_Malloc().
+//
+//	rec - UTXO record to serialize
+//	full - to have entire 256 bits of TxID at the beginning of the record.
+//	use_buf - the data will be serialized into this memory. if nil, it will be allocated by Memory_Malloc().
 func SerializeU(rec *UtxoRec, full bool, use_buf []byte) (buf []byte) {
 	var le, of int
 	var any_out bool

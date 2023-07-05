@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/ltc"
-	"github.com/piotrnar/gocoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/ltc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
 )
 
 // loadedTxs is a cache for txs from already loaded from balance/ folder.

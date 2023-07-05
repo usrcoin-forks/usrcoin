@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/ripemd160"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/ripemd160"
 )
 
 var (

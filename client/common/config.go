@@ -12,14 +12,14 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/piotrnar/gocoin"
-	"github.com/piotrnar/gocoin/lib/btc"
-	"github.com/piotrnar/gocoin/lib/others/sys"
-	"github.com/piotrnar/gocoin/lib/utxo"
+	"github.com/usrcoin-forks/usrcoin/lib/btc"
+	"github.com/usrcoin-forks/usrcoin/lib/others/sys"
+	"github.com/usrcoin-forks/usrcoin/lib/utxo"
 )
 
 const LastTrustedBTCBlock = "0000000000000000000398a653ec8f2432121a66c3cd21f1fc2c2b103ba791af" // #790680
 const LastTrustedTN3Block = "000000000299ef38c52ac67215b650202bafebc2faa715520bd311617b49f483" // #2420000
+const usrcoinVersion = "0.0.1"
 
 var (
 	ConfigFile string = "gocoin.conf"
@@ -382,7 +382,7 @@ func Reset() {
 	if CFG.UserAgent != "" {
 		UserAgent = CFG.UserAgent
 	} else {
-		UserAgent = "/Gocoin:" + gocoin.Version + "/"
+		UserAgent = "/Gocoin:" + usrcoinVersion + "/"
 	}
 
 	if CFG.Memory.MaxDataFileMB != 0 && CFG.Memory.MaxDataFileMB < 8 {
